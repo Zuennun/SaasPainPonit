@@ -1,0 +1,109 @@
+{
+  "version": "evaluation-readiness-v1",
+  "suites": [
+    {
+      "name": "problem_detection",
+      "kind": "problem",
+      "fixture": "problem_detection_v1.jsonl",
+      "predictions": null,
+      "minimum_coverage": {
+        "cases": 200,
+        "positive_cases": 100,
+        "negative_cases": 100,
+        "distinct_problem_types": 8,
+        "manually_labeled_cases": 200,
+        "permissioned_human_reviewed_cases": 200
+      },
+      "minimum_metrics": {
+        "detection_precision": 0.9,
+        "detection_recall": 0.85,
+        "detection_f1": 0.87
+      }
+    },
+    {
+      "name": "structured_extraction",
+      "kind": "problem",
+      "fixture": "problem_detection_v1.jsonl",
+      "predictions": null,
+      "minimum_coverage": {
+        "positive_cases": 100,
+        "positive_cases_with_structured_fields": 75,
+        "evidence_spans": 100,
+        "distinct_problem_families": 8,
+        "distinct_evidence_scopes": 2,
+        "manually_labeled_cases": 100,
+        "permissioned_human_reviewed_cases": 100,
+        "manually_labeled_positive_cases": 100,
+        "permissioned_human_reviewed_positive_cases": 100
+      },
+      "minimum_metrics": {
+        "problem_type_accuracy": 0.85,
+        "problem_family_accuracy": 0.85,
+        "field_exact_accuracy": 0.8,
+        "evidence_f1": 0.9
+      }
+    },
+    {
+      "name": "clustering",
+      "kind": "clustering",
+      "fixture": "clustering_v1.jsonl",
+      "predictions": null,
+      "minimum_coverage": {
+        "cases": 100,
+        "expected_clusters": 25,
+        "positive_pairs": 40,
+        "negative_pairs": 200,
+        "manually_labeled_cases": 100,
+        "permissioned_human_reviewed_cases": 100
+      },
+      "minimum_metrics": {
+        "pairwise_precision": 0.9,
+        "pairwise_recall": 0.8,
+        "pairwise_f1": 0.85
+      }
+    },
+    {
+      "name": "competition_research",
+      "kind": "competition",
+      "fixture": "competition_v1.jsonl",
+      "predictions": null,
+      "minimum_coverage": {
+        "cases": 25,
+        "cases_with_solutions": 20,
+        "solutions": 40,
+        "distinct_solution_types": 5,
+        "evidence_urls": 25,
+        "manually_labeled_cases": 25,
+        "permissioned_human_reviewed_cases": 25
+      },
+      "minimum_metrics": {
+        "competition_precision": 0.85,
+        "competition_recall": 0.8,
+        "competition_f1": 0.82
+      }
+    },
+    {
+      "name": "dach_transfer",
+      "kind": "dach_transfer",
+      "fixture": "dach_transfer_v1.jsonl",
+      "predictions": null,
+      "minimum_coverage": {
+        "cases": 25,
+        "evidence_urls": 25,
+        "distinct_actor_equivalence": 3,
+        "distinct_workflow_equivalence": 3,
+        "distinct_transfer_types": 4,
+        "distinct_local_evidence_states": 4,
+        "manually_labeled_cases": 25,
+        "permissioned_human_reviewed_cases": 25
+      },
+      "minimum_metrics": {
+        "actor_equivalence_accuracy": 0.8,
+        "workflow_equivalence_accuracy": 0.8,
+        "transfer_type_accuracy": 0.8,
+        "local_evidence_state_accuracy": 0.8,
+        "exact_case_accuracy": 0.65
+      }
+    }
+  ]
+}

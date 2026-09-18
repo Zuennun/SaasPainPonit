@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dach-problem-intelligence"
+version = "0.1.0"
+description = "Evidence-first global problem intelligence for the DACH market"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Proprietary"}
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pyright>=1.1.414",
+    "ruff>=0.16.8",
+]
+
+[project.scripts]
+problem-intelligence = "problem_intelligence.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+problem_intelligence = ["schema.sql"]
+
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+include = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

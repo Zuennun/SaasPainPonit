@@ -1,0 +1,68 @@
+{
+  "candidate_count": 2,
+  "candidates": [
+    {
+      "active_search_count": 0,
+      "algorithm_version": "exact-fingerprint-v1",
+      "cluster_id": 3,
+      "country_count": 0,
+      "dach_observation_count": 0,
+      "evidence_state": "SINGLE_SIGNAL",
+      "exclusion_reason": null,
+      "existing_case_id": null,
+      "global_observation_count": 1,
+      "latest_observation_at": "2026-09-18 19:11:09",
+      "minimum_problem_evidence_complete": false,
+      "missing_for_completion": [
+        "context"
+      ],
+      "observation_count": 1,
+      "payment_evidence_count": 0,
+      "problem_family": "INTEGRATION",
+      "quantified_impact_count": 1,
+      "reasons": [
+        "1 strong individual signal(s)",
+        "1 quantified impact signal(s)",
+        "1 documented workaround(s)"
+      ],
+      "representative_problem": "Disconnected business applications require repeated manual data transfer.",
+      "research_ready": true,
+      "source_count": 1,
+      "strong_individual_signal_count": 1,
+      "switching_intent_count": 0,
+      "workaround_count": 1
+    },
+    {
+      "active_search_count": 1,
+      "algorithm_version": "exact-fingerprint-v1",
+      "cluster_id": 4,
+      "country_count": 0,
+      "dach_observation_count": 0,
+      "evidence_state": "SINGLE_SIGNAL",
+      "exclusion_reason": null,
+      "existing_case_id": 1,
+      "global_observation_count": 1,
+      "latest_observation_at": "2026-09-18 19:11:09",
+      "minimum_problem_evidence_complete": true,
+      "missing_for_completion": [],
+      "observation_count": 1,
+      "payment_evidence_count": 0,
+      "problem_family": "REPORTING",
+      "quantified_impact_count": 0,
+      "reasons": [
+        "1 strong individual signal(s)",
+        "1 active solution search signal(s)",
+        "1 documented workaround(s)",
+        "minimum problem evidence is complete"
+      ],
+      "representative_problem": "Recurring SEO reporting still requires manual data entry.",
+      "research_ready": true,
+      "source_count": 1,
+      "strong_individual_signal_count": 1,
+      "switching_intent_count": 0,
+      "workaround_count": 1
+    }
+  ],
+  "research_ready_count": 2,
+  "sort": "strongest-evidence"
+}
