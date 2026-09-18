@@ -494,6 +494,7 @@ class Repository:
         scan_now: bool | None = None,
         recommended_action: str | None = None,
         strict_relevance: str | None = None,
+        strict_reason: str | None = None,
         activity_status: str | None = None,
         activity_confidence: str | None = None,
         activity_basis: str | None = None,
@@ -526,12 +527,13 @@ class Repository:
                        professions_json, audience_type, audience_segments_json,
                        curation_decision, curation_priority, research_role,
                        scan_directive, scan_now,
-                       recommended_action, strict_relevance, activity_status,
+                       recommended_action, strict_relevance, strict_reason, activity_status,
                        activity_confidence, activity_basis, dach_transfer,
                        sensitive_data_risk, research_angle, rationale, pilot_posts,
                        strict_pilot_posts, registry_verified_at, notes
                    ) VALUES (
-                       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                       ?
                    )
                    ON CONFLICT(source_id) DO UPDATE SET
                        platform = excluded.platform,
@@ -572,6 +574,9 @@ class Repository:
                        ),
                        strict_relevance = COALESCE(
                            excluded.strict_relevance, source_registry_profiles.strict_relevance
+                       ),
+                       strict_reason = COALESCE(
+                           excluded.strict_reason, source_registry_profiles.strict_reason
                        ),
                        activity_status = COALESCE(
                            excluded.activity_status, source_registry_profiles.activity_status
@@ -625,6 +630,7 @@ class Repository:
                     None if scan_now is None else int(scan_now),
                     recommended_action,
                     strict_relevance,
+                    strict_reason,
                     activity_status,
                     activity_confidence,
                     activity_basis,

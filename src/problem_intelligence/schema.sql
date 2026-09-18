@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS source_registry_profiles (
     scan_now INTEGER CHECK (scan_now IN (0,1) OR scan_now IS NULL),
     recommended_action TEXT,
     strict_relevance TEXT,
+    strict_reason TEXT,
     activity_status TEXT,
     activity_confidence TEXT,
     activity_basis TEXT,

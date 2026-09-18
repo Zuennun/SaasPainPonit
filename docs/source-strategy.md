@@ -152,6 +152,84 @@ automatic promotion or demotion. Allocations expose their source type and access
 method and are capacity recommendations, not a claim that an automated connector
 exists.
 
+## Strict audit layer and the pilot planner
+
+The registry now carries a second, more rigorous curation pass on top of the
+original triage columns (`entscheidung`/`prioritaet`/`scan_now`): `strict_relevance`,
+`strict_reason`, `recommended_action`, and `strict_pilot_posts`. This is still a
+human/research assumption made before real scanning, not measured performance;
+[`source_metrics`](#persisted-performance-measurements) remains the only place
+observed yield is recorded, and importing the registry never writes to it.
+
+`strict_relevance` is one of five states:
+
+- `CORE` — high expected relevance for professional, operational, or monetizable
+  pain points.
+- `PILOT` — potentially useful, not yet worth a permanent scan budget.
+- `SECONDARY` — useful later for tool discovery, pricing, or market signals, but
+  excluded from primary pain-point discovery.
+- `DROP` — excluded from ordinary discovery. The row is retained (not deleted) so
+  the source is not silently rediscovered and re-evaluated later.
+- `RECHECK_ACCESS` — potentially relevant, but current access/activity cannot be
+  trusted. This is distinct from `NO_RESULTS`: it means "unverified", not
+  "irrelevant".
+
+`sources-import` validates `strict_relevance` against this fixed set before any
+row is written, so a malformed audit column fails the whole import rather than
+partially landing.
+
+`sources-pilot-plan` reads only `CORE` and `PILOT` rows (never `SECONDARY`,
+`DROP`, or `RECHECK_ACCESS`) and orders them deterministically: `CORE` before
+`PILOT`, and within each tier, sources the audit already marked ready
+(`recommended_action` of `SCAN_PILOT_NOW` or `SCAN_SMALL_PILOT`) before sources
+still needing activity or access verification (`VERIFY_ACTIVITY_THEN_SCAN`,
+`VERIFY_ACTIVITY_FIRST`, `VERIFY_ACCESS`), then by industry and name. Each row
+reports separate `relevance_status`, `activity_status` (the curated activity
+evidence, reused as-is), and `access_status` dimensions rather than a single
+collapsed score; `access_status` is `RECHECK_REQUIRED` only when the audit
+explicitly flagged an access concern.
+
+The command's `manifest` is the concrete first-scan-wave subset: ready rows
+whose pilot size is not in conflict with their readiness (a `SCAN_PILOT_NOW` row
+with an explicit pilot size of zero is reported as a conflict and excluded, not
+silently scanned or silently dropped). Pilot size always comes from the audit
+(`strict_pilot_posts`, falling back to the legacy `pilot_posts`) rather than a
+hard-coded assumption; a conservative default only applies when the registry
+supplies neither.
+
+Output is available as JSON (default, to stdout), or written to `--csv-output`
+and `--markdown-output` files for review or hand-off.
+
+The historical 647-source priority model (`legacy_prio_score`, subscriber counts,
+growth) remains imported as inert legacy metadata only; it does not drive
+`sources-pilot-plan` and is superseded by the curated `strict_relevance` layer
+and, later, measured `source_metrics` yield.
+
+No Reddit OAuth or official API access is assumed anywhere in this phase. The
+planner only orders already-imported registry rows; it performs no network
+access itself.
+
+### Sensitive-domain sources
+
+Some registry rows cover health, mental health, finance, or legal communities.
+`sensitive_data_risk` is preserved from the audit. These sources may still
+surface legitimate workflow, software, or administrative pain points, but
+downstream research must extract operational problems, not personal sensitive
+attributes or individual case detail.
+
+### Future promotion and demotion
+
+`strict_relevance` is a seed classification, not the operational
+[`SourceLifecycle`](#reddit-phase-one-path) (`CANDIDATE` -> `EXPLORATION` ->
+`CORE` -> `LOW_VALUE`/`EXCLUDED`), which already exists for recording what real
+scanning showed. Both the curated audit fields and the lifecycle/metrics tables
+are preserved across reimport specifically so that later, once real pilot scans
+produce `source_metrics`, an operator can promote or demote a source (for
+example `PILOT` performing well enough to justify `CORE`-level budget, or a
+verified-accessible `RECHECK_ACCESS` source moving to `CORE`) using
+`set-source-lifecycle` informed by measured yield. This phase does not implement
+that automatic promotion/demotion.
+
 ## Prohibited paths
 
 Proxy or account rotation, CAPTCHA bypass, rate-limit evasion, fingerprint

@@ -68,6 +68,23 @@ def _scan_flag(value: str | None, *, path: Path, line_number: int) -> bool | Non
     raise ValueError(f"{path}:{line_number}: scan_now has unsupported value {value!r}")
 
 
+STRICT_RELEVANCE_STATES = frozenset(
+    {"CORE", "PILOT", "SECONDARY", "DROP", "RECHECK_ACCESS"}
+)
+
+
+def _strict_relevance(value: str | None, *, path: Path, line_number: int) -> str | None:
+    cleaned = _optional(value)
+    if cleaned is None:
+        return None
+    normalized = cleaned.strip().upper()
+    if normalized not in STRICT_RELEVANCE_STATES:
+        raise ValueError(
+            f"{path}:{line_number}: strict_relevance has unsupported value {value!r}"
+        )
+    return normalized
+
+
 def _audience(value: str | None) -> tuple[AudienceType, tuple[str, ...]]:
     raw_segments = tuple(
         dict.fromkeys(part.strip().upper() for part in (value or "").split("/") if part.strip())
@@ -131,6 +148,7 @@ def import_subreddit_csv(repository: Repository, path: Path) -> tuple[int, ...]:
                 line_number=line_number,
                 field="strict_pilot_posts",
             )
+            _strict_relevance(values.get("strict_relevance"), path=path, line_number=line_number)
             parsed.append(_RegistryRow(line_number, name, values))
 
     source_ids: list[int] = []
@@ -178,7 +196,10 @@ def import_subreddit_csv(repository: Repository, path: Path) -> tuple[int, ...]:
                     row.get("scan_now"), path=path, line_number=entry.line_number
                 ),
                 recommended_action=_optional(row.get("recommended_action")),
-                strict_relevance=_optional(row.get("strict_relevance")),
+                strict_relevance=_strict_relevance(
+                    row.get("strict_relevance"), path=path, line_number=entry.line_number
+                ),
+                strict_reason=_optional(row.get("strict_reason")),
                 activity_status=_optional(row.get("aktivitaet")),
                 activity_confidence=_optional(row.get("aktivitaet_confidence")),
                 activity_basis=_optional(row.get("aktivitaet_basis")),

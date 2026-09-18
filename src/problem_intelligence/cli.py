@@ -46,6 +46,7 @@ from .evaluation_readiness import evaluate_readiness
 from .extraction import run_extraction
 from .ingestion import ingest, ingest_research_capture
 from .integrity_audit import audit_evidence_integrity
+from .pilot_planner import build_pilot_plan
 from .prediction_extractor import JsonlPredictionExtractor
 from .reddit import (
     DEFAULT_SUBREDDITS,
@@ -343,6 +344,15 @@ def parser() -> argparse.ArgumentParser:
     sources_plan.add_argument("--database", type=Path, required=True)
     sources_plan.add_argument("--priority", action="append")
     sources_plan.add_argument("--limit", type=int)
+
+    sources_pilot_plan = commands.add_parser(
+        "sources-pilot-plan",
+        help="build the deterministic CORE/PILOT scan plan from the strict audit",
+    )
+    sources_pilot_plan.add_argument("--database", type=Path, required=True)
+    sources_pilot_plan.add_argument("--json-output", type=Path)
+    sources_pilot_plan.add_argument("--csv-output", type=Path)
+    sources_pilot_plan.add_argument("--markdown-output", type=Path)
 
     source_metrics = commands.add_parser(
         "source-metrics-refresh",
@@ -1176,8 +1186,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             else:
                 print(reddit.to_json(), end="")
         elif args.command == "sources-import":
+            sources_before = repository.stats()["sources"]
             source_ids = import_subreddit_csv(repository, args.file)
-            print(json.dumps({"imported_rows": len(source_ids), "source_ids": source_ids}))
+            created = repository.stats()["sources"] - sources_before
+            print(
+                json.dumps(
+                    {
+                        "imported_rows": len(source_ids),
+                        "created_sources": created,
+                        "updated_sources": len(source_ids) - created,
+                        "source_ids": source_ids,
+                    }
+                )
+            )
         elif args.command == "sources-plan":
             candidates = repository.source_scan_candidates(
                 priorities=args.priority,
@@ -1211,6 +1232,30 @@ def main(argv: Sequence[str] | None = None) -> int:
                     sort_keys=True,
                 )
             )
+        elif args.command == "sources-pilot-plan":
+            plan = build_pilot_plan(repository)
+            if args.json_output:
+                args.json_output.write_text(plan.to_json(), encoding="utf-8")
+            if args.csv_output:
+                args.csv_output.write_text(plan.to_csv(), encoding="utf-8")
+            if args.markdown_output:
+                args.markdown_output.write_text(plan.to_markdown(), encoding="utf-8")
+            if args.json_output or args.csv_output or args.markdown_output:
+                print(
+                    json.dumps(
+                        {
+                            "entry_count": len(plan.entries),
+                            "manifest_count": len(plan.manifest),
+                            "json_output": str(args.json_output) if args.json_output else None,
+                            "csv_output": str(args.csv_output) if args.csv_output else None,
+                            "markdown_output": (
+                                str(args.markdown_output) if args.markdown_output else None
+                            ),
+                        }
+                    )
+                )
+            else:
+                print(plan.to_json(), end="")
         elif args.command == "source-metrics-refresh":
             snapshots = refresh_source_metrics(
                 repository,
