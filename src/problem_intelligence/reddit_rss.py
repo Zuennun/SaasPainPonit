@@ -1,21 +1,27 @@
-"""Free, zero-cost Reddit acquisition via public subreddit RSS (Atom) feeds.
+"""POLICY_BLOCKED: reddit.com's robots.txt disallows automated access to all paths
+for all user agents (`Disallow: /`), with no exception observed for `.rss`. Live use
+of this provider is withdrawn pending explicit, documented permission from Reddit --
+see docs/providers/reddit-rss-rights-checklist.md. This module is kept because its
+generic capabilities (Atom parsing, Reddit identity extraction, content-completeness
+classification, case-insensitive HTTP header handling, 429/ETag/Last-Modified
+handling) are reusable by a future compliant feed provider, and because the PoC that
+validated them is a useful, clearly-labeled technical record -- not because
+reddit.com is an approved data source today. Do not call `RedditRssProvider` or
+`reddit_rss_poc.main()` against live reddit.com; both refuse to run while
+`readiness` is not `PRODUCTION_APPROVED`.
 
-Feed structure (Atom, not RSS 2.0, despite the `.rss` path) was verified against a
-live public request during development:
-`<entry><id>t3_xxxxx</id><link href="canonical permalink"/><title>`, `<published>`,
-`<author><name>/u/x</name>`, and `<content type="html">` holding the rendered
-self-text wrapped in `<!-- SC_OFF --><div class="md">...</div><!-- SC_ON -->`,
-followed by an always-present `submitted by ... [link] [comments]` footer. Link and
-image posts carry *only* that footer -- no `SC_OFF`/`md` wrapper -- which is the
-actual signal this module uses to tell FULL self-text posts apart from
-METADATA_ONLY link posts; it is not inferred from content length.
+Feed structure (Atom, not RSS 2.0, despite the `.rss` path), verified against a live
+public request during a prior PoC: `<entry><id>t3_xxxxx</id><link href="canonical
+permalink"/><title>`, `<published>`, `<author><name>/u/x</name>`, and `<content
+type="html">` holding the rendered self-text wrapped in `<!-- SC_OFF -->
+<div class="md">...</div><!-- SC_ON -->`, followed by an always-present `submitted
+by ... [link] [comments]` footer. Link and image posts carry *only* that footer --
+no `SC_OFF`/`md` wrapper -- which is the actual signal this module uses to tell FULL
+self-text posts apart from METADATA_ONLY link posts; it is not inferred from
+content length.
 
-Reddit's robots.txt disallows automated access to all paths for all user agents
-(`Disallow: /`). This provider is used only under an explicit arrangement with
-Reddit confirmed by the project owner; see
-docs/providers/reddit-rss-rights-checklist.md. It never uses `.json` endpoints, the
-official API, OAuth, search RSS, or comment RSS, and never rotates proxies or
-identities to work around a restriction.
+This module never uses `.json` endpoints, the official API, OAuth, search RSS, or
+comment RSS, and never rotates proxies or identities to work around a restriction.
 """
 
 from __future__ import annotations
@@ -177,8 +183,18 @@ def compute_backoff_seconds(
 
 
 class RedditRssProvider:
+    """CORRECTION (2026-09-19): reddit.com's robots.txt disallows automated access
+    to all paths for all user agents, with no exception observed for `.rss`. The
+    verbal "specific arrangement" basis noted earlier was not sufficient without a
+    documented reference, and live use of this provider is withdrawn. `readiness`
+    is POLICY_BLOCKED, not CONTRACT_REVIEW_REQUIRED: this is not merely unconfirmed,
+    it is actively against the observed policy. See
+    docs/providers/reddit-rss-rights-checklist.md. Technical validation (this class,
+    its tests, and the completed PoC) does not change this status; only explicit,
+    documented permission can."""
+
     name = "reddit_rss"
-    readiness = ProductionReadiness.CONTRACT_REVIEW_REQUIRED
+    readiness = ProductionReadiness.POLICY_BLOCKED
     capabilities = RedditProviderCapabilities(
         supports_reddit=True,
         supports_subreddit_filter=True,

@@ -1,6 +1,19 @@
 # Reddit RSS PoC (live run, 2026-09-19)
 
-Status: **CONNECTED** (4 of 5 planned sources; r/HVAC pending a retry after Reddit's rate limit).
+**TECHNICAL EXPERIMENT — NOT AN APPROVED DATA ACQUISITION PATH.**
+Reddit's `robots.txt` disallows automated access to all paths for all user agents
+(`Disallow: /`), with no exception observed for `.rss`. This PoC's live requests
+were made before that was correctly weighed against the project's own stated
+constraint ("do not use endpoints Reddit disallows for automated crawling"). The
+findings below are kept as a technical record — they are real and were not
+fabricated — but the 50 SourceItems and 2 observations this PoC produced are
+**excluded from the approved production research dataset** and must not count
+toward source performance, opportunity counts, benchmark labels, or Wave 1
+metrics. No further automated requests were or will be made against reddit.com
+under this provider; see `docs/providers/reddit-rss-rights-checklist.md` and
+`RedditRssProvider.readiness = POLICY_BLOCKED`.
+
+Status: **CONNECTED** (4 of 5 planned sources; r/HVAC pending a retry after Reddit's rate limit) — technical result only, not a production status.
 
 ## Connectivity
 
@@ -44,6 +57,6 @@ Reddit data acquisition cost: **€0**. No paid provider, no official API, no pr
 
 ## Recommendation
 
-**RSS_READY_FOR_WAVE_1**
+**RSS_TECHNICALLY_VALIDATED_POLICY_BLOCKED**
 
-Connectivity, completeness classification, canonical ingestion, and evidence-grounded extraction all worked correctly against real, live content. The one real operational finding -- Reddit's shared rate-limit budget resets roughly every 60 seconds and is not per-subreddit -- confirms the task's 90-second default is appropriately conservative, not arbitrary, and should carry forward into Wave 1 unchanged. r/HVAC should simply be retried on the next scheduled poll rather than treated as a bad source: a 429 says nothing about subreddit quality.
+Connectivity, completeness classification, canonical ingestion, and evidence-grounded extraction all worked correctly against real, live content, and the engineering findings (Atom structure, FULL/METADATA_ONLY signal, IP-wide rate limiting, `X-Ratelimit-Reset`, lowercased HTTP/2 headers) are real and reusable. None of that changes the access-policy finding: reddit.com's `robots.txt` disallows automated access, so this path is **not** approved for Wave 1 or any further live use regardless of technical success. The originally-stated recommendation, `RSS_READY_FOR_WAVE_1`, is withdrawn.

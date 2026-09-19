@@ -38,7 +38,7 @@ def test_reddit_rss_status_reports_no_credential_concept_but_stays_rights_gated(
     assert row.name == "reddit_rss"
     assert row.technical == "READY"
     assert row.credentials == "NOT_REQUIRED"
-    assert row.rights == "CONTRACT_REVIEW_REQUIRED"
+    assert row.rights == "POLICY_BLOCKED"
     assert row.production == "BLOCKED"
 
 

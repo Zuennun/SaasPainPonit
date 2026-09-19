@@ -1,4 +1,8 @@
 {
+  "_experiment_status": "TECHNICAL_EXPERIMENT_NOT_APPROVED",
+  "_recommendation": "RSS_TECHNICALLY_VALIDATED_POLICY_BLOCKED",
+  "_excluded_from_production_dataset": true,
+  "_reason": "reddit.com robots.txt disallows automated access (Disallow: / for all user agents); see docs/providers/reddit-rss-rights-checklist.md",
   "duplicates": 0,
   "entries_returned": 60,
   "existing_source_items": 0,

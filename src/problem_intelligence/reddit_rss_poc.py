@@ -1,11 +1,10 @@
-"""Small, real Reddit RSS connectivity/completeness probe.
-
-Unlike brandwatch_poc.py, this PoC persists its results. The project owner has
-confirmed a specific arrangement authorizing this access (see
-docs/providers/reddit-rss-rights-checklist.md), so RSS is the current production
-acquisition path, not a rights-unconfirmed technical probe: acquired content
-becomes real research data through the same canonical ingestion boundary every
-other provider uses.
+"""POLICY_BLOCKED: kept as a technical record and reusable script, not a runnable
+production path. `main()` refuses to run while `RedditRssProvider.readiness` is not
+`PRODUCTION_APPROVED` -- see reddit_rss.py's module docstring and
+docs/providers/reddit-rss-rights-checklist.md. The 2026-09-19 PoC run this script
+produced is documented in exports/reddit_rss_poc.md as a technical experiment; its
+output was withdrawn from the approved research dataset, not treated as production
+evidence.
 """
 
 from __future__ import annotations
@@ -20,7 +19,7 @@ from typing import Any
 from .domain import ContentCompleteness
 from .live_pilot import LiveManifestEntry, read_live_manifest_csv
 from .reddit import ingest_provider_records
-from .reddit_provider import ProviderFailure, RedditProviderRecord
+from .reddit_provider import ProductionReadiness, ProviderFailure, RedditProviderRecord
 from .reddit_rss import RedditRssConfig, RedditRssError, RedditRssProvider, normalize_rss_entry
 from .repository import Repository
 
@@ -198,6 +197,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--page-size", type=int, default=25)
     args = parser.parse_args(argv)
 
+    if RedditRssProvider.readiness is not ProductionReadiness.PRODUCTION_APPROVED:
+        print(
+            "LIVE RSS RUN = BLOCKED: RedditRssProvider.readiness is "
+            f"{RedditRssProvider.readiness.value}, not PRODUCTION_APPROVED. "
+            "reddit.com's robots.txt disallows automated access; see "
+            "docs/providers/reddit-rss-rights-checklist.md. This refusal has no "
+            "--force override; it can only be lifted by changing readiness once "
+            "explicit, documented permission exists."
+        )
+        return 2
 
     sources = read_live_manifest_csv(args.manifest)
     config = RedditRssConfig(

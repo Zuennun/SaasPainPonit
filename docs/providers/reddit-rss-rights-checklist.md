@@ -1,24 +1,41 @@
 # Reddit RSS: access basis and rights checklist
 
-Status: **CONTRACT_REVIEW_REQUIRED** in code (`RedditRssProvider.readiness`). This
-provider is not marked `PRODUCTION_APPROVED` by this codebase, even though a live
-PoC has run successfully — that determination stays a human, documented decision.
+Status: **POLICY_BLOCKED** in code (`RedditRssProvider.readiness`). Direct
+automated access to reddit.com RSS is withdrawn as a live acquisition path.
+Nothing in this codebase may make a live request against reddit.com under this
+provider until this status changes.
+
+## CORRECTION (2026-09-19)
+
+A live PoC ran against reddit.com's RSS feeds on the basis of an in-session verbal
+confirmation that "a specific arrangement with Reddit" permitted it. On review,
+that basis was insufficient: no durable written reference was ever attached, and
+Reddit's `robots.txt` remains an unambiguous, unqualified `Disallow: /` for all
+user agents on all paths. Technical reachability and one plausible-sounding
+confirmation must not be read as authorization. The correct default, absent a
+documented reference, is that this path is **policy-blocked**.
+
+The 50 SourceItems and 2 manually-extracted observations that PoC produced were
+withdrawn from the approved research dataset; see
+`exports/experimental/reddit_rss/README.md` and
+`data/reddit/experimental/README.md`. The engineering findings from that run
+(Atom feed structure, rate-limit behavior, HTTP header handling) remain valid and
+are kept as a technical record.
 
 ## Access basis
 
 Reddit's `robots.txt` disallows automated access to all paths for all user agents
-(`Disallow: /`), with no `.rss`-specific exception. On its own, that would rule out
-this provider entirely, per the project's own constraint: "do not use endpoints
-Reddit disallows for automated crawling."
+(`Disallow: /`), with no `.rss`-specific exception. Per the project's own
+constraint ("do not use endpoints Reddit disallows for automated crawling"), that
+rules this provider out for live use entirely, absent one specific thing:
 
-The project owner confirmed in-session (2026-09-19) that a specific arrangement
-with Reddit exists that permits this access despite the general `robots.txt`
-disallow. That confirmation is a business/legal representation by the project
-owner; it is **not independently verified by this codebase** and no durable written
-reference (contract, program enrollment confirmation, correspondence) is attached
-here yet. Replace this note with that reference as soon as it exists — until then,
-anyone reviewing this code should treat the access basis as *asserted, not
-documented*.
+A durable, written reference — a contract, a Reddit research-program enrollment
+confirmation (referenced in `robots.txt`'s own comments), or equivalent
+correspondence — establishing that Reddit has explicitly permitted this project's
+automated RSS access despite the general disallow. **No such reference currently
+exists in this repository.** Until one is added here, this provider stays
+`POLICY_BLOCKED` regardless of any other confirmation, technical success, or
+prior PoC result.
 
 This provider still refuses to do several things regardless of that arrangement,
 because they were never covered by it and remain generically prohibited:

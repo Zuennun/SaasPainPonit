@@ -29,6 +29,11 @@ class ProductionReadiness(StrEnum):
     CONTRACT_REVIEW_REQUIRED = "CONTRACT_REVIEW_REQUIRED"
     PRODUCTION_APPROVED = "PRODUCTION_APPROVED"
     PRODUCTION_BLOCKED = "PRODUCTION_BLOCKED"
+    #: Distinct from CONTRACT_REVIEW_REQUIRED: not merely unconfirmed, but actively
+    #: prohibited by the target's own stated access policy (e.g. robots.txt) unless
+    #: and until explicit documented permission is obtained. Technical validation can
+    #: never change this status on its own.
+    POLICY_BLOCKED = "POLICY_BLOCKED"
 
 
 class RawRetentionPolicy(StrEnum):

@@ -118,15 +118,18 @@ shaped as paginated mentions rather than discovered URLs. See
 deliberately different acquisition abstraction that converges with the
 search-driven path only at `Repository.ingest_reddit_content`.
 
-`RedditRssProvider` (public subreddit RSS/Atom feeds) is the current zero-cost
-production implementation of that boundary; `BrandwatchRedditProvider` (a paid,
-rights-gated provider) remains available but unused. Neither the official Reddit
-API nor any paid Reddit data provider is assumed. RSS is a rolling, forward-looking
-view of recent posts, not a historical archive — the project's own database becomes
-the historical record through repeated, idempotent polling. Only top-level posts
-are collected; comment collection and Reddit's search RSS endpoint are both
-explicitly out of scope, not merely unimplemented. See
-`docs/decisions/0002-reddit-rss-free-acquisition.md`.
+`RedditRssProvider` (public subreddit RSS/Atom feeds) implements that boundary but
+is currently **`POLICY_BLOCKED`**: reddit.com's `robots.txt` disallows automated
+access, so this is not an approved production path despite being technically
+validated (see `docs/decisions/0002-reddit-rss-free-acquisition.md`'s correction).
+`BrandwatchRedditProvider` (a paid, rights-gated provider) remains available but
+unused. Neither the official Reddit API nor any paid Reddit data provider is
+assumed. Both providers' design still holds for whichever compliant source is
+approved next: RSS is a rolling, forward-looking view of recent posts, not a
+historical archive — the project's own database becomes the historical record
+through repeated, idempotent polling. Only top-level posts are collected; comment
+collection and Reddit's search RSS endpoint are both explicitly out of scope, not
+merely unimplemented.
 
 ### Versioned extraction provenance
 

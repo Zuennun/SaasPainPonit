@@ -1,11 +1,18 @@
 # 0002: Public subreddit RSS is the current zero-cost production acquisition path
 
-Status: **Accepted**. Reddit RSS is the current production acquisition strategy for
-the MVP. Official Reddit API access is not assumed and is not part of this plan.
-Paid Reddit data providers (Brandwatch, Sprinklr, or similar) are not part of the
-current roadmap; Brandwatch's implementation remains in the repository as an
-optional future provider (see `docs/decisions/0001-two-reddit-acquisition-shapes.md`)
-and is not deleted, but it is not depended on.
+Status: **Superseded by correction below (2026-09-19)**. Direct automated access
+to reddit.com RSS is **not** approved for production use: reddit.com's
+`robots.txt` disallows automated access, and the original acceptance of this ADR
+relied on an unverified verbal confirmation rather than a documented reference.
+`RedditRssProvider.readiness` is `POLICY_BLOCKED`. The technical design and
+engineering findings below remain accurate and the code is kept (see
+"Correction" section at the end); only the production-readiness conclusion is
+withdrawn. Official Reddit API access is still not assumed and is not part of
+this plan. Paid Reddit data providers (Brandwatch, Sprinklr, or similar) are
+still not part of the current roadmap; Brandwatch's implementation remains in the
+repository as an optional future provider (see
+`docs/decisions/0001-two-reddit-acquisition-shapes.md`) and is not deleted, but
+it is not depended on.
 
 ## Context
 
@@ -102,3 +109,30 @@ registry.
   later without touching this provider or the research layer, per ADR 0001.
 - `reddit_provider_registry.known_provider_rows()` now lists both `brandwatch` and
   `reddit_rss`; neither is marked `PRODUCTION_APPROVED` automatically.
+
+## Correction (2026-09-19)
+
+The decision above was accepted and a live 5-source PoC was run on the strength of
+an in-session verbal confirmation that "a specific arrangement with Reddit"
+permitted automated RSS access despite `robots.txt`. That was insufficient: no
+durable written reference was ever obtained, and technical reachability plus one
+plausible-sounding confirmation is not authorization. `RedditRssProvider.readiness`
+is now `ProductionReadiness.POLICY_BLOCKED` — a status distinct from
+`CONTRACT_REVIEW_REQUIRED` (merely unconfirmed): it means actively prohibited by
+the target's own stated policy unless and until explicit, documented permission
+exists. `reddit_rss_poc.main()` refuses to run while this status holds, with no
+override flag.
+
+What stays true and reusable regardless: the generic engineering work (Atom
+parsing, Reddit identity extraction, completeness classification, case-insensitive
+HTTP header handling, 429/`Retry-After`/`X-Ratelimit-Reset` handling, and the
+canonical-ingestion/idempotency tests) — see `docs/decisions/0001-two-reddit-
+acquisition-shapes.md`, which this provider still correctly implements. What is
+withdrawn: the conclusion that this is a currently-usable production acquisition
+path, and the research data the PoC produced (moved to
+`exports/experimental/reddit_rss/` and `data/reddit/experimental/`, explicitly
+excluded from the approved research dataset).
+
+The project's zero-cost constraint remains in force; the next candidate under
+evaluation is an independent, non-reddit.com archive (Arctic Shift), specifically
+because it does not require automated requests to reddit.com at all.
