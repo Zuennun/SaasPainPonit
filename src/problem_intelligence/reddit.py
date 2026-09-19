@@ -9,12 +9,12 @@ from __future__ import annotations
 import json
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass, fields
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol, cast
 from urllib.parse import unquote, urlsplit
 
 from .domain import ContentCompleteness, DiscoveryState, SourceAvailability
+from .reddit_provider import RedditProviderRecord
 from .repository import Repository
 
 DEFAULT_SUBREDDITS = (
@@ -378,27 +378,16 @@ def acquire_discoveries(
                 or not provider.capabilities.supports_full_content
             ):
                 raise ValueError("FULL content requires a full-content provider and COMPLETE state")
-            if response.completeness is ContentCompleteness.FULL:
-                metadata = response.metadata or {}
-                if metadata.get("body_complete") is not True:
-                    raise ValueError("FULL content requires provider body-complete attestation")
-                retrieved_at = metadata.get("retrieved_at")
-                if not isinstance(retrieved_at, str):
-                    raise ValueError("FULL content requires retrieval timestamp")
-                try:
-                    parsed_retrieval = datetime.fromisoformat(
-                        retrieved_at.replace("Z", "+00:00")
-                    )
-                except ValueError as exc:
-                    raise ValueError("FULL retrieval timestamp must be ISO format") from exc
-                if parsed_retrieval.tzinfo is None:
-                    raise ValueError("FULL retrieval timestamp must include timezone")
+            # Body-complete attestation and retrieval-timestamp validation for FULL content
+            # live in Repository.ingest_reddit_content, shared with the feed-provider path.
             if response.completeness is not ContentCompleteness.METADATA_ONLY and not reused:
                 if not response.text:
                     raise ValueError("text acquisition requires non-empty text")
-                source_item_id = repository.upsert_source_item(
+                outcome = repository.ingest_reddit_content(
                     source_id=int(row["source_id"]),
                     external_id=identity.external_id,
+                    provider=provider.name,
+                    completeness=response.completeness,
                     raw_text=response.text,
                     url=identity.canonical_url,
                     title=response.title or row["title"],
@@ -408,12 +397,12 @@ def acquire_discoveries(
                     metadata={
                         **acquisition_metadata,
                         "platform": "reddit",
-                        "content_completeness": response.completeness.value,
                         "acquisition_provider": provider.name,
                         "discovery_provider": row["provider"],
                         "discovery_run_id": row["run_id"],
                     },
                 )
+                source_item_id = outcome.source_item_id
         elif response.completeness is not None:
             raise ValueError("failed or blocked acquisition cannot claim completeness")
         if not reused:
@@ -429,6 +418,92 @@ def acquire_discoveries(
                 cost_usd=0.0 if reused else response.cost_usd,
                 error=response.error,
                 metadata=acquisition_metadata,
+            )
+        )
+    return tuple(acquisition_ids)
+
+
+def ingest_provider_records(
+    repository: Repository,
+    *,
+    source_id: int,
+    provider: str,
+    query: str,
+    records: Sequence[RedditProviderRecord],
+    capabilities: dict[str, Any],
+    latency_ms: int | None = None,
+    cost_usd: float | None = None,
+) -> tuple[int, ...]:
+    """Canonical ingestion for the feed/data-provider path (e.g. Brandwatch).
+
+    Mirrors `acquire_discoveries`: every record is recorded as a discovery, then
+    written through the same `Repository.ingest_reddit_content` completeness-aware
+    path and recorded as an acquisition. A feed-provider record and a search-provider
+    acquisition for the same Reddit identity converge on one canonical SourceItem with
+    separate acquisition provenance for each provider, never a duplicate SourceItem.
+    """
+
+    if not records:
+        return ()
+    results = tuple(
+        SearchResult(record.canonical_url, record.item.title if record.item else None)
+        for record in records
+        if record.canonical_url is not None
+    )
+    run_id = repository.record_discovery_response(
+        source_id=source_id,
+        provider=provider,
+        query=query,
+        availability=SourceAvailability.RESULTS if results else SourceAvailability.NO_RESULTS,
+        results=results,
+        capabilities=capabilities,
+        latency_ms=latency_ms,
+        cost_usd=cost_usd,
+        error=None,
+    )
+    discovery_rows = repository.connection.execute(
+        "SELECT id, canonical_url FROM discovery_records WHERE run_id = ?", (run_id,)
+    ).fetchall()
+    discovery_id_by_url = {str(row["canonical_url"]): int(row["id"]) for row in discovery_rows}
+
+    acquisition_ids: list[int] = []
+    for record in records:
+        if record.canonical_url is None:
+            continue  # not a recognized Reddit identity for this source; nothing to persist
+        discovery_id = discovery_id_by_url.get(record.canonical_url)
+        if discovery_id is None:
+            continue  # subreddit mismatch or otherwise unrecognized by record_discovery_response
+        source_item_id: int | None = None
+        if record.item is not None:
+            outcome = repository.ingest_reddit_content(
+                source_id=source_id,
+                external_id=record.item.external_id,
+                provider=provider,
+                completeness=record.completeness,
+                raw_text=record.item.raw_text,
+                url=record.item.url,
+                title=record.item.title,
+                author_external_id=record.item.author_external_id,
+                published_at=record.item.published_at,
+                language_code=record.item.language_code,
+                metadata=record.item.metadata,
+            )
+            source_item_id = outcome.source_item_id
+        state = (
+            DiscoveryState.CONTENT_COMPLETE if record.completeness is ContentCompleteness.FULL
+            else DiscoveryState.CONTENT_PARTIAL
+        )
+        acquisition_ids.append(
+            repository.record_acquisition(
+                discovery_id=discovery_id,
+                source_item_id=source_item_id,
+                provider=provider,
+                state=state,
+                completeness=record.completeness,
+                latency_ms=None,
+                cost_usd=None,
+                error=None,
+                metadata=dict(record.provenance),
             )
         )
     return tuple(acquisition_ids)

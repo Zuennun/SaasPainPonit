@@ -84,6 +84,12 @@ completeness. Multiple provider/query records retain provenance while canonical
 identity deduplicates the downstream source item. The bundled adapters replay
 JSONL captures and never perform access-evasion or direct network collection.
 
+A third, feed/data-provider boundary (`RedditDataProvider`, e.g. Brandwatch) exists
+for licensed bulk feeds shaped as paginated mentions rather than discovered URLs.
+See `docs/decisions/0001-two-reddit-acquisition-shapes.md` for why this stays a
+second, deliberately different acquisition abstraction that converges with the
+search-driven path only at `Repository.ingest_reddit_content`.
+
 ### Versioned extraction provenance
 
 Extractors return structured `ObservationDraft` values with exact character

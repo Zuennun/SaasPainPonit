@@ -8,7 +8,8 @@ import sqlite3
 import uuid
 from collections.abc import Generator, Sequence
 from contextlib import contextmanager
-from dataclasses import replace
+from dataclasses import dataclass, replace
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from importlib.resources import files
 from pathlib import Path
@@ -78,6 +79,22 @@ from .normalization import normalize_identifier, normalize_url
 
 class IntegrityError(ValueError):
     """Raised when a write would weaken evidence integrity."""
+
+
+_COMPLETENESS_RANK = {
+    ContentCompleteness.METADATA_ONLY: 0,
+    ContentCompleteness.PARTIAL: 1,
+    ContentCompleteness.FULL: 2,
+}
+
+
+@dataclass(frozen=True, slots=True)
+class ContentIngestionOutcome:
+    """Result of a completeness-aware, idempotent canonical content ingestion."""
+
+    source_item_id: int
+    content_updated: bool
+    conflict_detected: bool
 
 
 SCHEMA_VERSION = 23
@@ -977,6 +994,110 @@ class Repository:
             ).fetchone()
         assert row is not None
         return int(row["id"])
+
+    def ingest_reddit_content(
+        self,
+        *,
+        source_id: int,
+        external_id: str,
+        provider: str,
+        completeness: ContentCompleteness,
+        raw_text: str,
+        url: str | None = None,
+        title: str | None = None,
+        author_external_id: str | None = None,
+        published_at: str | None = None,
+        country_code: str | None = None,
+        language_code: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> ContentIngestionOutcome:
+        """Canonical Reddit content ingestion shared by every acquisition path.
+
+        Content is never downgraded: a METADATA_ONLY or PARTIAL acquisition never
+        overwrites a richer PARTIAL or FULL SourceItem already on file. Two FULL
+        payloads for the same identity that disagree are flagged as a conflict and the
+        stored text is kept rather than silently overwritten or concatenated. This is
+        idempotent: re-ingesting the same (source_id, external_id) at the same or lower
+        completeness with unchanged text is a no-op.
+        """
+
+        if completeness is ContentCompleteness.FULL:
+            if (metadata or {}).get("body_complete") is not True:
+                raise ValueError("FULL content requires provider body-complete attestation")
+            retrieved_at = (metadata or {}).get("retrieved_at")
+            if not isinstance(retrieved_at, str):
+                raise ValueError("FULL content requires retrieval timestamp")
+            try:
+                parsed_retrieval = datetime.fromisoformat(retrieved_at.replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError("FULL retrieval timestamp must be ISO format") from exc
+            if parsed_retrieval.tzinfo is None:
+                raise ValueError("FULL retrieval timestamp must include timezone")
+
+        normalized_external_id = normalize_identifier(external_id)
+        provided_metadata = dict(metadata or {})
+        provided_metadata["content_completeness"] = completeness.value
+        existing = self.connection.execute(
+            """SELECT id, raw_text, metadata_json FROM source_items
+               WHERE source_id = ? AND normalized_external_id = ?""",
+            (source_id, normalized_external_id),
+        ).fetchone()
+        def write_content() -> ContentIngestionOutcome:
+            source_item_id = self.upsert_source_item(
+                source_id=source_id, external_id=external_id, raw_text=raw_text, url=url,
+                title=title, author_external_id=author_external_id, published_at=published_at,
+                country_code=country_code, language_code=language_code,
+                metadata=provided_metadata,
+            )
+            return ContentIngestionOutcome(
+                source_item_id, content_updated=True, conflict_detected=False
+            )
+
+        if existing is None:
+            return write_content()
+
+        existing_id = int(existing["id"])
+        existing_metadata_raw: object = json.loads(existing["metadata_json"] or "{}")
+        existing_metadata: dict[str, Any] = (
+            cast(dict[str, Any], existing_metadata_raw)
+            if isinstance(existing_metadata_raw, dict) else {}
+        )
+        existing_completeness_raw = existing_metadata.get("content_completeness")
+        existing_completeness = (
+            ContentCompleteness(existing_completeness_raw)
+            if existing_completeness_raw in {item.value for item in ContentCompleteness}
+            else None
+        )
+        existing_rank = (
+            _COMPLETENESS_RANK[existing_completeness] if existing_completeness is not None else -1
+        )
+        new_rank = _COMPLETENESS_RANK[completeness]
+
+        if new_rank > existing_rank:
+            return write_content()
+
+        if (
+            new_rank == existing_rank
+            and completeness is ContentCompleteness.FULL
+            and existing["raw_text"] != raw_text
+        ):
+            conflicts = list(existing_metadata.get("content_conflicts") or [])
+            conflicts.append(
+                {"provider": provider, "detected_at": provided_metadata.get("acquired_at")}
+            )
+            merged_metadata = {**existing_metadata, "content_conflicts": conflicts}
+            merged_json = json.dumps(merged_metadata, sort_keys=True, separators=(",", ":"))
+            with self.transaction() as connection:
+                connection.execute(
+                    "UPDATE source_items SET metadata_json = ?, last_seen_at = CURRENT_TIMESTAMP "
+                    "WHERE id = ?",
+                    (merged_json, existing_id),
+                )
+            return ContentIngestionOutcome(
+                existing_id, content_updated=False, conflict_detected=True
+            )
+
+        return ContentIngestionOutcome(existing_id, content_updated=False, conflict_detected=False)
 
     def create_observation(
         self,
