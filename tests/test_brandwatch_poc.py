@@ -83,8 +83,8 @@ def test_client_uses_documented_paths_filters_and_pages() -> None:
         return {"results": [mention(1)], "resultsTotal": 7}, 12
 
     provider = BrandwatchRedditProvider(BrandwatchConfig("token", 42), transport=transport)
-    page = provider.discover(10, "2026-09-01", "2026-09-19", 4, 2)
-    provider.fetch_fulltext(10, "2026-09-01", "2026-09-19", 4, 2)
+    page = provider.discover("10", "2026-09-01", "2026-09-19", 4, 2)
+    provider.fetch_fulltext("10", "2026-09-01", "2026-09-19", 4, 2)
     assert page.page == 2 and page.total == 7
     assert calls[0] == (
         "/projects/42/data/mentions",
@@ -108,7 +108,7 @@ def test_live_transport_uses_bearer_header_and_maps_http_errors(
 
     monkeypatch.setattr(brandwatch_module, "urlopen", succeed)
     provider = BrandwatchRedditProvider(BrandwatchConfig("secret-token", 42))
-    assert provider.discover(10, "2026-09-01", "2026-09-19", 1, 0).records == ()
+    assert provider.discover("10", "2026-09-01", "2026-09-19", 1, 0).records == ()
     assert seen[0].get_header("Authorization") == "Bearer secret-token"
     assert "secret-token" not in seen[0].full_url
 
@@ -117,7 +117,7 @@ def test_live_transport_uses_bearer_header_and_maps_http_errors(
 
     monkeypatch.setattr(brandwatch_module, "urlopen", unauthorized)
     with pytest.raises(BrandwatchError) as error:
-        provider.discover(10, "2026-09-01", "2026-09-19", 1, 0)
+        provider.discover("10", "2026-09-01", "2026-09-19", 1, 0)
     assert error.value.failure is ProviderFailure.AUTH_FAILURE
 
 
@@ -248,7 +248,7 @@ def test_provider_failure_mapping_and_readiness() -> None:
             BrandwatchConfig("token", 42), transport=fail_for(code, expected)
         )
         with pytest.raises(BrandwatchError) as error:
-            mocked.discover(10, "2026-09-01", "2026-09-19", 1, 0)
+            mocked.discover("10", "2026-09-01", "2026-09-19", 1, 0)
         assert error.value.failure is expected
         assert mocked.last_failure is not None
 

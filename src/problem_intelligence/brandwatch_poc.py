@@ -134,7 +134,7 @@ def run_poc(
                 break
             try:
                 discovery = provider.discover(
-                    source.query_id, start_date, end_date, page_size, page
+                    str(source.query_id), start_date, end_date, page_size, page
                 )
                 if not discovery.records:
                     if page == 0:
@@ -146,7 +146,7 @@ def run_poc(
                 break
             try:
                 complete = provider.fetch_fulltext(
-                    source.query_id, start_date, end_date, page_size, page
+                    str(source.query_id), start_date, end_date, page_size, page
                 )
                 full_records = complete.records
             except BrandwatchError:

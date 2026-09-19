@@ -80,9 +80,9 @@ class RedditDataProvider(Protocol):
     def healthcheck(self) -> bool: ...
 
     def discover(
-        self, query_id: int, start_date: str, end_date: str, page_size: int, page: int
+        self, query: str, start_date: str, end_date: str, page_size: int, page: int
     ) -> ProviderPage: ...
 
     def fetch_fulltext(
-        self, query_id: int, start_date: str, end_date: str, page_size: int, page: int
+        self, query: str, start_date: str, end_date: str, page_size: int, page: int
     ) -> ProviderPage: ...

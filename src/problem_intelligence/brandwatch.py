@@ -96,27 +96,29 @@ class BrandwatchRedditProvider:
         return True
 
     def discover(
-        self, query_id: int, start_date: str, end_date: str, page_size: int, page: int
+        self, query: str, start_date: str, end_date: str, page_size: int, page: int
     ) -> ProviderPage:
-        return self._mentions(query_id, start_date, end_date, page_size, page, fulltext=False)
+        return self._mentions(query, start_date, end_date, page_size, page, fulltext=False)
 
     def fetch_fulltext(
-        self, query_id: int, start_date: str, end_date: str, page_size: int, page: int
+        self, query: str, start_date: str, end_date: str, page_size: int, page: int
     ) -> ProviderPage:
-        return self._mentions(query_id, start_date, end_date, page_size, page, fulltext=True)
+        return self._mentions(query, start_date, end_date, page_size, page, fulltext=True)
 
     def _mentions(
-        self, query_id: int, start_date: str, end_date: str, page_size: int,
+        self, query: str, start_date: str, end_date: str, page_size: int,
         page: int, *, fulltext: bool,
     ) -> ProviderPage:
-        if query_id <= 0 or page < 0 or not 1 <= page_size <= 5000:
-            raise ValueError("invalid Brandwatch query ID, page, or pageSize")
+        if not query.isdecimal() or int(query) <= 0:
+            raise ValueError("Brandwatch query must be a positive numeric query ID")
+        if page < 0 or not 1 <= page_size <= 5000:
+            raise ValueError("invalid Brandwatch page or pageSize")
         if not start_date or not end_date:
             raise ValueError("Brandwatch startDate and endDate are required")
         suffix = "/fulltext" if fulltext else ""
         path = f"/projects/{self.config.project_id}/data/mentions{suffix}"
         params = {
-            "queryId": str(query_id),
+            "queryId": query,
             "startDate": start_date,
             "endDate": end_date,
             "pageSize": str(page_size),

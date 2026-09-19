@@ -1,6 +1,33 @@
 # Brandwatch Consumer Research: Reddit rights and PoC checklist
 
 Status: **CONTRACT_REVIEW_REQUIRED**. No production approval is implied by technical access.
+The adapter itself is `LIVE_POC_PENDING_CREDENTIALS`: technically built, conformance-tested,
+and blocked only on the external inputs below.
+
+## Exact remaining external inputs
+
+Nothing further needs to be built to run the first live PoC. What's missing is:
+
+1. `BRANDWATCH_ACCESS_TOKEN` — a Brandwatch Consumer Research API token, supplied via
+   the environment, never committed.
+2. `BRANDWATCH_PROJECT_ID` — the numeric Brandwatch project ID, supplied via the
+   environment, never committed.
+3. Five numeric Reddit-only Consumer Research query IDs, one per subreddit, filled
+   into `query_id` in `docs/providers/brandwatch-poc.json` (currently all `null`).
+4. Written contract/usage confirmation from Brandwatch/Cision answering the questions
+   below — the PoC may run technically without it, but its results stay
+   `CONTRACT_REVIEW_REQUIRED` and none of its output may be treated as a production
+   decision until this is answered.
+
+Run `python -m problem_intelligence.cli reddit-provider-live-run-check --provider
+brandwatch` at any time to see exactly which of these are still missing; it never
+guesses or reports a live result that hasn't actually run. `python -m
+problem_intelligence.cli reddit-provider-status` lists every Reddit provider actually
+implemented in this codebase and its technical/credential/rights state — nothing here
+implies a provider exists before it has been built.
+
+No official Reddit API access is requested or required for any of this; Brandwatch
+remains the intended access path.
 
 Before a live PoC, configure five Reddit-only Consumer Research queries, one per
 subreddit in `brandwatch-poc.json`. Put their numeric IDs in that file. Use a

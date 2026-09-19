@@ -56,6 +56,11 @@ from .reddit import (
     acquire_discoveries,
     discover_subreddits,
 )
+from .reddit_provider_registry import (
+    evaluate_brandwatch_live_run_gate,
+    known_provider_rows,
+    render_provider_status_table,
+)
 from .reddit_reporting import build_reddit_report
 from .reporting import build_opportunity_report
 from .repository import Repository
@@ -347,6 +352,20 @@ def parser() -> argparse.ArgumentParser:
     reddit_report.add_argument("--database", type=Path, required=True)
     reddit_report.add_argument("--json-output", type=Path)
     reddit_report.add_argument("--markdown-output", type=Path)
+
+    commands.add_parser(
+        "reddit-provider-status",
+        help="list implemented Reddit data providers and their technical/credential/rights state",
+    )
+
+    live_run_check = commands.add_parser(
+        "reddit-provider-live-run-check",
+        help="explain whether a licensed Reddit provider may run a live pilot yet",
+    )
+    live_run_check.add_argument("--provider", required=True, choices=("brandwatch",))
+    live_run_check.add_argument(
+        "--manifest", type=Path, default=Path("docs/providers/brandwatch-poc.json")
+    )
 
     sources_import = commands.add_parser(
         "sources-import", help="import a legacy subreddit CSV as untrusted metadata"
@@ -849,6 +868,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.require_ready and not readiness_result.ready_for_scale:
             return 1
         return 0
+    if args.command == "reddit-provider-status":
+        print(render_provider_status_table(known_provider_rows()))
+        return 0
+    if args.command == "reddit-provider-live-run-check":
+        gate = evaluate_brandwatch_live_run_gate(args.manifest)
+        print(
+            json.dumps(
+                {"provider": args.provider, "allowed": gate.allowed, "reasons": gate.reasons},
+                indent=2,
+            )
+        )
+        return 0 if gate.allowed else 2
 
     repository = Repository(args.database)
     try:
