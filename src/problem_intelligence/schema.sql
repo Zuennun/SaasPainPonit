@@ -174,6 +174,7 @@ CREATE TABLE IF NOT EXISTS discovery_runs (
     availability TEXT NOT NULL
         CHECK (availability IN ('RESULTS','NO_RESULTS','SOURCE_UNAVAILABLE')),
     search_requests INTEGER NOT NULL DEFAULT 1 CHECK (search_requests >= 0),
+    requested_items INTEGER CHECK (requested_items >= 0 OR requested_items IS NULL),
     results_returned INTEGER NOT NULL DEFAULT 0 CHECK (results_returned >= 0),
     reddit_urls_discovered INTEGER NOT NULL DEFAULT 0 CHECK (reddit_urls_discovered >= 0),
     latency_ms INTEGER CHECK (latency_ms >= 0),
@@ -1305,4 +1306,4 @@ CREATE INDEX IF NOT EXISTS idx_cost_events_model_run ON cost_events(model_run_id
 CREATE INDEX IF NOT EXISTS idx_saved_opportunities_saved_at
     ON saved_opportunities(saved_at);
 
-PRAGMA user_version = 22;
+PRAGMA user_version = 23;

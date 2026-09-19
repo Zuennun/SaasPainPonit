@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import json
 from collections.abc import Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol, cast
 from urllib.parse import unquote, urlsplit
@@ -91,6 +92,7 @@ class SearchResponse:
     latency_ms: int | None = None
     cost_usd: float | None = None
     error: str | None = None
+    requested_items: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -251,11 +253,12 @@ class JsonlSearchProvider:
             for item in row.get("results", [])
         )
         return SearchResponse(
-            SourceAvailability(str(row["availability"])),
-            results,
-            _optional_int(row.get("latency_ms")),
-            _optional_float(row.get("cost_usd")),
-            _optional_str(row.get("error")),
+            availability=SourceAvailability(str(row["availability"])),
+            results=results,
+            latency_ms=_optional_int(row.get("latency_ms")),
+            cost_usd=_optional_float(row.get("cost_usd")),
+            error=_optional_str(row.get("error")),
+            requested_items=_optional_int(row.get("requested_items")),
         )
 
 
@@ -334,6 +337,7 @@ def discover_subreddits(
                     latency_ms=response.latency_ms,
                     cost_usd=response.cost_usd,
                     error=response.error,
+                    requested_items=response.requested_items,
                 )
             )
     return tuple(run_ids)
@@ -369,6 +373,26 @@ def acquire_discoveries(
                 response.completeness is not ContentCompleteness.FULL
             ):
                 raise ValueError("CONTENT_COMPLETE requires FULL completeness")
+            if response.completeness is ContentCompleteness.FULL and (
+                response.state is not DiscoveryState.CONTENT_COMPLETE
+                or not provider.capabilities.supports_full_content
+            ):
+                raise ValueError("FULL content requires a full-content provider and COMPLETE state")
+            if response.completeness is ContentCompleteness.FULL:
+                metadata = response.metadata or {}
+                if metadata.get("body_complete") is not True:
+                    raise ValueError("FULL content requires provider body-complete attestation")
+                retrieved_at = metadata.get("retrieved_at")
+                if not isinstance(retrieved_at, str):
+                    raise ValueError("FULL content requires retrieval timestamp")
+                try:
+                    parsed_retrieval = datetime.fromisoformat(
+                        retrieved_at.replace("Z", "+00:00")
+                    )
+                except ValueError as exc:
+                    raise ValueError("FULL retrieval timestamp must be ISO format") from exc
+                if parsed_retrieval.tzinfo is None:
+                    raise ValueError("FULL retrieval timestamp must include timezone")
             if response.completeness is not ContentCompleteness.METADATA_ONLY and not reused:
                 if not response.text:
                     raise ValueError("text acquisition requires non-empty text")
@@ -429,7 +453,14 @@ def _capabilities(value: object) -> ProviderCapabilities:
     if not isinstance(value, dict):
         raise ValueError("capabilities must be an object")
     object_value = cast(dict[object, object], value)
-    return ProviderCapabilities(**{str(key): bool(item) for key, item in object_value.items()})
+    required = {field.name for field in fields(ProviderCapabilities)}
+    if set(object_value) != required or any(
+        type(item) is not bool for item in object_value.values()
+    ):
+        raise ValueError("capabilities require the exact boolean provider fields")
+    return ProviderCapabilities(
+        **{str(key): cast(bool, item) for key, item in object_value.items()}
+    )
 
 
 def _optional_str(value: object) -> str | None:

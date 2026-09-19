@@ -75,7 +75,12 @@ from .source_metrics import (
 )
 from .source_policy import audit_source_policies
 from .wave1 import read_wave_slots, select_wave_sources, write_wave_manifest
-from .wave1_report import wave1_rows, write_wave1_metrics, write_wave1_report
+from .wave1_report import (
+    build_wave1_review,
+    wave1_rows,
+    write_wave1_metrics,
+    write_wave1_report,
+)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -242,6 +247,10 @@ def parser() -> argparse.ArgumentParser:
     extract_predictions.add_argument("--file", type=Path, required=True)
     extract_predictions.add_argument("--version", required=True)
     extract_predictions.add_argument("--source-item-id", type=int, action="append")
+    extract_predictions.add_argument(
+        "--reddit-full-only", action="store_true",
+        help="limit extraction to FULL Reddit captures; reject explicit partial IDs",
+    )
     extract_predictions.add_argument("--model-operation-key")
     extract_predictions.add_argument("--model-provider")
     extract_predictions.add_argument("--model")
@@ -259,6 +268,10 @@ def parser() -> argparse.ArgumentParser:
     )
     export_items.add_argument("--database", type=Path, required=True)
     export_items.add_argument("--source-item-id", type=int, action="append")
+    export_items.add_argument(
+        "--reddit-full-only", action="store_true",
+        help="export only FULL Reddit captures for Wave-style prediction",
+    )
     export_items.add_argument("--output", type=Path)
 
     stats = commands.add_parser("stats", help="print record counts as JSON")
@@ -384,6 +397,10 @@ def parser() -> argparse.ArgumentParser:
     wave_report.add_argument("--candidates", type=Path, required=True)
     wave_report.add_argument("--metrics", type=Path, required=True)
     wave_report.add_argument("--report", type=Path, required=True)
+    wave_report.add_argument(
+        "--predictions", type=Path,
+        help="validated prediction JSONL for NO_PAIN review examples",
+    )
 
     source_metrics = commands.add_parser(
         "source-metrics-refresh",
@@ -995,6 +1012,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(json.dumps({"claim_id": claim_id}))
         elif args.command == "extract-predictions":
+            selected_ids = args.source_item_id
+            if args.reddit_full_only:
+                full_ids = repository.full_reddit_source_item_ids()
+                if selected_ids is None:
+                    selected_ids = list(full_ids)
+                elif not set(selected_ids).issubset(full_ids):
+                    raise ValueError("explicit source item is not a FULL Reddit capture")
+                if not selected_ids:
+                    raise ValueError("no FULL Reddit captures are eligible for extraction")
             telemetry_values = {
                 "model_operation_key": args.model_operation_key,
                 "model_provider": args.model_provider,
@@ -1057,7 +1083,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             result = run_extraction(
                 repository,
                 extractor,
-                source_item_ids=args.source_item_id,
+                source_item_ids=selected_ids,
             )
             model_run_id = None
             if telemetry_requested:
@@ -1090,8 +1116,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
             )
         elif args.command == "export-items":
-            items = repository.source_items(args.source_item_id)
-            if args.source_item_id is not None and len(items) != len(set(args.source_item_id)):
+            selected_ids = args.source_item_id
+            if args.reddit_full_only:
+                full_ids = repository.full_reddit_source_item_ids()
+                if selected_ids is None:
+                    selected_ids = list(full_ids)
+                elif not set(selected_ids).issubset(full_ids):
+                    raise ValueError("explicit source item is not a FULL Reddit capture")
+            items = repository.source_items(selected_ids)
+            if selected_ids is not None and len(items) != len(set(selected_ids)):
                 raise ValueError("one or more source items do not exist")
             payload = "".join(
                 json.dumps(
@@ -1254,7 +1287,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             selections = select_wave_sources(repository, read_wave_slots(args.candidates))
             rows = wave1_rows(repository, selections)
             write_wave1_metrics(args.metrics, rows)
-            write_wave1_report(args.report, rows)
+            write_wave1_report(
+                args.report,
+                rows,
+                review=build_wave1_review(
+                    repository, selections, predictions=args.predictions
+                ),
+            )
             print(json.dumps({
                 "metrics": str(args.metrics),
                 "report": str(args.report),

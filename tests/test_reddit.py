@@ -229,6 +229,7 @@ class RedditPathTests(unittest.TestCase):
         self.assertEqual(provider.calls, 1)
         self.assertEqual(self.repository.stats()["source_items"], 1)
         self.assertEqual(len(self.repository.extraction_eligible_source_item_ids()), 1)
+        self.assertEqual(self.repository.full_reddit_source_item_ids(), ())
         provenance = self.repository.connection.execute(
             """SELECT DISTINCT d.provider AS discovery_provider, a.provider AS acquisition_provider
                FROM acquisition_records AS a
@@ -355,6 +356,51 @@ class RedditPathTests(unittest.TestCase):
         community = build_reddit_report(self.repository).data["communities"][0]
         self.assertEqual(community["metadata_only"], 1)
         self.assertEqual(community["eligible_items"], 0)
+
+    def test_full_content_requires_capability_and_is_wave_extraction_eligible(self) -> None:
+        query = build_reddit_query("Accounting", "manual_work")
+        search = self._jsonl("full-search.jsonl", [{
+            "provider": "test-search",
+            "capabilities": CAPABILITIES,
+            "query": query,
+            "availability": "RESULTS",
+            "results": [{"url": "https://www.reddit.com/r/Accounting/comments/full123/"}],
+        }])
+        discover_subreddits(
+            self.repository, JsonlSearchProvider(search),
+            subreddits=("Accounting",), query_groups=("manual_work",),
+        )
+        full_capture = {
+            "provider": "test-content",
+            "capabilities": CAPABILITIES,
+            "url": "https://www.reddit.com/r/Accounting/comments/full123/",
+            "state": "CONTENT_COMPLETE",
+            "completeness": "FULL",
+            "text": "We manually reconcile invoices in spreadsheets every Friday morning.",
+        }
+        malformed = {**full_capture, "capabilities": {
+            **CAPABILITIES, "supports_full_content": "false",
+        }}
+        malformed_capture = self._jsonl("malformed-content.jsonl", [malformed])
+        with self.assertRaisesRegex(ValueError, "exact boolean"):
+            JsonlAcquisitionProvider(malformed_capture)
+        capture = self._jsonl("full-content.jsonl", [full_capture])
+        with self.assertRaisesRegex(ValueError, "full-content provider"):
+            acquire_discoveries(self.repository, JsonlAcquisitionProvider(capture))
+        self.assertEqual(self.repository.stats()["acquisition_records"], 0)
+        full_capture["capabilities"] = {**CAPABILITIES, "supports_full_content": True}
+        capture = self._jsonl("full-content.jsonl", [full_capture])
+        with self.assertRaisesRegex(ValueError, "body-complete attestation"):
+            acquire_discoveries(self.repository, JsonlAcquisitionProvider(capture))
+        full_capture["metadata"] = {
+            "body_complete": True,
+            "retrieved_at": "2026-09-19T12:00:00Z",
+        }
+        capture = self._jsonl("full-content.jsonl", [full_capture])
+        acquire_discoveries(self.repository, JsonlAcquisitionProvider(capture))
+        full_ids = self.repository.full_reddit_source_item_ids()
+        self.assertEqual(len(full_ids), 1)
+        self.assertEqual(full_ids, self.repository.extraction_eligible_source_item_ids())
 
     def test_no_results_and_unavailable_are_distinct(self) -> None:
         manual = build_reddit_query("SEO", "manual_work")

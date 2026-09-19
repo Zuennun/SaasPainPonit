@@ -1,11 +1,20 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
 
-from problem_intelligence.reddit import canonicalize_reddit_url
+from problem_intelligence.domain import (
+    ContentCompleteness,
+    DiscoveryState,
+    EvidenceRange,
+    EvidenceScope,
+    ProblemType,
+    SourceAvailability,
+)
+from problem_intelligence.reddit import SearchResult, canonicalize_reddit_url
 from problem_intelligence.repository import Repository
 from problem_intelligence.source_health import AccessResult, HealthStatus, run_health_checks
 from problem_intelligence.wave1 import (
@@ -15,7 +24,7 @@ from problem_intelligence.wave1 import (
     per_thousand,
     select_wave_sources,
 )
-from problem_intelligence.wave1_report import wave1_rows
+from problem_intelligence.wave1_report import build_wave1_review, wave1_rows
 from tests.test_source_health import capture
 
 
@@ -119,6 +128,75 @@ class WaveOneTests(unittest.TestCase):
         self.assertIsNone(per_thousand(2, 0))
         self.assertEqual(cost_per_strong_signal(3.0, 2), 1.5)
         self.assertIsNone(cost_per_strong_signal(3.0, 0))
+
+    def test_review_package_separates_grounded_weak_and_no_pain(self) -> None:
+        source_id = self.repository.connection.execute(
+            "SELECT id FROM sources WHERE name = 'r/Accounting'"
+        ).fetchone()[0]
+        urls = (
+            "https://www.reddit.com/r/Accounting/comments/abc123/",
+            "https://www.reddit.com/r/Accounting/comments/def456/",
+        )
+        run_id = self.repository.record_discovery_response(
+            source_id=source_id,
+            provider="test-search",
+            query="office workflow",
+            availability=SourceAvailability.RESULTS,
+            results=[SearchResult(url) for url in urls],
+            capabilities={}, latency_ms=10, cost_usd=0.0, error=None,
+            requested_items=2,
+        )
+        discovery_ids = [
+            row[0] for row in self.repository.connection.execute(
+                "SELECT id FROM discovery_records WHERE run_id = ? ORDER BY id", (run_id,)
+            )
+        ]
+        texts = (
+            "I manually reconcile invoices every week and it takes too long.",
+            "I enjoy my accounting team and have no workflow issue to report.",
+        )
+        item_ids = []
+        for index, (discovery_id, url, raw_text) in enumerate(
+            zip(discovery_ids, urls, texts, strict=True)
+        ):
+            item_id = self.repository.upsert_source_item(
+                source_id=source_id, external_id=f"reddit:submission:{('abc123', 'def456')[index]}",
+                raw_text=raw_text, url=url,
+            )
+            item_ids.append(item_id)
+            self.repository.record_acquisition(
+                discovery_id=discovery_id, source_item_id=item_id,
+                provider="test-content", state=DiscoveryState.CONTENT_COMPLETE,
+                completeness=ContentCompleteness.FULL, latency_ms=20,
+                cost_usd=0.0, error=None, metadata={"provider_invocation": True},
+            )
+        evidence = "manually reconcile invoices"
+        start = texts[0].index(evidence)
+        self.repository.create_observation_with_evidence(
+            source_item_id=item_ids[0], problem_type=ProblemType.WORKFLOW_GAP,
+            evidence_scope=EvidenceScope.GLOBAL,
+            problem="Invoice reconciliation remains manual.",
+            extraction_version="wave-test",
+            evidence_ranges=(EvidenceRange(start, start + len(evidence)),),
+            fields={"actor": "accountant", "context": "weekly close"},
+        )
+        prediction_path = Path(self.temporary.name) / "predictions.jsonl"
+        prediction_path.write_text(
+            json.dumps({
+                "source_item_id": item_ids[1], "external_id": "reddit:submission:def456",
+                "is_problem": False,
+            }) + "\n", encoding="utf-8",
+        )
+        selected = select_wave_sources(
+            self.repository, (WaveSlot(1, "office", "r/Accounting", "r/HVAC", 120),)
+        )
+        review = build_wave1_review(self.repository, selected, predictions=prediction_path)
+        self.assertEqual(wave1_rows(self.repository, selected)[0]["requested_items"], 2)
+        self.assertIn("Invoice reconciliation remains manual", review)
+        self.assertIn("manually reconcile invoices", review)
+        self.assertIn("WEAK", review)
+        self.assertIn("NO_PAIN", review)
+        self.assertIn(urls[1], review)
 
 
 if __name__ == "__main__":

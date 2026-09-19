@@ -6,8 +6,10 @@ import csv
 from pathlib import Path
 from typing import Any
 
+from .prediction_extractor import JsonlPredictionExtractor
 from .reddit_reporting import build_reddit_report
 from .repository import Repository
+from .signal_policy import strong_individual_signal_sql
 from .wave1 import WaveSelection, per_thousand
 
 FIELDS: tuple[str, ...] = (
@@ -41,6 +43,13 @@ def wave1_rows(
             (selected.source,),
         ).fetchone()
         source_id = int(source["id"]) if source is not None else -1
+        requested = repository.connection.execute(
+            """SELECT COUNT(*) AS run_count, COUNT(requested_items) AS measured_count,
+                      COALESCE(SUM(requested_items), 0) AS item_count
+               FROM discovery_runs WHERE source_id = ?""",
+            (source_id,),
+        ).fetchone()
+        assert requested is not None
         detail = repository.connection.execute(
             """SELECT
                  (SELECT COUNT(DISTINCT a.source_item_id) FROM acquisition_records a
@@ -85,7 +94,11 @@ def wave1_rows(
             "policy_ready": selected.policy_ready,
             "acquisition_eligible": selected.acquisition_eligible,
             "search_requests": requests,
-            "requested_items": 0 if requests == 0 else selected.target_items,
+            "requested_items": (
+                int(requested["item_count"])
+                if requested["run_count"] == requested["measured_count"]
+                else None
+            ),
             "discovered_urls": int(result.get("discovered", 0)),
             "unique_urls": unique,
             "duplicates_removed": int(result.get("duplicates_removed", 0)),
@@ -128,7 +141,122 @@ def write_wave1_metrics(path: Path, rows: tuple[dict[str, Any], ...]) -> None:
         writer.writerows(rows)
 
 
-def write_wave1_report(path: Path, rows: tuple[dict[str, Any], ...]) -> None:
+def _short(value: object, limit: int = 200) -> str:
+    normalized = " ".join(str(value or "").split())
+    return normalized[:limit] + ("…" if len(normalized) > limit else "")
+
+
+def build_wave1_review(
+    repository: Repository,
+    selections: tuple[WaveSelection, ...],
+    *,
+    predictions: Path | None = None,
+) -> str:
+    """Top grounded observations and distinct weak/NO_PAIN review strata."""
+
+    full_ids = set(repository.full_reddit_source_item_ids())
+    if not full_ids:
+        return "No FULL Wave 1 items exist; positive and negative review samples are unavailable."
+    negative_ids: set[int] = set()
+    if predictions is not None:
+        extractor = JsonlPredictionExtractor(predictions, version="wave1-review-v1")
+        for item_id, external_id, is_problem in extractor.classification_rows():
+            if item_id not in full_ids:
+                raise ValueError(f"prediction item {item_id} is not a FULL Reddit capture")
+            item = repository.connection.execute(
+                "SELECT external_id FROM source_items WHERE id = ?", (item_id,)
+            ).fetchone()
+            if item is None or item["external_id"] != external_id:
+                raise ValueError(f"prediction identity mismatch for item {item_id}")
+            if not is_problem:
+                negative_ids.add(item_id)
+    strong = strong_individual_signal_sql("po")
+    lines: list[str] = []
+    for selected in selections:
+        lines.extend([f"### {selected.source}", ""])
+        positives = repository.connection.execute(
+            f"""SELECT po.problem, po.actor, po.actor_role, po.context,
+                       po.current_workaround, po.time_impact, po.financial_impact,
+                       si.url,
+                       (SELECT es.excerpt FROM evidence_spans es
+                        WHERE es.observation_id = po.id ORDER BY es.id LIMIT 1)
+                        AS evidence_excerpt,
+                       (SELECT p.payment_type || ': ' || es.excerpt
+                        FROM payment_signals p
+                        JOIN evidence_spans es ON es.id = p.evidence_span_id
+                        WHERE p.observation_id = po.id ORDER BY p.id LIMIT 1)
+                        AS payment_evidence,
+                       {strong} AS is_strong
+                FROM problem_observations po
+                JOIN source_items si ON si.id = po.source_item_id
+                JOIN sources s ON s.id = si.source_id
+                WHERE lower(s.name) = lower(?) AND po.source_item_id IN
+                    (SELECT a.source_item_id FROM acquisition_records a
+                     WHERE a.completeness = 'FULL')
+                ORDER BY is_strong DESC, po.id LIMIT 5""",
+            (selected.source,),
+        ).fetchall()
+        if not positives:
+            lines.append("No grounded observations available for review.")
+        for row in positives:
+            impact_text = _short(row["time_impact"] or row["financial_impact"])
+            lines.extend([
+                f"- **{'STRONG' if row['is_strong'] else 'WEAK'}:** {_short(row['problem'])}",
+                f"  - Actor: {_short(row['actor'] or row['actor_role']) or 'not captured'}; "
+                f"workflow/context: {_short(row['context']) or 'not captured'}.",
+                f"  - Workaround: {_short(row['current_workaround']) or 'not captured'}; "
+                f"impact: {impact_text or 'not captured'}; "
+                f"payment evidence: {_short(row['payment_evidence']) or 'not captured'}.",
+                f"  - Source: {row['url'] or 'URL missing'}; "
+                f"evidence span: {_short(row['evidence_excerpt']) or 'MISSING'}.",
+            ])
+        lines.extend(["", "Weak / rejected review sample:"])
+        weak = repository.connection.execute(
+            f"""SELECT po.problem, si.url FROM problem_observations po
+                JOIN source_items si ON si.id = po.source_item_id
+                JOIN sources s ON s.id = si.source_id
+                WHERE lower(s.name) = lower(?) AND COALESCE({strong}, 0) = 0
+                  AND po.source_item_id IN
+                    (SELECT a.source_item_id FROM acquisition_records a
+                     WHERE a.completeness = 'FULL')
+                ORDER BY po.id LIMIT 3""",
+            (selected.source,),
+        ).fetchall()
+        if weak:
+            lines.extend(
+                f"- WEAK: {_short(row['problem'])} — {row['url'] or 'URL missing'}"
+                for row in weak
+            )
+        else:
+            lines.append("- No weak observations in the top-five sample.")
+        lines.append("- REJECTED: no explicit rejection decisions are persisted; unmeasured.")
+        lines.append("NO_PAIN review sample:")
+        if predictions is None:
+            lines.append("- Prediction capture not supplied; NO_PAIN unmeasured.")
+        else:
+            negative_rows = repository.connection.execute(
+                """SELECT si.id, si.url, si.raw_text FROM source_items si
+                   JOIN sources s ON s.id = si.source_id
+                   WHERE lower(s.name) = lower(?) ORDER BY si.id""",
+                (selected.source,),
+            ).fetchall()
+            matches = [row for row in negative_rows if int(row["id"]) in negative_ids][:3]
+            if not matches:
+                lines.append("- No labeled NO_PAIN items for this community.")
+            for row in matches:
+                lines.append(
+                    f"- NO_PAIN: {_short(row['raw_text'])} — {row['url'] or 'URL missing'}"
+                )
+        lines.append("")
+    return "\n".join(lines).rstrip()
+
+
+def write_wave1_report(
+    path: Path,
+    rows: tuple[dict[str, Any], ...],
+    *,
+    review: str | None = None,
+) -> None:
     full = sum(int(row["full_items"]) for row in rows)
     unique = sum(int(row["unique_urls"]) for row in rows)
     active = sum(bool(row["acquisition_eligible"]) for row in rows)
@@ -151,16 +279,19 @@ def write_wave1_report(path: Path, rows: tuple[dict[str, Any], ...]) -> None:
         f"- Planned communities: {len(rows)}; ACTIVE health: {health_active}; "
         f"policy-ready: {policy_ready}; acquisition-eligible: {active}.",
         f"- Unique URLs captured in the Wave 1 database: {unique}.",
-        f"- Verified FULL items: {full}. Target: approximately 2,500–3,500.",
+        f"- Provider-attested FULL items: {full}. Target: approximately 2,500–3,500.",
         "- No official Reddit API, bypass, proxy rotation, or private endpoint was used.",
         "- Source-policy readiness is an independent gate: `REVIEW_REQUIRED` does not "
         "authorize bulk acquisition. A provider's permitted use and retention rules "
         "must be documented before execution.",
+        "- `target_items` is the planned sample size; actual requested-item counts are "
+        "reported only when every provider search request records its requested count.",
         "",
         "## Completeness and research quality",
         "",
         (
-            "FULL means verified complete public post content; a search snippet is not FULL. "
+            "FULL requires a provider body-complete attestation and retrieval timestamp; "
+            "a search snippet is not FULL. "
             "With no full items, usable-item rates, community yield, extraction precision, "
             "and false-negative rates are unknown—not zero."
             if preflight else
@@ -176,7 +307,7 @@ def write_wave1_report(path: Path, rows: tuple[dict[str, Any], ...]) -> None:
         "",
         "## Human review and false positives",
         "",
-        "A complete human-review package needs top observations plus NO_PAIN and "
+        review or "A complete human-review package needs top observations plus NO_PAIN and "
         "WEAK/REJECTED samples. It has not been completed for this run.",
         "",
         "## Failure and recommendation",

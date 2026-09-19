@@ -91,6 +91,16 @@ class JsonlPredictionExtractor:
                 details.append(f"unexpected source_item_ids: {', '.join(map(str, extra))}")
             raise BenchmarkValidationError(f"{self.path}: {'; '.join(details)}")
 
+    def classification_rows(self) -> tuple[tuple[int, str, bool], ...]:
+        """Expose validated prediction labels for a separate human-review sample."""
+
+        return tuple(
+            (prediction.source_item_id, prediction.external_id, prediction.is_problem)
+            for prediction in sorted(
+                self._predictions.values(), key=lambda item: item.source_item_id
+            )
+        )
+
     def _load(self) -> dict[int, _Prediction]:
         predictions: dict[int, _Prediction] = {}
         with self.path.open(encoding="utf-8") as prediction_file:

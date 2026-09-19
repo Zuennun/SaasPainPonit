@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Any
 
 from problem_intelligence.cli import main
+from problem_intelligence.domain import ContentCompleteness, DiscoveryState, SourceAvailability
+from problem_intelligence.reddit import SearchResult
+from problem_intelligence.repository import Repository
 
 
 class CliWorkflowTests(unittest.TestCase):
@@ -25,6 +28,52 @@ class CliWorkflowTests(unittest.TestCase):
         parsed = json.loads(output.getvalue())
         self.assertIsInstance(parsed, dict)
         return parsed
+
+    def test_wave_extraction_rejects_partial_reddit_content(self) -> None:
+        repository = Repository(self.database)
+        repository.initialize()
+        source_id = repository.upsert_source(source_type="reddit", name="r/Accounting")
+        run_id = repository.record_discovery_response(
+            source_id=source_id,
+            provider="test-search",
+            query="accounting workflow",
+            availability=SourceAvailability.RESULTS,
+            results=[SearchResult("https://www.reddit.com/r/Accounting/comments/abc123/")],
+            capabilities={},
+            latency_ms=None,
+            cost_usd=None,
+            error=None,
+        )
+        discovery_id = repository.connection.execute(
+            "SELECT id FROM discovery_records WHERE run_id = ?", (run_id,)
+        ).fetchone()[0]
+        item_id = repository.upsert_source_item(
+            source_id=source_id,
+            external_id="reddit:submission:abc123",
+            raw_text="This is only a partial search excerpt about accounting workflow.",
+        )
+        repository.record_acquisition(
+            discovery_id=discovery_id,
+            source_item_id=item_id,
+            provider="test-content",
+            state=DiscoveryState.CONTENT_PARTIAL,
+            completeness=ContentCompleteness.PARTIAL,
+            latency_ms=None,
+            cost_usd=None,
+            error=None,
+            metadata={},
+        )
+        repository.close()
+        with self.assertRaisesRegex(ValueError, "not a FULL Reddit capture"):
+            main([
+                "export-items", "--database", str(self.database), "--reddit-full-only",
+                "--source-item-id", str(item_id),
+            ])
+        with self.assertRaisesRegex(ValueError, "no FULL Reddit captures"):
+            main([
+                "extract-predictions", "--database", str(self.database),
+                "--reddit-full-only", "--file", "absent.jsonl", "--version", "wave-test",
+            ])
 
     def test_manual_evidence_workflow_is_operable_from_cli(self) -> None:
         text = (

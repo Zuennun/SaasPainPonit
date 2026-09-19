@@ -80,7 +80,7 @@ class IntegrityError(ValueError):
     """Raised when a write would weaken evidence integrity."""
 
 
-SCHEMA_VERSION = 22
+SCHEMA_VERSION = 23
 
 
 def _last_insert_id(cursor: sqlite3.Cursor) -> int:
@@ -218,6 +218,16 @@ class Repository:
             with self.connection:
                 self.connection.execute(
                     "ALTER TABLE source_registry_profiles ADD COLUMN strict_reason TEXT"
+                )
+        discovery_columns = {
+            str(row["name"])
+            for row in self.connection.execute("PRAGMA table_info(discovery_runs)").fetchall()
+        }
+        if "requested_items" not in discovery_columns:
+            with self.connection:
+                self.connection.execute(
+                    "ALTER TABLE discovery_runs ADD COLUMN requested_items INTEGER "
+                    "CHECK (requested_items >= 0 OR requested_items IS NULL)"
                 )
         if current_version < 5:
             columns = {
@@ -723,11 +733,14 @@ class Repository:
         latency_ms: int | None,
         cost_usd: float | None,
         error: str | None,
+        requested_items: int | None = None,
     ) -> str:
         """Persist one provider request and all recognizable Reddit results atomically."""
 
         from .reddit import canonicalize_reddit_url
 
+        if requested_items is not None and requested_items < 0:
+            raise ValueError("requested_items must not be negative")
         run_id = str(uuid.uuid4())
         source = self.connection.execute(
             "SELECT source_type, name FROM sources WHERE id = ?", (source_id,)
@@ -748,16 +761,17 @@ class Repository:
         with self.transaction() as connection:
             connection.execute(
                 """INSERT INTO discovery_runs (
-                       id, source_id, provider, query, availability, search_requests,
-                       results_returned, reddit_urls_discovered, latency_ms, cost_usd,
-                       error, provider_capabilities_json
-                   ) VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)""",
+                   id, source_id, provider, query, availability, search_requests,
+                   requested_items, results_returned, reddit_urls_discovered, latency_ms, cost_usd,
+                   error, provider_capabilities_json
+                   ) VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     run_id,
                     source_id,
                     provider,
                     query,
                     availability.value,
+                    requested_items,
                     len(results),
                     len(recognized),
                     latency_ms,
@@ -865,6 +879,21 @@ class Repository:
                JOIN acquisition_records AS a ON a.source_item_id = si.id
                WHERE a.completeness IN ('FULL','PARTIAL') AND length(si.raw_text) >= ?
                ORDER BY si.id""",
+            (minimum_characters,),
+        ).fetchall()
+        return tuple(int(row["id"]) for row in rows)
+
+    def full_reddit_source_item_ids(
+        self, *, minimum_characters: int = 40
+    ) -> tuple[int, ...]:
+        """Wave-style extraction inputs: provider-labeled FULL Reddit captures only."""
+
+        rows = self.connection.execute(
+            """SELECT DISTINCT si.id FROM source_items si
+               JOIN sources s ON s.id = si.source_id
+               JOIN acquisition_records a ON a.source_item_id = si.id
+               WHERE s.source_type = 'reddit' AND a.completeness = 'FULL'
+                 AND length(si.raw_text) >= ? ORDER BY si.id""",
             (minimum_characters,),
         ).fetchall()
         return tuple(int(row["id"]) for row in rows)
