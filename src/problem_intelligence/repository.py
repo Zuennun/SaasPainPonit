@@ -80,7 +80,7 @@ class IntegrityError(ValueError):
     """Raised when a write would weaken evidence integrity."""
 
 
-SCHEMA_VERSION = 21
+SCHEMA_VERSION = 22
 
 
 def _last_insert_id(cursor: sqlite3.Cursor) -> int:
@@ -205,6 +205,20 @@ class Repository:
             self.connection.commit()
         schema = files("problem_intelligence").joinpath("schema.sql").read_text(encoding="utf-8")
         self.connection.executescript(schema)
+        # CREATE TABLE IF NOT EXISTS does not add columns to older registry tables.
+        # Also repair databases whose prior initialization advanced user_version
+        # before an attempted registry import exposed the missing column.
+        registry_columns = {
+            str(row["name"])
+            for row in self.connection.execute(
+                "PRAGMA table_info(source_registry_profiles)"
+            ).fetchall()
+        }
+        if "strict_reason" not in registry_columns:
+            with self.connection:
+                self.connection.execute(
+                    "ALTER TABLE source_registry_profiles ADD COLUMN strict_reason TEXT"
+                )
         if current_version < 5:
             columns = {
                 str(row["name"])
@@ -3110,6 +3124,7 @@ class Repository:
         tables = (
             "sources",
             "source_registry_profiles",
+            "source_health_checks",
             "source_metrics",
             "source_problem_family_metrics",
             "source_items",

@@ -85,6 +85,31 @@ CREATE TABLE IF NOT EXISTS source_registry_profiles (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS source_health_checks (
+    id INTEGER PRIMARY KEY,
+    source_id INTEGER NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL,
+    checked_at TEXT NOT NULL,
+    health_status TEXT NOT NULL CHECK (health_status IN (
+        'ACTIVE','INACTIVE_OR_LOW_ACTIVITY','ACCESS_RESTRICTED',
+        'SOURCE_UNAVAILABLE','UNKNOWN'
+    )),
+    confidence TEXT NOT NULL CHECK (confidence IN ('HIGH','MEDIUM','LOW')),
+    access_result TEXT NOT NULL,
+    http_status INTEGER CHECK (http_status BETWEEN 100 AND 599 OR http_status IS NULL),
+    latest_visible_item_at TEXT,
+    visible_item_count INTEGER NOT NULL CHECK (visible_item_count >= 0),
+    sample_window_start TEXT,
+    sample_window_end TEXT,
+    coverage_complete INTEGER NOT NULL CHECK (coverage_complete IN (0,1)),
+    reason TEXT NOT NULL,
+    evidence_urls_json TEXT NOT NULL CHECK (json_valid(evidence_urls_json)),
+    latency_ms INTEGER CHECK (latency_ms >= 0 OR latency_ms IS NULL),
+    cost_usd REAL CHECK (cost_usd >= 0 OR cost_usd IS NULL),
+    capture_json TEXT NOT NULL CHECK (json_valid(capture_json)),
+    UNIQUE (source_id, provider, checked_at)
+);
+
 CREATE TABLE IF NOT EXISTS source_metrics (
     id INTEGER PRIMARY KEY,
     source_id INTEGER NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
@@ -1221,6 +1246,8 @@ CREATE INDEX IF NOT EXISTS idx_source_registry_industry
     ON source_registry_profiles(primary_industry);
 CREATE INDEX IF NOT EXISTS idx_source_registry_scan
     ON source_registry_profiles(scan_now, curation_priority);
+CREATE INDEX IF NOT EXISTS idx_source_health_source_checked
+    ON source_health_checks(source_id, checked_at DESC, id DESC);
 CREATE INDEX IF NOT EXISTS idx_source_metrics_source
     ON source_metrics(source_id, measured_at);
 CREATE INDEX IF NOT EXISTS idx_source_problem_family
@@ -1278,4 +1305,4 @@ CREATE INDEX IF NOT EXISTS idx_cost_events_model_run ON cost_events(model_run_id
 CREATE INDEX IF NOT EXISTS idx_saved_opportunities_saved_at
     ON saved_opportunities(saved_at);
 
-PRAGMA user_version = 21;
+PRAGMA user_version = 22;

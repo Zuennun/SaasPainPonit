@@ -65,6 +65,7 @@ from .research_benchmark import (
     load_competition_benchmark,
     load_dach_benchmark,
 )
+from .source_health import JsonlHealthProvider, run_health_checks, select_health_sources
 from .source_import import import_subreddit_csv
 from .source_metrics import (
     plan_source_budget,
@@ -73,6 +74,8 @@ from .source_metrics import (
     source_problem_family_performance,
 )
 from .source_policy import audit_source_policies
+from .wave1 import read_wave_slots, select_wave_sources, write_wave_manifest
+from .wave1_report import wave1_rows, write_wave1_metrics, write_wave1_report
 
 
 def parser() -> argparse.ArgumentParser:
@@ -353,6 +356,34 @@ def parser() -> argparse.ArgumentParser:
     sources_pilot_plan.add_argument("--json-output", type=Path)
     sources_pilot_plan.add_argument("--csv-output", type=Path)
     sources_pilot_plan.add_argument("--markdown-output", type=Path)
+
+    health_check = commands.add_parser(
+        "sources-health-check",
+        help="record provider-backed Reddit source health independently of relevance",
+    )
+    health_check.add_argument("--database", type=Path, required=True)
+    health_check.add_argument("--capture", type=Path, required=True)
+    health_selection = health_check.add_mutually_exclusive_group(required=True)
+    health_selection.add_argument("--source")
+    health_selection.add_argument("--manifest", type=Path)
+    health_selection.add_argument(
+        "--relevance", choices=("CORE", "PILOT", "SECONDARY", "DROP", "RECHECK_ACCESS")
+    )
+
+    wave_manifest = commands.add_parser(
+        "reddit-wave1-manifest", help="select diverse Wave 1 candidates using latest health"
+    )
+    wave_manifest.add_argument("--database", type=Path, required=True)
+    wave_manifest.add_argument("--candidates", type=Path, required=True)
+    wave_manifest.add_argument("--output", type=Path, required=True)
+
+    wave_report = commands.add_parser(
+        "reddit-wave1-report", help="write acquisition-first Wave 1 preflight metrics"
+    )
+    wave_report.add_argument("--database", type=Path, required=True)
+    wave_report.add_argument("--candidates", type=Path, required=True)
+    wave_report.add_argument("--metrics", type=Path, required=True)
+    wave_report.add_argument("--report", type=Path, required=True)
 
     source_metrics = commands.add_parser(
         "source-metrics-refresh",
@@ -1199,6 +1230,36 @@ def main(argv: Sequence[str] | None = None) -> int:
                     }
                 )
             )
+        elif args.command == "sources-health-check":
+            selected = select_health_sources(
+                repository,
+                source=args.source,
+                manifest=args.manifest,
+                relevance=args.relevance,
+            )
+            checks = run_health_checks(
+                repository, JsonlHealthProvider(args.capture), selected
+            )
+            print(json.dumps({"checked_sources": len(checks), "checks": checks}, indent=2))
+        elif args.command == "reddit-wave1-manifest":
+            slots = read_wave_slots(args.candidates)
+            selections = select_wave_sources(repository, slots)
+            write_wave_manifest(args.output, selections)
+            print(json.dumps({
+                "output": str(args.output),
+                "planned_slots": len(selections),
+                "acquisition_eligible": sum(row.acquisition_eligible for row in selections),
+            }))
+        elif args.command == "reddit-wave1-report":
+            selections = select_wave_sources(repository, read_wave_slots(args.candidates))
+            rows = wave1_rows(repository, selections)
+            write_wave1_metrics(args.metrics, rows)
+            write_wave1_report(args.report, rows)
+            print(json.dumps({
+                "metrics": str(args.metrics),
+                "report": str(args.report),
+                "full_items": sum(int(row["full_items"]) for row in rows),
+            }))
         elif args.command == "sources-plan":
             candidates = repository.source_scan_candidates(
                 priorities=args.priority,
