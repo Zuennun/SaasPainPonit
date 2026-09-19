@@ -8,17 +8,18 @@ from typing import Any
 
 from .reddit_reporting import build_reddit_report
 from .repository import Repository
-from .wave1 import WaveSelection, cost_per_strong_signal, per_thousand
+from .wave1 import WaveSelection, per_thousand
 
 FIELDS: tuple[str, ...] = (
-    "source", "category", "target_items", "health_status", "acquisition_eligible",
+    "source", "category", "target_items", "health_status", "policy_ready",
+    "acquisition_eligible",
     "search_requests", "requested_items", "discovered_urls", "unique_urls",
     "duplicates_removed", "full_items", "partial_items", "metadata_only_items",
     "failed_acquisitions", "acquisition_success_rate", "usable_items",
     "items_after_prefilter", "pain_observations", "strong_signals",
     "active_solution_searches", "quantified_impacts", "payment_signals",
-    "manual_workaround_signals", "diy_internal_tool_signals", "processing_cost_usd",
-    "unknown_cost_records", "latency_ms", "pain_per_1000_usable",
+    "manual_workaround_signals", "diy_internal_tool_signals", "acquisition_cost_usd",
+    "processing_cost_usd", "unknown_cost_records", "latency_ms", "pain_per_1000_usable",
     "strong_per_1000_usable", "active_per_1000_usable",
     "payment_per_1000_usable", "cost_per_strong_signal_usd",
     "research_quality", "sample_size_usable",
@@ -35,12 +36,43 @@ def wave1_rows(
     rows: list[dict[str, Any]] = []
     for selected in selections:
         result = by_source.get(selected.source.casefold(), {})
+        source = repository.connection.execute(
+            "SELECT id FROM sources WHERE source_type = 'reddit' AND lower(name) = lower(?)",
+            (selected.source,),
+        ).fetchone()
+        source_id = int(source["id"]) if source is not None else -1
+        detail = repository.connection.execute(
+            """SELECT
+                 (SELECT COUNT(DISTINCT a.source_item_id) FROM acquisition_records a
+                  JOIN discovery_records d ON d.id = a.discovery_id
+                  JOIN source_items si ON si.id = a.source_item_id
+                  WHERE d.source_id = ? AND a.completeness = 'FULL'
+                    AND length(si.raw_text) >= 40) AS after_prefilter,
+                 (SELECT COUNT(DISTINCT po.id) FROM problem_observations po
+                  JOIN source_items si ON si.id = po.source_item_id
+                  JOIN workarounds w ON w.observation_id = po.id
+                  WHERE si.source_id = ? AND w.workaround_type IN
+                    ('SPREADSHEET','CSV','EMAIL','WHATSAPP','PAPER','MANUAL_ENTRY'))
+                    AS manual_workarounds,
+                 (SELECT COUNT(DISTINCT po.id) FROM problem_observations po
+                  JOIN source_items si ON si.id = po.source_item_id
+                  JOIN workarounds w ON w.observation_id = po.id
+                  WHERE si.source_id = ? AND w.workaround_type IN
+                    ('INTERNAL_SCRIPT','CUSTOM_SOFTWARE')) AS diy_tools,
+                 (SELECT SUM(a.latency_ms) FROM acquisition_records a
+                  JOIN discovery_records d ON d.id = a.discovery_id
+                  WHERE d.source_id = ? AND json_extract(a.metadata_json,
+                    '$.provider_invocation') = 1) AS acquisition_latency
+               """,
+            (source_id,) * 4,
+        ).fetchone()
+        assert detail is not None
         unique = int(result.get("unique_urls", 0))
         full = int(result.get("full", 0))
         requests = int(result.get("search_requests", 0))
         unknown_cost = int(result.get("unknown_cost_records", 0))
         known_cost = float(result.get("known_processing_cost_usd", 0))
-        cost = known_cost if requests and not unknown_cost else None
+        acquisition_cost = known_cost if requests and not unknown_cost else None
         strong = int(result.get("strong_single_signals", 0))
         observations = int(result.get("observations", 0))
         active = int(result.get("active_solution_searches", 0))
@@ -50,6 +82,7 @@ def wave1_rows(
             "category": selected.category,
             "target_items": selected.target_items,
             "health_status": selected.health_status,
+            "policy_ready": selected.policy_ready,
             "acquisition_eligible": selected.acquisition_eligible,
             "search_requests": requests,
             "requested_items": 0 if requests == 0 else selected.target_items,
@@ -62,24 +95,25 @@ def wave1_rows(
             "failed_acquisitions": int(result.get("failed_or_blocked", 0)),
             "acquisition_success_rate": full / unique if unique else None,
             "usable_items": full,
-            "items_after_prefilter": (
-                min(full, int(result.get("eligible_items", 0))) if full else None
-            ),
+            "items_after_prefilter": int(detail["after_prefilter"]) if full else None,
             "pain_observations": observations if full else None,
             "strong_signals": strong if full else None,
             "active_solution_searches": active if full else None,
             "quantified_impacts": int(result.get("quantified_impacts", 0)) if full else None,
             "payment_signals": payment if full else None,
-            "manual_workaround_signals": None,
-            "diy_internal_tool_signals": None,
-            "processing_cost_usd": cost,
+            "manual_workaround_signals": int(detail["manual_workarounds"]) if full else None,
+            "diy_internal_tool_signals": int(detail["diy_tools"]) if full else None,
+            "acquisition_cost_usd": acquisition_cost,
+            # Model costs cannot be allocated to a community without an exact
+            # source-item or single-community run relationship.
+            "processing_cost_usd": None,
             "unknown_cost_records": unknown_cost,
-            "latency_ms": None,
+            "latency_ms": detail["acquisition_latency"],
             "pain_per_1000_usable": per_thousand(observations, full),
             "strong_per_1000_usable": per_thousand(strong, full),
             "active_per_1000_usable": per_thousand(active, full),
             "payment_per_1000_usable": per_thousand(payment, full),
-            "cost_per_strong_signal_usd": cost_per_strong_signal(cost, strong),
+            "cost_per_strong_signal_usd": None,
             "research_quality": "UNMEASURED" if full == 0 else "DESCRIPTIVE_ONLY",
             "sample_size_usable": full,
         })
@@ -98,6 +132,8 @@ def write_wave1_report(path: Path, rows: tuple[dict[str, Any], ...]) -> None:
     full = sum(int(row["full_items"]) for row in rows)
     unique = sum(int(row["unique_urls"]) for row in rows)
     active = sum(bool(row["acquisition_eligible"]) for row in rows)
+    health_active = sum(row["health_status"] == "ACTIVE" for row in rows)
+    policy_ready = sum(bool(row["policy_ready"]) for row in rows)
     preflight = full == 0
     lines = [
         "# Reddit Wave 1 — operational validation",
@@ -112,10 +148,14 @@ def write_wave1_report(path: Path, rows: tuple[dict[str, Any], ...]) -> None:
         "",
         "## Acquisition",
         "",
-        f"- Planned communities: {len(rows)}; health-confirmed and acquisition-eligible: {active}.",
+        f"- Planned communities: {len(rows)}; ACTIVE health: {health_active}; "
+        f"policy-ready: {policy_ready}; acquisition-eligible: {active}.",
         f"- Unique URLs captured in the Wave 1 database: {unique}.",
         f"- Verified FULL items: {full}. Target: approximately 2,500–3,500.",
         "- No official Reddit API, bypass, proxy rotation, or private endpoint was used.",
+        "- Source-policy readiness is an independent gate: `REVIEW_REQUIRED` does not "
+        "authorize bulk acquisition. A provider's permitted use and retention rules "
+        "must be documented before execution.",
         "",
         "## Completeness and research quality",
         "",
@@ -130,8 +170,9 @@ def write_wave1_report(path: Path, rows: tuple[dict[str, Any], ...]) -> None:
         "",
         "## Cost",
         "",
-        "Unknown provider or model cost is not represented as $0; consult the metrics CSV "
-        "for per-source known and unknown cost records.",
+        "Acquisition cost is shown separately in the metrics CSV when provider records "
+        "are complete. Model/analysis cost has no exact per-community attribution, so "
+        "processing cost and cost per strong signal remain unknown—not $0.",
         "",
         "## Human review and false positives",
         "",

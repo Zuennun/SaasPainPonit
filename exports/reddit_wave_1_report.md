@@ -4,10 +4,11 @@ Status: **FIX_AND_RETRY**. This is a preflight report, not a completed 2,500–3
 
 ## Acquisition
 
-- Planned communities: 25; health-confirmed and acquisition-eligible: 0.
+- Planned communities: 25; ACTIVE health: 0; policy-ready: 0; acquisition-eligible: 0.
 - Unique URLs captured in the Wave 1 database: 0.
 - Verified FULL items: 0. Target: approximately 2,500–3,500.
 - No official Reddit API, bypass, proxy rotation, or private endpoint was used.
+- Source-policy readiness is an independent gate: `REVIEW_REQUIRED` does not authorize bulk acquisition. A provider's permitted use and retention rules must be documented before execution.
 
 ## Completeness and research quality
 
@@ -15,7 +16,7 @@ FULL means verified complete public post content; a search snippet is not FULL. 
 
 ## Cost
 
-Unknown provider or model cost is not represented as $0; consult the metrics CSV for per-source known and unknown cost records.
+Acquisition cost is shown separately in the metrics CSV when provider records are complete. Model/analysis cost has no exact per-community attribution, so processing cost and cost per strong signal remain unknown—not $0.
 
 ## Human review and false positives
 

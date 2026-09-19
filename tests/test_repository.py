@@ -678,8 +678,11 @@ class RepositoryTests(unittest.TestCase):
         from problem_intelligence.domain import ContentCompleteness, DiscoveryState
         from problem_intelligence.reddit import SearchResult
 
+        reddit_source_id = self.repository.upsert_source(
+            source_type="reddit", name="r/Bookkeepers"
+        )
         run_id = self.repository.record_discovery_response(
-            source_id=self.source_id,
+            source_id=reddit_source_id,
             provider="test-search",
             query="manual work",
             availability=SourceAvailability.RESULTS,
@@ -696,7 +699,7 @@ class RepositoryTests(unittest.TestCase):
         ).fetchone()
         discovery_id = int(discovery_row["id"])
         acquired_item_id = self.repository.upsert_source_item(
-            source_id=self.source_id,
+            source_id=reddit_source_id,
             external_id="reddit:submission:abc123",
             raw_text="We manually reconcile every invoice each week.",
         )

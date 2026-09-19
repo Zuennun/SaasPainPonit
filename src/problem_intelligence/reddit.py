@@ -343,13 +343,23 @@ def acquire_discoveries(
     repository: Repository, provider: AcquisitionProvider
 ) -> tuple[int, ...]:
     acquisition_ids: list[int] = []
+    responses: dict[str, AcquisitionResponse] = {}
+    source_item_ids: dict[str, int | None] = {}
     for row in repository.pending_discoveries(provider.name):
-        response = provider.acquire(str(row["canonical_url"]))
+        canonical_url = str(row["canonical_url"])
+        reused = canonical_url in responses
+        if reused:
+            response = responses[canonical_url]
+        else:
+            response = provider.acquire(canonical_url)
+            responses[canonical_url] = response
         acquisition_metadata = {
             **(response.metadata or {}),
             "provider_capabilities": asdict(provider.capabilities),
+            "provider_invocation": not reused,
+            "reused_acquisition_url": canonical_url if reused else None,
         }
-        source_item_id: int | None = None
+        source_item_id: int | None = source_item_ids.get(canonical_url)
         identity = canonicalize_reddit_url(str(row["canonical_url"]))
         assert identity is not None
         if response.state in {DiscoveryState.CONTENT_PARTIAL, DiscoveryState.CONTENT_COMPLETE}:
@@ -359,7 +369,7 @@ def acquire_discoveries(
                 response.completeness is not ContentCompleteness.FULL
             ):
                 raise ValueError("CONTENT_COMPLETE requires FULL completeness")
-            if response.completeness is not ContentCompleteness.METADATA_ONLY:
+            if response.completeness is not ContentCompleteness.METADATA_ONLY and not reused:
                 if not response.text:
                     raise ValueError("text acquisition requires non-empty text")
                 source_item_id = repository.upsert_source_item(
@@ -382,6 +392,8 @@ def acquire_discoveries(
                 )
         elif response.completeness is not None:
             raise ValueError("failed or blocked acquisition cannot claim completeness")
+        if not reused:
+            source_item_ids[canonical_url] = source_item_id
         acquisition_ids.append(
             repository.record_acquisition(
                 discovery_id=int(row["id"]),
@@ -389,8 +401,8 @@ def acquire_discoveries(
                 provider=provider.name,
                 state=response.state,
                 completeness=response.completeness,
-                latency_ms=response.latency_ms,
-                cost_usd=response.cost_usd,
+                latency_ms=None if reused else response.latency_ms,
+                cost_usd=0.0 if reused else response.cost_usd,
                 error=response.error,
                 metadata=acquisition_metadata,
             )

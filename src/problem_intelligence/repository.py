@@ -729,10 +729,20 @@ class Repository:
         from .reddit import canonicalize_reddit_url
 
         run_id = str(uuid.uuid4())
+        source = self.connection.execute(
+            "SELECT source_type, name FROM sources WHERE id = ?", (source_id,)
+        ).fetchone()
+        if source is None or source["source_type"] != "reddit":
+            raise ValueError("Reddit discovery requires a registered Reddit source")
+        expected_subreddit = str(source["name"]).removeprefix("r/").casefold()
         recognized: list[tuple[Any, Any]] = []
         for result in results:
             identity = canonicalize_reddit_url(str(result.url))
-            if identity is not None:
+            if (
+                identity is not None
+                and identity.subreddit is not None
+                and identity.subreddit.casefold() == expected_subreddit
+            ):
                 recognized.append((result, identity))
         capabilities_json = json.dumps(capabilities, sort_keys=True, separators=(",", ":"))
         with self.transaction() as connection:

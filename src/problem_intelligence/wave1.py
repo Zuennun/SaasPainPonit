@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .repository import Repository
 from .source_health import HealthStatus
+from .source_policy import source_policy_decision
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +29,7 @@ class WaveSelection:
     backup: str
     target_items: int
     health_status: str
+    policy_ready: bool
     selection_status: str
     acquisition_eligible: bool
 
@@ -60,9 +62,9 @@ def read_wave_slots(path: Path) -> tuple[WaveSlot, ...]:
     return slots
 
 
-def _candidate_status(repository: Repository, source: str) -> str:
+def _candidate_status(repository: Repository, source: str) -> tuple[str, bool]:
     row = repository.connection.execute(
-        """SELECT p.strict_relevance, p.recommended_action,
+        """SELECT s.*, p.strict_relevance, p.recommended_action,
                   (SELECT h.health_status FROM source_health_checks h
                    WHERE h.source_id = s.id ORDER BY h.checked_at DESC, h.id DESC LIMIT 1)
                   AS health_status
@@ -71,8 +73,11 @@ def _candidate_status(repository: Repository, source: str) -> str:
         (source,),
     ).fetchone()
     if row is None or row["strict_relevance"] != "CORE":
-        return "NOT_CORE"
-    return str(row["health_status"] or HealthStatus.UNKNOWN)
+        return "NOT_CORE", False
+    return (
+        str(row["health_status"] or HealthStatus.UNKNOWN),
+        source_policy_decision(dict(row)).production_ready,
+    )
 
 
 def select_wave_sources(
@@ -83,20 +88,30 @@ def select_wave_sources(
     selections: list[WaveSelection] = []
     used: set[str] = set()
     for slot in slots:
-        primary = _candidate_status(repository, slot.primary)
-        backup = _candidate_status(repository, slot.backup)
+        primary, primary_policy = _candidate_status(repository, slot.primary)
+        backup, backup_policy = _candidate_status(repository, slot.backup)
         primary_available = slot.primary.casefold() not in used
         backup_available = slot.backup.casefold() not in used
         if primary == HealthStatus.ACTIVE and primary_available:
-            source, health, selection = slot.primary, primary, "PRIMARY_ACTIVE"
+            source, health, policy_ready, selection = (
+                slot.primary, primary, primary_policy, "PRIMARY_ACTIVE"
+            )
         elif backup == HealthStatus.ACTIVE and backup_available:
-            source, health, selection = slot.backup, backup, "REPLACED_WITH_ACTIVE_BACKUP"
+            source, health, policy_ready, selection = (
+                slot.backup, backup, backup_policy, "REPLACED_WITH_ACTIVE_BACKUP"
+            )
         elif primary == HealthStatus.UNKNOWN and primary_available:
-            source, health, selection = slot.primary, primary, "NEEDS_HEALTH_CHECK"
+            source, health, policy_ready, selection = (
+                slot.primary, primary, primary_policy, "NEEDS_HEALTH_CHECK"
+            )
         elif backup == HealthStatus.UNKNOWN and backup_available:
-            source, health, selection = slot.backup, backup, "NEEDS_BACKUP_HEALTH_CHECK"
+            source, health, policy_ready, selection = (
+                slot.backup, backup, backup_policy, "NEEDS_BACKUP_HEALTH_CHECK"
+            )
         else:
-            source, health, selection = slot.primary, primary, "BLOCKED_NO_HEALTHY_REPLACEMENT"
+            source, health, policy_ready, selection = (
+                slot.primary, primary, primary_policy, "BLOCKED_NO_HEALTHY_REPLACEMENT"
+            )
         if selection != "BLOCKED_NO_HEALTHY_REPLACEMENT":
             used.add(source.casefold())
         selections.append(
@@ -108,8 +123,9 @@ def select_wave_sources(
                 slot.backup,
                 slot.target_items,
                 health,
+                policy_ready,
                 selection,
-                health == HealthStatus.ACTIVE,
+                health == HealthStatus.ACTIVE and policy_ready,
             )
         )
     return tuple(selections)
@@ -121,12 +137,13 @@ def write_wave_manifest(path: Path, selections: tuple[WaveSelection, ...]) -> No
         writer = csv.writer(handle)
         writer.writerow(
             ("slot", "category", "source", "primary", "backup", "target_items",
-             "health_status", "selection_status", "acquisition_eligible")
+             "health_status", "policy_ready", "selection_status", "acquisition_eligible")
         )
         for row in selections:
             writer.writerow(
                 (row.slot, row.category, row.source, row.primary, row.backup,
-                 row.target_items, row.health_status, row.selection_status,
+                 row.target_items, row.health_status, str(row.policy_ready).lower(),
+                 row.selection_status,
                  str(row.acquisition_eligible).lower())
             )
 

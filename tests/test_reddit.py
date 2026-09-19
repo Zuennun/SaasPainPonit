@@ -101,6 +101,32 @@ class RedditPathTests(unittest.TestCase):
         path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
         return path
 
+    def test_discovery_requires_verified_subreddit_identity(self) -> None:
+        query = build_reddit_query("Accounting", "manual_work")
+        search = self._jsonl(
+            "identity-search.jsonl",
+            [{
+                "provider": "test-search",
+                "capabilities": CAPABILITIES,
+                "query": query,
+                "availability": "RESULTS",
+                "results": [
+                    {"url": "https://www.reddit.com/r/Accounting/comments/abc123/"},
+                    {"url": "https://www.reddit.com/r/HVAC/comments/def456/"},
+                    {"url": "https://redd.it/ghi789"},
+                ],
+            }],
+        )
+        discover_subreddits(
+            self.repository, JsonlSearchProvider(search),
+            subreddits=("Accounting",), query_groups=("manual_work",),
+        )
+        self.assertEqual(self.repository.stats()["discovery_records"], 1)
+        count = self.repository.connection.execute(
+            "SELECT reddit_urls_discovered FROM discovery_runs"
+        ).fetchone()[0]
+        self.assertEqual(count, 1)
+
     def test_discovery_acquisition_dedupe_and_completeness(self) -> None:
         query = build_reddit_query("Accounting", "manual_work")
         search = self._jsonl(
@@ -188,9 +214,19 @@ class RedditPathTests(unittest.TestCase):
                 }
             ],
         )
-        provider = JsonlAcquisitionProvider(acquisition)
+        class CountingProvider(JsonlAcquisitionProvider):
+            def __init__(self, path: Path) -> None:
+                super().__init__(path)
+                self.calls = 0
+
+            def acquire(self, canonical_url: str):  # type: ignore[no-untyped-def]
+                self.calls += 1
+                return super().acquire(canonical_url)
+
+        provider = CountingProvider(acquisition)
         acquire_discoveries(self.repository, provider)
         self.assertEqual(acquire_discoveries(self.repository, provider), ())
+        self.assertEqual(provider.calls, 1)
         self.assertEqual(self.repository.stats()["source_items"], 1)
         self.assertEqual(len(self.repository.extraction_eligible_source_item_ids()), 1)
         provenance = self.repository.connection.execute(
@@ -217,7 +253,14 @@ class RedditPathTests(unittest.TestCase):
         self.assertEqual(acquisition_provider["success_rate"], 1.0)
         self.assertEqual(acquisition_provider["partial_content_rate"], 1.0)
         self.assertIsNone(acquisition_provider["latency_ms"])
-        self.assertEqual(acquisition_provider["unknown_cost_records"], 3)
+        self.assertEqual(acquisition_provider["unknown_cost_records"], 1)
+        invocation_flags = [
+            json.loads(row[0])["provider_invocation"]
+            for row in self.repository.connection.execute(
+                "SELECT metadata_json FROM acquisition_records ORDER BY id"
+            )
+        ]
+        self.assertEqual(invocation_flags, [True, False, False])
 
     def test_failed_acquisition_is_preserved_without_source_item(self) -> None:
         query = build_reddit_query("SEO", "manual_work")

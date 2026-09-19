@@ -76,7 +76,21 @@ class WaveOneTests(unittest.TestCase):
         self.assertEqual(selected.source, "r/Bookkeeping")
         self.assertEqual(selected.health_status, HealthStatus.ACTIVE)
         self.assertEqual(selected.selection_status, "REPLACED_WITH_ACTIVE_BACKUP")
-        self.assertTrue(selected.acquisition_eligible)
+        self.assertFalse(selected.policy_ready)
+        self.assertFalse(selected.acquisition_eligible)
+        self.repository.connection.execute(
+            """UPDATE sources SET access_method = 'test-provider',
+                   commercial_use_status = 'APPROVED', retention_rules = '30 days',
+                   attribution_requirements = 'canonical URL', quoting_rules = 'short excerpts',
+                   deletion_requirements = 'honor removals', rate_limit_notes = 'documented',
+                   rights_reviewed_at = '2026-09-19' WHERE id = ?""",
+            (bookkeeping,),
+        )
+        eligible = select_wave_sources(
+            self.repository, (WaveSlot(1, "office", "r/Accounting", "r/Bookkeeping", 120),)
+        )[0]
+        self.assertTrue(eligible.policy_ready)
+        self.assertTrue(eligible.acquisition_eligible)
 
     def test_unchecked_candidates_are_not_executable_or_poor_yield(self) -> None:
         selected = select_wave_sources(
