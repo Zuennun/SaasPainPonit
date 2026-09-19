@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {"name": "r/Accounting", "query_id": null},
+    {"name": "r/restaurantowners", "query_id": null},
+    {"name": "r/PropertyManagement", "query_id": null},
+    {"name": "r/HVAC", "query_id": null},
+    {"name": "r/FreightBrokers", "query_id": null}
+  ]
+}

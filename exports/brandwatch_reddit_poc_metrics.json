@@ -1,0 +1,43 @@
+{
+  "comments_seen": 0,
+  "cost": "UNKNOWN",
+  "duplicate_records": 0,
+  "failures": {},
+  "full": 0,
+  "fulltext_requests": 0,
+  "fulltext_success_rate": null,
+  "items_normalized": 0,
+  "items_usable": 0,
+  "last_failure": null,
+  "last_success": null,
+  "latency_ms": 0,
+  "mentions_retrieved": 0,
+  "metadata_only": 0,
+  "missing_fields": {},
+  "partial": 0,
+  "pipeline": "NOT_RUN_NO_EXTRACTOR",
+  "provider": "brandwatch",
+  "raw_retention": "DO_NOT_PERSIST",
+  "readiness": "CONTRACT_REVIEW_REQUIRED",
+  "recommendation": "NOT_ASSESSED_NO_LIVE_DATA",
+  "request_success_rate": null,
+  "requests": 0,
+  "sources": {
+    "r/Accounting": {
+      "query_id_configured": false
+    },
+    "r/FreightBrokers": {
+      "query_id_configured": false
+    },
+    "r/HVAC": {
+      "query_id_configured": false
+    },
+    "r/PropertyManagement": {
+      "query_id_configured": false
+    },
+    "r/restaurantowners": {
+      "query_id_configured": false
+    }
+  },
+  "status": "CREDENTIALS_REQUIRED"
+}
