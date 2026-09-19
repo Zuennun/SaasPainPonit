@@ -1,0 +1,114 @@
+{"source_item_id": 5, "external_id": "reddit:submission:1wktm98", "is_problem": true, "problem_type": "WORKFLOW_GAP", "problem_family": "MANUAL_DATA_ENTRY", "evidence_scope": "GLOBAL", "problem": "Small business handles vendor bill pay manually: invoices arrive via email/Slack, get checked, paid via manual bank ACH, then reconciled by hand each week.", "evidence": [{"start": 191, "end": 332, "excerpt": "Invoices come in through email or Slack, I check them, log into the bank, send the ACH, mark them paid, then make sure the books match later."}, {"start": 418, "end": 530, "excerpt": "are you handling bill pay through your business bank, using a separate tool, or still doing most of it manually?"}], "workarounds": [{"type": "MULTIPLE_TOOLS", "description": "Invoices tracked via email/Slack, payments made manually through the business bank, reconciled by hand", "evidence_index": 0}], "fields": {"actor": "small business finance owner", "job_to_be_done": "pay vendor bills", "frequency": "weekly", "active_solution_search": true}}
+{"source_item_id": 29, "external_id": "reddit:submission:1wkjt48", "is_problem": true, "problem_type": "STRUCTURAL_PROBLEM", "problem_family": "PAYMENTS", "evidence_scope": "GLOBAL", "problem": "Affiliate-network payout operator finds every centralized crypto payment processor caps daily payout volume too low for their real payout needs across many affiliates, and cannot find a compliant, truly decentralized high-volume alternative.", "evidence": [{"start": 134, "end": 187, "excerpt": "every centralized crypto processor I try just chokes."}, {"start": 188, "end": 232, "excerpt": "One gateway capped us at $5k/day per person."}], "impact_signals": [{"type": "MONEY", "quantified": true, "value": "5000", "unit": "USD/day per person cap", "frequency": "ongoing", "evidence_index": 1}], "fields": {"actor": "affiliate network payout operator", "job_to_be_done": "pay affiliate partners at volume", "active_solution_search": true}}
+{"source_item_id": 52, "external_id": "reddit:submission:1wksk3h", "is_problem": true, "problem_type": "INTEGRATION_GAP", "problem_family": "COMMUNICATION", "evidence_scope": "GLOBAL", "problem": "Property manager receives maintenance requests across many uncoordinated channels (text, email, WhatsApp, calls) that must be manually triaged and logged into their PM system (AppFolio) under the right tenant/unit/work order; a vendor pitching automated intake for this is itself evidence the gap is real -- note the second evidence span is the vendor's own product claim, weaker evidence than the practitioner's own workflow description in the first span.", "evidence": [{"start": 327, "end": 405, "excerpt": "Let them text, email, WhatsApp, call, send pictures, whatever they already do."}, {"start": 407, "end": 509, "excerpt": "Apparently his system just catches all of it and gets it into AppFolio under the right tenant/unit/WO."}], "fields": {"actor": "property manager", "job_to_be_done": "triage maintenance requests into AppFolio", "existing_solution": "AppFolio"}}
+{"source_item_id": 67, "external_id": "reddit:submission:1wjvizq", "is_problem": true, "problem_type": "WORKFLOW_GAP", "problem_family": "SCHEDULING", "evidence_scope": "GLOBAL", "problem": "50-unit property management company outgrowing informal tracking of owner onboardings, lease renewals, and vacancies as they grow; actively evaluating dedicated task/workflow software (LeadSimple, Notion) but hasn't found a good fit.", "evidence": [{"start": 240, "end": 407, "excerpt": "Tracking things like owner onboardings, lease renewals, and vacancies has been manageable so far, but as we grow, I think we need dedicated software to stay organized."}, {"start": 436, "end": 544, "excerpt": "LeadSimple seems like the best option in this space, but it might be more than we actually need at 50 units."}], "fields": {"actor": "50-unit property management company owner", "job_to_be_done": "track owner onboardings, lease renewals, vacancies", "active_solution_search": true}}
+{"source_item_id": 80, "external_id": "reddit:submission:1wiul95", "is_problem": true, "problem_type": "WORKFLOW_GAP", "problem_family": "REPORTING", "evidence_scope": "GLOBAL", "problem": "Six-property, two-state property management operation had every site doing unit walks its own way -- paper at one, an Excel sheet only one manager understood at another, photos texted to a group chat that nobody archived -- before centralizing the process.", "evidence": [{"start": 115, "end": 273, "excerpt": "every site did unit walks its own way. Paper at one an excel sheet only one manager understood at another, photos texted to a group chat nobody ever archived."}], "workarounds": [{"type": "MULTIPLE_TOOLS", "description": "Paper checklists at one site, an Excel sheet only one manager understood at another, photos texted to an unarchived group chat at a third", "evidence_index": 0}], "fields": {"actor": "multi-property manager", "job_to_be_done": "record unit walk inspections across properties"}}
+{"source_item_id": 107, "external_id": "reddit:submission:1wi8ybe", "is_problem": true, "problem_type": "INTEGRATION_GAP", "problem_family": "MONITORING", "evidence_scope": "GLOBAL", "problem": "Freight broker relays carrier-portal container-availability status to customers without independently verifying it against customs release or chassis status, causing failed pickups roughly twice a month; unclear industry norm for whether to wait for confirmation or act on unverified status.", "evidence": [{"start": 121, "end": 332, "excerpt": "carrier portal flips the container to available, we pass it along, trucker books the appointment, driver rolls up and it's going nowhere because customs hadn't actually released it or there's no chassis under it"}, {"start": 334, "end": 489, "excerpt": "on our side that word gets copied straight off the carrier status without anyone checking the other two clocks, so i know exactly where our half of it sits"}], "fields": {"actor": "freight broker", "job_to_be_done": "confirm container availability before dispatch", "frequency": "twice a month"}}
+{"source_item_id": 112, "external_id": "reddit:submission:1wi4k2m", "is_problem": true, "problem_type": "WORKFLOW_GAP", "problem_family": "OTHER", "evidence_scope": "GLOBAL", "problem": "Small freight brokerage (under 200 loads/month) is dissatisfied with its current TMS (Rose Rocket) and actively comparing alternatives (Sunnybrook, ascend, Tai), but has not found a clear fit yet. Thin signal: single short post, no detail on what specifically is unsatisfactory about the current tool.", "evidence": [{"start": 90, "end": 163, "excerpt": "Thinking about jumping ship from Rose Rocket in the somewhat near future."}], "fields": {"actor": "small freight brokerage owner", "job_to_be_done": "manage loads via a TMS", "existing_solution": "Rose Rocket", "active_solution_search": true}}
+{"source_item_id": 42, "external_id": "reddit:submission:1wku4e7", "is_problem": true, "problem_type": "WORKFLOW_GAP", "problem_family": "SCHEDULING", "evidence_scope": "GLOBAL", "problem": "14-location, ~300-employee fast-casual chain runs scheduling in spreadsheets each GM builds their own way; unbudgeted overtime slips through every pay period and managers spend hours rebuilding schedules after call-outs, and the owner is trying to quantify the loss before evaluating paid workforce-management software.", "evidence": [{"start": 167, "end": 240, "excerpt": "scheduling still lives in spreadsheets that each GM builds their own way."}, {"start": 241, "end": 356, "excerpt": "Every pay period we find overtime that nobody caught and managers spend hours rebuilding schedules after call outs."}], "workarounds": [{"type": "SPREADSHEET", "description": "Each GM builds their own spreadsheet-based schedule per location", "evidence_index": 0}], "fields": {"actor": "multi-location restaurant chain owner", "job_to_be_done": "schedule staff across locations without overtime leakage", "frequency": "every pay period", "active_solution_search": true}}
+{"source_item_id": 50, "external_id": "reddit:submission:1wi2evm", "is_problem": true, "problem_type": "STRUCTURAL_PROBLEM", "problem_family": "CUSTOMER_MANAGEMENT", "evidence_scope": "GLOBAL", "problem": "Restaurant using DoorDash for delivery gets refund requests for misdelivered orders denied by DoorDash's 100m-radius policy, with no effective recourse, and reports this happens repeatedly.", "evidence": [{"start": 339, "end": 550, "excerpt": "went to ask for a refund, and DD said \"Refund Amount: $0.00  \nRefund Explanation: Never Delivered refunds cannot be processed for orders where the Dasher delivered the order within 100m of the customer address.\""}, {"start": 604, "end": 693, "excerpt": "It happens ALL THE TIME - wrong apartment, wrong house, and in this case, wrong business."}], "impact_signals": [{"type": "REVENUE", "quantified": false, "frequency": "recurring", "evidence_index": 1}], "fields": {"actor": "restaurant owner", "job_to_be_done": "recover revenue lost to misdelivered DoorDash orders", "existing_solution": "DoorDash", "frequency": "recurring"}}
+{"source_item_id": 51, "external_id": "reddit:submission:1whqwvl", "is_problem": true, "problem_type": "WORKFLOW_GAP", "problem_family": "MANUAL_DATA_ENTRY", "evidence_scope": "GLOBAL", "problem": "New cafe owner has no reliable way to track daily sales without buying a POS system.", "evidence": [{"start": 431, "end": 545, "excerpt": "I don’t wanna get a POS right away, so for those of you who already run cafes/restaurants, how do you manage this?"}, {"start": 546, "end": 618, "excerpt": "Do you use Excel, Google Sheets, some other tool or just keep it manual?"}], "workarounds": [{"type": "SPREADSHEET", "description": "Considering Excel/Google Sheets or fully manual tracking instead of a POS system", "evidence_index": 1}], "fields": {"actor": "new cafe owner", "job_to_be_done": "track daily sales without a POS", "active_solution_search": true}}
+{"source_item_id": 1, "external_id": "reddit:submission:1wku0yo", "is_problem": false}
+{"source_item_id": 2, "external_id": "reddit:submission:1wktydr", "is_problem": false}
+{"source_item_id": 3, "external_id": "reddit:submission:1wktwtc", "is_problem": false}
+{"source_item_id": 4, "external_id": "reddit:submission:1wktq1b", "is_problem": false}
+{"source_item_id": 6, "external_id": "reddit:submission:1wktk88", "is_problem": false}
+{"source_item_id": 7, "external_id": "reddit:submission:1wkr95n", "is_problem": false}
+{"source_item_id": 8, "external_id": "reddit:submission:1wkr3b8", "is_problem": false}
+{"source_item_id": 9, "external_id": "reddit:submission:1wkqhvf", "is_problem": false}
+{"source_item_id": 10, "external_id": "reddit:submission:1wkqbtr", "is_problem": false}
+{"source_item_id": 11, "external_id": "reddit:submission:1wkq621", "is_problem": false}
+{"source_item_id": 12, "external_id": "reddit:submission:1wkq4j8", "is_problem": false}
+{"source_item_id": 13, "external_id": "reddit:submission:1wkq1gi", "is_problem": false}
+{"source_item_id": 14, "external_id": "reddit:submission:1wkq19n", "is_problem": false}
+{"source_item_id": 15, "external_id": "reddit:submission:1wkq0pa", "is_problem": false}
+{"source_item_id": 16, "external_id": "reddit:submission:1wkpx0g", "is_problem": false}
+{"source_item_id": 17, "external_id": "reddit:submission:1wkpvt2", "is_problem": false}
+{"source_item_id": 18, "external_id": "reddit:submission:1wkptov", "is_problem": false}
+{"source_item_id": 19, "external_id": "reddit:submission:1wkpjlf", "is_problem": false}
+{"source_item_id": 20, "external_id": "reddit:submission:1wkp6dw", "is_problem": false}
+{"source_item_id": 21, "external_id": "reddit:submission:1wknwqy", "is_problem": false}
+{"source_item_id": 22, "external_id": "reddit:submission:1wkno78", "is_problem": false}
+{"source_item_id": 23, "external_id": "reddit:submission:1wkn8zp", "is_problem": false}
+{"source_item_id": 24, "external_id": "reddit:submission:1wkmtmv", "is_problem": false}
+{"source_item_id": 25, "external_id": "reddit:submission:1wkmth1", "is_problem": false}
+{"source_item_id": 26, "external_id": "reddit:submission:1wkmt9i", "is_problem": false}
+{"source_item_id": 27, "external_id": "reddit:submission:1wkmabk", "is_problem": false}
+{"source_item_id": 28, "external_id": "reddit:submission:1wklo0k", "is_problem": false}
+{"source_item_id": 30, "external_id": "reddit:submission:1wkh1ur", "is_problem": false}
+{"source_item_id": 31, "external_id": "reddit:submission:1wkgyqq", "is_problem": false}
+{"source_item_id": 32, "external_id": "reddit:submission:1wkgm55", "is_problem": false}
+{"source_item_id": 33, "external_id": "reddit:submission:1wkgj7f", "is_problem": false}
+{"source_item_id": 34, "external_id": "reddit:submission:1wkf0bs", "is_problem": false}
+{"source_item_id": 35, "external_id": "reddit:submission:1wke3qn", "is_problem": false}
+{"source_item_id": 36, "external_id": "reddit:submission:1wkd330", "is_problem": false}
+{"source_item_id": 37, "external_id": "reddit:submission:1wkclaj", "is_problem": false}
+{"source_item_id": 38, "external_id": "reddit:submission:1wkc5l9", "is_problem": false}
+{"source_item_id": 39, "external_id": "reddit:submission:1wkc5kp", "is_problem": false}
+{"source_item_id": 40, "external_id": "reddit:submission:1wkb0pk", "is_problem": false}
+{"source_item_id": 41, "external_id": "reddit:submission:1wkagvp", "is_problem": false}
+{"source_item_id": 43, "external_id": "reddit:submission:1wjv5jb", "is_problem": false}
+{"source_item_id": 44, "external_id": "reddit:submission:1wiujog", "is_problem": false}
+{"source_item_id": 45, "external_id": "reddit:submission:1wirrxr", "is_problem": false}
+{"source_item_id": 46, "external_id": "reddit:submission:1wibfrq", "is_problem": false}
+{"source_item_id": 47, "external_id": "reddit:submission:1wib364", "is_problem": false}
+{"source_item_id": 48, "external_id": "reddit:submission:1wi4qbt", "is_problem": false}
+{"source_item_id": 49, "external_id": "reddit:submission:1wi2phy", "is_problem": false}
+{"source_item_id": 53, "external_id": "reddit:submission:1wksk2f", "is_problem": false}
+{"source_item_id": 54, "external_id": "reddit:submission:1wksiq3", "is_problem": false}
+{"source_item_id": 55, "external_id": "reddit:submission:1wkpoxv", "is_problem": false}
+{"source_item_id": 56, "external_id": "reddit:submission:1wko0qt", "is_problem": false}
+{"source_item_id": 57, "external_id": "reddit:submission:1wko0i3", "is_problem": false}
+{"source_item_id": 58, "external_id": "reddit:submission:1wknz7w", "is_problem": false}
+{"source_item_id": 59, "external_id": "reddit:submission:1wkmrv7", "is_problem": false}
+{"source_item_id": 60, "external_id": "reddit:submission:1wkgd88", "is_problem": false}
+{"source_item_id": 61, "external_id": "reddit:submission:1wkdio1", "is_problem": false}
+{"source_item_id": 62, "external_id": "reddit:submission:1wk8elm", "is_problem": false}
+{"source_item_id": 63, "external_id": "reddit:submission:1wk33ls", "is_problem": false}
+{"source_item_id": 64, "external_id": "reddit:submission:1wk1npx", "is_problem": false}
+{"source_item_id": 65, "external_id": "reddit:submission:1wk1mpy", "is_problem": false}
+{"source_item_id": 66, "external_id": "reddit:submission:1wjzw7c", "is_problem": false}
+{"source_item_id": 68, "external_id": "reddit:submission:1wjuu3e", "is_problem": false}
+{"source_item_id": 69, "external_id": "reddit:submission:1wjsno4", "is_problem": false}
+{"source_item_id": 70, "external_id": "reddit:submission:1wjpqb1", "is_problem": false}
+{"source_item_id": 71, "external_id": "reddit:submission:1wjmzvy", "is_problem": false}
+{"source_item_id": 72, "external_id": "reddit:submission:1wjb7dl", "is_problem": false}
+{"source_item_id": 73, "external_id": "reddit:submission:1wj9moi", "is_problem": false}
+{"source_item_id": 74, "external_id": "reddit:submission:1wj7a05", "is_problem": false}
+{"source_item_id": 75, "external_id": "reddit:submission:1wj5x0m", "is_problem": false}
+{"source_item_id": 76, "external_id": "reddit:submission:1wj5n4d", "is_problem": false}
+{"source_item_id": 77, "external_id": "reddit:submission:1wj3w0v", "is_problem": false}
+{"source_item_id": 78, "external_id": "reddit:submission:1wiz5h7", "is_problem": false}
+{"source_item_id": 79, "external_id": "reddit:submission:1wivtuf", "is_problem": false}
+{"source_item_id": 81, "external_id": "reddit:submission:1wiuhv7", "is_problem": false}
+{"source_item_id": 82, "external_id": "reddit:submission:1wikd7e", "is_problem": false}
+{"source_item_id": 83, "external_id": "reddit:submission:1wij9zf", "is_problem": false}
+{"source_item_id": 84, "external_id": "reddit:submission:1wiacne", "is_problem": false}
+{"source_item_id": 85, "external_id": "reddit:submission:1wi7wy8", "is_problem": false}
+{"source_item_id": 86, "external_id": "reddit:submission:1wi3831", "is_problem": false}
+{"source_item_id": 87, "external_id": "reddit:submission:1wi2mly", "is_problem": false}
+{"source_item_id": 88, "external_id": "reddit:submission:1wi0i9k", "is_problem": false}
+{"source_item_id": 89, "external_id": "reddit:submission:1wkor8h", "is_problem": false}
+{"source_item_id": 90, "external_id": "reddit:submission:1wka14b", "is_problem": false}
+{"source_item_id": 91, "external_id": "reddit:submission:1wk6hrf", "is_problem": false}
+{"source_item_id": 92, "external_id": "reddit:submission:1wjs70p", "is_problem": false}
+{"source_item_id": 93, "external_id": "reddit:submission:1wj93f4", "is_problem": false}
+{"source_item_id": 94, "external_id": "reddit:submission:1wj4uvm", "is_problem": false}
+{"source_item_id": 95, "external_id": "reddit:submission:1wj2bda", "is_problem": false}
+{"source_item_id": 96, "external_id": "reddit:submission:1wj0ii2", "is_problem": false}
+{"source_item_id": 97, "external_id": "reddit:submission:1wj05of", "is_problem": false}
+{"source_item_id": 98, "external_id": "reddit:submission:1wkceq1", "is_problem": false}
+{"source_item_id": 99, "external_id": "reddit:submission:1wjyfr7", "is_problem": false}
+{"source_item_id": 100, "external_id": "reddit:submission:1wjy6vj", "is_problem": false}
+{"source_item_id": 101, "external_id": "reddit:submission:1wju4eb", "is_problem": false}
+{"source_item_id": 102, "external_id": "reddit:submission:1wjoh9t", "is_problem": false}
+{"source_item_id": 103, "external_id": "reddit:submission:1wj6s0a", "is_problem": false}
+{"source_item_id": 104, "external_id": "reddit:submission:1wj52i0", "is_problem": false}
+{"source_item_id": 105, "external_id": "reddit:submission:1wixrv6", "is_problem": false}
+{"source_item_id": 106, "external_id": "reddit:submission:1wiszx8", "is_problem": false}
+{"source_item_id": 108, "external_id": "reddit:submission:1wi8tk5", "is_problem": false}
+{"source_item_id": 109, "external_id": "reddit:submission:1wi8rul", "is_problem": false}
+{"source_item_id": 110, "external_id": "reddit:submission:1wi6056", "is_problem": false}
+{"source_item_id": 111, "external_id": "reddit:submission:1wi58j7", "is_problem": false}
+{"source_item_id": 113, "external_id": "reddit:submission:1wi2j8c", "is_problem": false}
+{"source_item_id": 114, "external_id": "reddit:submission:1wi1yni", "is_problem": false}

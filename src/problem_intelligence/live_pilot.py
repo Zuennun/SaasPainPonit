@@ -323,12 +323,27 @@ def live_pilot_wave_selections(
 
 
 REVIEW_FIELDS: tuple[str, ...] = (
-    "subreddit", "canonical_url", "classification", "problem_statement", "actor",
-    "job_context", "workaround", "impact", "payment_signal", "evidence_text",
+    "subreddit", "canonical_url", "title", "source_context", "classification",
+    "problem_statement", "actor", "job_context", "workaround", "impact",
+    "active_solution_search", "payment_signal", "evidence_text",
     "source_completeness", "provider",
     "human_pain_label", "human_strength_label", "human_cluster_notes",
     "human_extraction_notes", "reviewer_notes",
 )
+
+#: Enough surrounding context to judge an extraction without a database query,
+#: never the full raw text -- see build_review_export_rows.
+CONTEXT_EXCERPT_CHARS = 400
+
+
+def _context_excerpt(raw_text: str | None) -> str | None:
+    if not raw_text:
+        return None
+    normalized = " ".join(raw_text.split())
+    return (
+        normalized[:CONTEXT_EXCERPT_CHARS] + "…"
+        if len(normalized) > CONTEXT_EXCERPT_CHARS else normalized
+    )
 
 
 def build_review_export_rows(
@@ -362,7 +377,8 @@ def build_review_export_rows(
     for selected in selections:
         observation_rows = repository.connection.execute(
             f"""SELECT po.problem, po.actor, po.actor_role, po.context,
-                       po.current_workaround, po.time_impact, po.financial_impact, si.url,
+                       po.current_workaround, po.time_impact, po.financial_impact,
+                       po.active_solution_search, si.url, si.title, si.raw_text,
                        (SELECT es.excerpt FROM evidence_spans es
                         WHERE es.observation_id = po.id ORDER BY es.id LIMIT 1)
                         AS evidence_excerpt,
@@ -384,17 +400,19 @@ def build_review_export_rows(
         ).fetchall()
         for row in observation_rows:
             rows.append(_review_row(
-                subreddit=selected.source, canonical_url=row["url"],
+                subreddit=selected.source, canonical_url=row["url"], title=row["title"],
+                source_context=_context_excerpt(row["raw_text"]),
                 classification="STRONG_POSITIVE" if row["is_strong"] else "WEAK_POSITIVE",
                 problem_statement=row["problem"], actor=row["actor"] or row["actor_role"],
                 job_context=row["context"], workaround=row["current_workaround"],
                 impact=row["time_impact"] or row["financial_impact"],
+                active_solution_search=bool(row["active_solution_search"]),
                 payment_signal=row["payment_evidence"], evidence_text=row["evidence_excerpt"],
                 provider=row["providers"],
             ))
         if predictions is not None:
             negative_rows = repository.connection.execute(
-                """SELECT si.id, si.url, si.raw_text,
+                """SELECT si.id, si.url, si.title, si.raw_text,
                           (SELECT GROUP_CONCAT(DISTINCT a.provider) FROM acquisition_records a
                            WHERE a.source_item_id = si.id AND a.completeness = 'FULL')
                            AS providers
@@ -405,29 +423,35 @@ def build_review_export_rows(
             matches = [r for r in negative_rows if int(r["id"]) in negative_ids]
             for row in matches[:limit_per_source]:
                 rows.append(_review_row(
-                    subreddit=selected.source, canonical_url=row["url"],
+                    subreddit=selected.source, canonical_url=row["url"], title=row["title"],
+                    source_context=_context_excerpt(row["raw_text"]),
                     classification="NO_PAIN", problem_statement=None, actor=None,
-                    job_context=None, workaround=None, impact=None, payment_signal=None,
-                    evidence_text=row["raw_text"], provider=row["providers"],
+                    job_context=None, workaround=None, impact=None,
+                    active_solution_search=False, payment_signal=None, evidence_text=None,
+                    provider=row["providers"],
                 ))
     return tuple(rows)
 
 
 def _review_row(
-    *, subreddit: str, canonical_url: str | None, classification: str,
+    *, subreddit: str, canonical_url: str | None, title: str | None,
+    source_context: str | None, classification: str,
     problem_statement: str | None, actor: str | None, job_context: str | None,
-    workaround: str | None, impact: str | None, payment_signal: str | None,
-    evidence_text: str | None, provider: str | None,
+    workaround: str | None, impact: str | None, active_solution_search: bool,
+    payment_signal: str | None, evidence_text: str | None, provider: str | None,
 ) -> dict[str, Any]:
     return {
         "subreddit": subreddit,
         "canonical_url": canonical_url,
+        "title": title,
+        "source_context": source_context,
         "classification": classification,
         "problem_statement": problem_statement,
         "actor": actor,
         "job_context": job_context,
         "workaround": workaround,
         "impact": impact,
+        "active_solution_search": active_solution_search,
         "payment_signal": payment_signal,
         "evidence_text": evidence_text,
         "source_completeness": "FULL",

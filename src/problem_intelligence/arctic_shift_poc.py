@@ -27,6 +27,7 @@ from .arctic_shift import (
     ArcticShiftRedditProvider,
     is_removed_or_deleted,
     normalize_arctic_shift_record,
+    removal_state,
 )
 from .domain import ContentCompleteness
 from .live_pilot import LiveManifestEntry, read_live_manifest_csv
@@ -60,6 +61,8 @@ class ArcticShiftPocMetrics:
     partial: int = 0
     metadata_only: int = 0
     removed_or_deleted_excluded: int = 0
+    removed_excluded: int = 0
+    deleted_excluded: int = 0
     usable_records: int = 0
     new_source_items: int = 0
     existing_source_items: int = 0
@@ -75,6 +78,8 @@ def run_poc(
     sources: tuple[LiveManifestEntry, ...],
     *,
     per_source_limit: int,
+    start_date: str = "",
+    end_date: str = "",
 ) -> tuple[ArcticShiftPocMetrics, tuple[int, ...]]:
     if not sources:
         raise ValueError("PoC requires at least one source")
@@ -84,13 +89,18 @@ def run_poc(
     for entry in sources:
         subreddit = entry.subreddit.removeprefix("r/")
         source_metrics: dict[str, Any] = {
-            "records": 0, "full": 0, "partial": 0, "metadata_only": 0,
-            "removed_or_deleted_excluded": 0, "failure": None,
+            "records_returned": 0, "full": 0, "partial": 0, "metadata_only": 0,
+            "removed_or_deleted_excluded": 0, "removed_excluded": 0, "deleted_excluded": 0,
+            "failure": None,
+            "requested_time_window": {"after": start_date or None, "before": end_date or None},
+            "records_requested": per_source_limit,
         }
         metrics.sources[entry.subreddit] = source_metrics
         try:
-            discovery = provider.discover(subreddit, "", "", per_source_limit, 0)
-            fulltext = provider.fetch_fulltext(subreddit, "", "", per_source_limit, 0)
+            discovery = provider.discover(subreddit, start_date, end_date, per_source_limit, 0)
+            fulltext = provider.fetch_fulltext(
+                subreddit, start_date, end_date, per_source_limit, 0
+            )
         except ArcticShiftError as exc:
             source_metrics["failure"] = exc.failure.value
             metrics.failures[exc.failure.value] = metrics.failures.get(exc.failure.value, 0) + 1
@@ -111,10 +121,17 @@ def run_poc(
         oldest: str | None = None
         for raw in fulltext.records:
             metrics.records_received += 1
-            source_metrics["records"] += 1
+            source_metrics["records_returned"] += 1
             if is_removed_or_deleted(raw):
                 metrics.removed_or_deleted_excluded += 1
                 source_metrics["removed_or_deleted_excluded"] += 1
+                state = removal_state(raw)
+                if state == "REMOVED":
+                    metrics.removed_excluded += 1
+                    source_metrics["removed_excluded"] += 1
+                elif state == "DELETED":
+                    metrics.deleted_excluded += 1
+                    source_metrics["deleted_excluded"] += 1
             created_utc = raw.get("created_utc")
             if isinstance(created_utc, (int, float)) and not isinstance(created_utc, bool):
                 published = datetime.fromtimestamp(float(created_utc), tz=UTC).isoformat()
@@ -193,7 +210,8 @@ def render_report(metrics: ArcticShiftPocMetrics) -> str:
         f"FULL: {metrics.full}; PARTIAL: {metrics.partial}; "
         f"METADATA_ONLY: {metrics.metadata_only}.",
         f"Removed/deleted records excluded from the research run: "
-        f"{metrics.removed_or_deleted_excluded}.",
+        f"{metrics.removed_or_deleted_excluded} (REMOVED: {metrics.removed_excluded}; "
+        f"DELETED: {metrics.deleted_excluded}).",
         "",
         "## Ingestion",
         "",
@@ -226,6 +244,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--user-agent", required=True)
     parser.add_argument("--min-request-interval-seconds", type=float, default=3.0)
     parser.add_argument("--per-source-limit", type=int, default=4)
+    parser.add_argument("--start-date", default="", help="after (YYYY-MM-DD), empty = unbounded")
+    parser.add_argument("--end-date", default="", help="before (YYYY-MM-DD), empty = unbounded")
     args = parser.parse_args(argv)
 
     sources = read_live_manifest_csv(args.manifest)
@@ -239,6 +259,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         metrics, _ = run_poc(
             repository, provider, sources, per_source_limit=args.per_source_limit,
+            start_date=args.start_date, end_date=args.end_date,
         )
     finally:
         repository.close()

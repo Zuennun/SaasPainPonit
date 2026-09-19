@@ -316,14 +316,19 @@ class ReviewExportTests(unittest.TestCase):
         self.repository.close()
         self.temporary.cleanup()
 
-    def _ingest_full_item(self, external_id: str, text: str) -> int:
+    def _ingest_full_item(
+        self, external_id: str, text: str, *, title: str | None = None,
+    ) -> int:
         return self.repository.upsert_source_item(
-            source_id=self.source_id, external_id=external_id, raw_text=text,
+            source_id=self.source_id, external_id=external_id, raw_text=text, title=title,
             url=f"https://www.reddit.com/r/Accounting/comments/{external_id}/",
         )
 
     def test_review_rows_have_blank_human_columns_and_real_evidence(self) -> None:
-        item_id = self._ingest_full_item("ab1", "We manually reconcile duplicate invoices weekly.")
+        item_id = self._ingest_full_item(
+            "ab1", "We manually reconcile duplicate invoices weekly.",
+            title="Manual invoice pain",
+        )
         run_id = self.repository.record_discovery_response(
             source_id=self.source_id, provider="brandwatch", query="q1",
             availability=SourceAvailability.RESULTS,
@@ -363,9 +368,12 @@ class ReviewExportTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         row = rows[0]
         self.assertEqual(row["subreddit"], "r/Accounting")
+        self.assertEqual(row["title"], "Manual invoice pain")
+        self.assertIn("duplicate invoices", row["source_context"])
         self.assertIn("duplicate invoices", row["evidence_text"])
         self.assertEqual(row["source_completeness"], "FULL")
         self.assertEqual(row["provider"], "brandwatch")
+        self.assertIn("active_solution_search", row)
         for field in (
             "human_pain_label", "human_strength_label", "human_cluster_notes",
             "human_extraction_notes", "reviewer_notes",
@@ -377,6 +385,40 @@ class ReviewExportTests(unittest.TestCase):
             write_review_export_csv(path, rows)
             header = path.read_text(encoding="utf-8").splitlines()[0]
             self.assertEqual(REVIEW_FIELDS, tuple(header.split(",")))
+
+    def test_source_context_is_bounded_not_the_full_raw_text(self) -> None:
+        from problem_intelligence.live_pilot import CONTEXT_EXCERPT_CHARS
+
+        long_text = "We manually reconcile duplicate invoices weekly. " + ("padding " * 200)
+        item_id = self._ingest_full_item("ab2", long_text, title="Long post")
+        self.repository.create_observation_with_evidence(
+            source_item_id=item_id, problem_type=ProblemType.WORKFLOW_GAP,
+            evidence_scope=EvidenceScope.GLOBAL, problem="Manual invoice reconciliation",
+            extraction_version="test-v1",
+            evidence_ranges=(EvidenceRange(0, len("We manually reconcile duplicate invoices")),),
+        )
+        run_id = self.repository.record_discovery_response(
+            source_id=self.source_id, provider="brandwatch", query="q1",
+            availability=SourceAvailability.RESULTS,
+            results=(SearchResult("https://www.reddit.com/r/Accounting/comments/ab2/"),),
+            capabilities={}, latency_ms=1, cost_usd=None, error=None,
+        )
+        discovery = self.repository.connection.execute(
+            "SELECT id FROM discovery_records WHERE run_id = ?", (run_id,)
+        ).fetchone()
+        self.repository.record_acquisition(
+            discovery_id=int(discovery["id"]), source_item_id=item_id, provider="brandwatch",
+            state=DiscoveryState.CONTENT_COMPLETE, completeness=ContentCompleteness.FULL,
+            latency_ms=1, cost_usd=None, error=None, metadata={},
+        )
+        selections = live_pilot_wave_selections((
+            LiveManifestEntry("r/Accounting", "Finance", None, 10, "CORE", "ACTIVE",
+                               "NOT_FLAGGED"),
+        ))
+        rows = build_review_export_rows(self.repository, selections)
+        self.assertEqual(len(rows), 1)
+        self.assertLess(len(rows[0]["source_context"]), len(long_text))
+        self.assertLessEqual(len(rows[0]["source_context"]), CONTEXT_EXCERPT_CHARS + 1)
 
     def test_no_observations_yields_empty_review(self) -> None:
         selections = live_pilot_wave_selections((

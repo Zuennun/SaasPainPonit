@@ -128,6 +128,23 @@ def is_removed_or_deleted(raw: Mapping[str, Any]) -> bool:
     return category is not None and category is not False
 
 
+def removal_state(raw: Mapping[str, Any]) -> str | None:
+    """None, "REMOVED" (moderator/admin), or "DELETED" (by the post's author).
+    `[deleted]` is Reddit's own convention for author-deleted content; a
+    `removed_by_category` (e.g. "moderator", "reddit") without that marker is a
+    moderator/platform removal even when `selftext` also reads `[removed]`."""
+
+    selftext = raw.get("selftext")
+    if isinstance(selftext, str) and selftext == "[deleted]":
+        return "DELETED"
+    category = raw.get("removed_by_category")
+    if category is not None and category is not False:
+        return "REMOVED"
+    if isinstance(selftext, str) and selftext == "[removed]":
+        return "REMOVED"
+    return None
+
+
 class ArcticShiftRedditProvider:
     name = "arctic_shift"
     readiness = ProductionReadiness.CONTRACT_REVIEW_REQUIRED
