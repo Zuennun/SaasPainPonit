@@ -1,0 +1,93 @@
+{
+  "existing_source_items": 0,
+  "failed_requests": 0,
+  "failures": {},
+  "freshness": {
+    "r/Accounting": {
+      "age_of_newest_post_seconds": 125.777072,
+      "newest_available_post": "2026-09-19T18:31:18+00:00",
+      "oldest_in_sample": "2026-09-19T17:05:06+00:00",
+      "poc_retrieval_timestamp": "2026-09-19T18:33:23.777072+00:00"
+    },
+    "r/FreightBrokers": {
+      "age_of_newest_post_seconds": 7440.777072,
+      "newest_available_post": "2026-09-19T16:29:23+00:00",
+      "oldest_in_sample": "2026-09-19T09:42:18+00:00",
+      "poc_retrieval_timestamp": "2026-09-19T18:33:23.777072+00:00"
+    },
+    "r/HVAC": {
+      "age_of_newest_post_seconds": 1486.777072,
+      "newest_available_post": "2026-09-19T18:08:37+00:00",
+      "oldest_in_sample": "2026-09-19T15:12:18+00:00",
+      "poc_retrieval_timestamp": "2026-09-19T18:33:23.777072+00:00"
+    },
+    "r/PropertyManagement": {
+      "age_of_newest_post_seconds": 2884.777072,
+      "newest_available_post": "2026-09-19T17:45:19+00:00",
+      "oldest_in_sample": "2026-09-19T15:51:24+00:00",
+      "poc_retrieval_timestamp": "2026-09-19T18:33:23.777072+00:00"
+    },
+    "r/restaurantowners": {
+      "age_of_newest_post_seconds": 4648.777072,
+      "newest_available_post": "2026-09-19T17:15:55+00:00",
+      "oldest_in_sample": "2026-09-19T17:03:33+00:00",
+      "poc_retrieval_timestamp": "2026-09-19T18:33:23.777072+00:00"
+    }
+  },
+  "full": 8,
+  "latency_ms": 2096,
+  "metadata_only": 12,
+  "new_source_items": 8,
+  "partial": 0,
+  "records_normalized": 20,
+  "records_received": 20,
+  "removed_or_deleted_excluded": 11,
+  "requests": 5,
+  "sources": {
+    "r/Accounting": {
+      "failure": null,
+      "full": 3,
+      "metadata_only": 1,
+      "partial": 0,
+      "records": 4,
+      "removed_or_deleted_excluded": 1
+    },
+    "r/FreightBrokers": {
+      "failure": null,
+      "full": 0,
+      "metadata_only": 4,
+      "partial": 0,
+      "records": 4,
+      "removed_or_deleted_excluded": 3
+    },
+    "r/HVAC": {
+      "failure": null,
+      "full": 1,
+      "metadata_only": 3,
+      "partial": 0,
+      "records": 4,
+      "removed_or_deleted_excluded": 3
+    },
+    "r/PropertyManagement": {
+      "failure": null,
+      "full": 4,
+      "metadata_only": 0,
+      "partial": 0,
+      "records": 4,
+      "removed_or_deleted_excluded": 0
+    },
+    "r/restaurantowners": {
+      "failure": null,
+      "full": 0,
+      "metadata_only": 4,
+      "partial": 0,
+      "records": 4,
+      "removed_or_deleted_excluded": 4
+    }
+  },
+  "status": "CONNECTED",
+  "successful_requests": 5,
+  "technical_status": "VALIDATED",
+  "usable_records": 8,
+  "usage_rights": "REVIEW_REQUIRED"
+}

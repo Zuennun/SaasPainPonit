@@ -118,17 +118,22 @@ shaped as paginated mentions rather than discovered URLs. See
 deliberately different acquisition abstraction that converges with the
 search-driven path only at `Repository.ingest_reddit_content`.
 
-`RedditRssProvider` (public subreddit RSS/Atom feeds) implements that boundary but
-is currently **`POLICY_BLOCKED`**: reddit.com's `robots.txt` disallows automated
-access, so this is not an approved production path despite being technically
-validated (see `docs/decisions/0002-reddit-rss-free-acquisition.md`'s correction).
-`BrandwatchRedditProvider` (a paid, rights-gated provider) remains available but
-unused. Neither the official Reddit API nor any paid Reddit data provider is
-assumed. Both providers' design still holds for whichever compliant source is
-approved next: RSS is a rolling, forward-looking view of recent posts, not a
-historical archive — the project's own database becomes the historical record
-through repeated, idempotent polling. Only top-level posts are collected; comment
-collection and Reddit's search RSS endpoint are both explicitly out of scope, not
+Three implementations of that boundary exist. `RedditRssProvider` (public
+subreddit RSS/Atom feeds) is **`POLICY_BLOCKED`**: reddit.com's `robots.txt`
+disallows automated access, so it is not an approved production path despite
+being technically validated (`docs/decisions/0002-reddit-rss-free-acquisition.md`'s
+correction). `ArcticShiftRedditProvider` (an independent third-party Reddit
+archive whose own `robots.txt` explicitly permits automated access) is the
+current zero-cost acquisition candidate: technically validated against live
+data, with commercial usage rights still under review
+(`docs/decisions/0003-arctic-shift-independent-archive.md`). `BrandwatchRedditProvider`
+(a paid, rights-gated provider) remains available but unused. Neither the
+official Reddit API nor any paid Reddit data provider is assumed. All three
+providers' design holds regardless of which is active: for an archive/feed
+source, the project's own database becomes the historical record through
+repeated, idempotent polling rather than assuming the source holds deep
+history itself. Only top-level posts are collected across all three; comment
+collection and Reddit's search RSS endpoint are explicitly out of scope, not
 merely unimplemented.
 
 ### Versioned extraction provenance

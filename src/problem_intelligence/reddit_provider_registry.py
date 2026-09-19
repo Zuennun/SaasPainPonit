@@ -11,6 +11,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from .arctic_shift import ArcticShiftRedditProvider
 from .brandwatch import BrandwatchConfig, BrandwatchRedditProvider
 from .brandwatch_poc import load_manifest
 from .reddit_provider import ProductionReadiness
@@ -57,8 +58,24 @@ def reddit_rss_provider_status() -> ProviderStatusRow:
     return ProviderStatusRow("reddit_rss", "READY", "NOT_REQUIRED", rights.value, production)
 
 
+def arctic_shift_provider_status() -> ProviderStatusRow:
+    """No credential concept: the gate is commercial usage rights, documented in
+    docs/providers/arctic-shift-rights-checklist.md, not a missing token. Technical
+    access is confirmed permitted by Arctic Shift's own robots.txt and a successful
+    live PoC (exports/arctic_shift_reddit_poc.md); that does not itself grant
+    PRODUCTION_APPROVED."""
+
+    rights = ArcticShiftRedditProvider.readiness
+    production = "APPROVED" if rights is ProductionReadiness.PRODUCTION_APPROVED else "BLOCKED"
+    return ProviderStatusRow("arctic_shift", "READY", "NOT_REQUIRED", rights.value, production)
+
+
 def known_provider_rows(*, env: Mapping[str, str] | None = None) -> tuple[ProviderStatusRow, ...]:
-    return (brandwatch_provider_status(env=env), reddit_rss_provider_status())
+    return (
+        brandwatch_provider_status(env=env),
+        reddit_rss_provider_status(),
+        arctic_shift_provider_status(),
+    )
 
 
 def render_provider_status_table(rows: Sequence[ProviderStatusRow]) -> str:

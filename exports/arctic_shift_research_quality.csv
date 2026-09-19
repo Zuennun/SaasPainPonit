@@ -1,0 +1,6 @@
+source,category,target_items,health_status,policy_ready,acquisition_eligible,search_requests,requested_items,discovered_urls,unique_urls,duplicates_removed,full_items,partial_items,metadata_only_items,failed_acquisitions,acquisition_success_rate,usable_items,items_after_prefilter,pain_observations,strong_signals,active_solution_searches,quantified_impacts,payment_signals,manual_workaround_signals,diy_internal_tool_signals,acquisition_cost_usd,processing_cost_usd,unknown_cost_records,latency_ms,pain_per_1000_usable,strong_per_1000_usable,active_per_1000_usable,payment_per_1000_usable,cost_per_strong_signal_usd,research_quality,sample_size_usable
+r/Accounting,Pro_Services,4,ACTIVE,True,False,1,,4,4,0,3,0,1,0,0.75,3,3,1,0,0,0,0,0,0,,,5,,333.3333333333333,0.0,0.0,0.0,,DESCRIPTIVE_ONLY,3
+r/restaurantowners,Restaurant,4,ACTIVE,True,False,1,,4,4,0,0,0,4,0,0.0,0,,,,,,,,,,,5,,,,,,,UNMEASURED,0
+r/PropertyManagement,RealEstate_Property,4,ACTIVE,True,False,1,,4,4,0,4,0,0,0,1.0,4,4,1,0,0,0,0,0,0,,,5,,250.0,0.0,0.0,0.0,,DESCRIPTIVE_ONLY,4
+r/HVAC,Construction_Trades,4,ACTIVE,True,False,1,,4,4,0,1,0,3,0,0.25,1,1,0,0,0,0,0,0,0,,,5,,0.0,0.0,0.0,0.0,,DESCRIPTIVE_ONLY,1
+r/FreightBrokers,Logistics_Transport,4,ACTIVE,True,False,1,,4,4,0,0,0,4,0,0.0,0,,,,,,,,,,,5,,,,,,,UNMEASURED,0
