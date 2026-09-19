@@ -367,6 +367,32 @@ def parser() -> argparse.ArgumentParser:
         "--manifest", type=Path, default=Path("docs/providers/brandwatch-poc.json")
     )
 
+    live_pilot = commands.add_parser(
+        "reddit-live-pilot",
+        help="run (or dry-run) a provider-neutral live pilot over the curated manifest",
+    )
+    live_pilot.add_argument("--provider", required=True, choices=("brandwatch",))
+    live_pilot.add_argument(
+        "--manifest", type=Path, default=Path("exports/reddit_wave1_live_manifest.csv")
+    )
+    live_pilot.add_argument("--database", type=Path)
+    live_pilot.add_argument("--max-sources", type=int, default=25)
+    live_pilot.add_argument("--max-items-per-source", type=int, default=100)
+    live_pilot.add_argument("--start-date")
+    live_pilot.add_argument("--end-date")
+    live_pilot.add_argument(
+        "--provider-config",
+        type=Path,
+        default=Path("docs/providers/brandwatch-poc.json"),
+        help="provider-specific per-subreddit configuration (e.g. Brandwatch query IDs); "
+        "never stored in the provider-independent manifest",
+    )
+    live_pilot.add_argument(
+        "--state", type=Path, default=Path("exports/reddit_live_pilot_state.json")
+    )
+    live_pilot.add_argument("--output", type=Path, default=Path("exports"))
+    live_pilot.add_argument("--dry-run", action="store_true")
+
     sources_import = commands.add_parser(
         "sources-import", help="import a legacy subreddit CSV as untrusted metadata"
     )
@@ -782,6 +808,65 @@ def parser() -> argparse.ArgumentParser:
     return result
 
 
+def _run_live_pilot(args: argparse.Namespace) -> int:
+    """Dry-run needs no database and makes zero provider calls. A real run requires
+    --database, --start-date/--end-date, and a provider readiness gate that passes;
+    it never silently falls back to fixtures when blocked."""
+
+    from dataclasses import asdict
+
+    from .brandwatch import BrandwatchConfig, BrandwatchRedditProvider
+    from .brandwatch_live_adapter import (
+        build_brandwatch_acquire_source,
+        load_brandwatch_provider_config,
+    )
+    from .live_pilot import build_dry_run_report, read_live_manifest_csv, run_live_pilot
+
+    manifest = read_live_manifest_csv(args.manifest)
+    gate = evaluate_brandwatch_live_run_gate(args.provider_config)
+    capabilities = asdict(BrandwatchRedditProvider.capabilities)
+    dry_run = build_dry_run_report(
+        provider=args.provider, manifest=manifest, max_sources=args.max_sources,
+        max_items_per_source=args.max_items_per_source, gate=gate, capabilities=capabilities,
+    )
+    if args.dry_run:
+        print(json.dumps(dry_run.to_dict(), indent=2, sort_keys=True))
+        return 0
+    if not gate.allowed:
+        print(json.dumps(
+            {"allowed": False, "reasons": list(gate.reasons)}, indent=2, sort_keys=True
+        ))
+        return 2
+    if args.database is None or not args.start_date or not args.end_date:
+        print(json.dumps({
+            "error": "--database, --start-date, and --end-date are required for a real run",
+        }))
+        return 2
+
+    repository = Repository(args.database)
+    repository.initialize()
+    try:
+        provider_config = load_brandwatch_provider_config(args.provider_config)
+        provider = BrandwatchRedditProvider(BrandwatchConfig.from_environment())
+        acquire_source = build_brandwatch_acquire_source(
+            repository, provider, provider_config,
+            start_date=args.start_date, end_date=args.end_date,
+            max_page_size=args.max_items_per_source,
+        )
+        result = run_live_pilot(
+            provider=args.provider, sources=manifest[: args.max_sources], gate=gate,
+            acquire_source=acquire_source, state_path=args.state,
+        )
+    finally:
+        repository.close()
+    print(json.dumps({
+        "provider": result.provider,
+        "completed": list(result.completed),
+        "failed": list(result.failed),
+    }, indent=2, sort_keys=True))
+    return 0 if not result.failed else 2
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parser().parse_args(argv)
     if args.command == "validate-benchmark":
@@ -880,6 +965,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         )
         return 0 if gate.allowed else 2
+    if args.command == "reddit-live-pilot":
+        return _run_live_pilot(args)
 
     repository = Repository(args.database)
     try:

@@ -64,6 +64,34 @@ Sources have a stable normalized key. Items are unique by `(source_id,
 normalized_external_id)`. Re-ingestion updates metadata while retaining identity;
 source text becomes immutable after evidence references it.
 
+### Real data is isolated from test/fixture data by construction, not by a flag
+
+There is no `REAL`/`FIXTURE`/`TEST` column anywhere in the schema, and none is
+needed. `Repository()` defaults to an isolated `:memory:` SQLite database; every test
+in `tests/` either uses that default or an explicit `tmp_path` file, and no test ever
+opens a real, on-disk pilot database. A live pilot, by contrast, always requires an
+explicit `--database` path (`reddit-live-pilot` refuses to run without one). Fixture
+and test rows therefore never physically exist in the same database file as real
+pilot data — there is nothing to filter, because there is no shared table to filter
+it out of. If this ever changes (for example, a shared long-lived on-disk database
+used for both tests and real runs), a provenance column would become necessary; it
+is deliberately not added preemptively.
+
+### Curated assessment and observed performance stay on separate read paths
+
+`pilot_planner.build_pilot_plan` reads only `source_registry_profiles` (the curated
+`strict_relevance` audit — "where should we start scanning"). `source_metrics.py`
+(`refresh_source_metrics`, `ranked_source_performance`, `plan_source_budget`) reads
+only measured `source_metrics` snapshots built from stored evidence — "was that
+source actually useful". Neither module writes into the other's table, so running
+one can never overwrite or bias the other. `SourceBudgetPlan.policy` states this
+explicitly: `automatic_lifecycle_changes: False` — promotion/demotion between CORE,
+PILOT, and other tiers is a manual decision made by reading both views side by side
+(per-1000 yields from `source_metrics`, curated relevance from the registry), never
+computed automatically from a single composite score. `reddit-live-pilot --dry-run`
+never touches either table; only a real run's actual acquisitions can later feed
+`source-metrics-refresh`.
+
 ### Explicit acquisition boundary
 
 Connectors expose a `SourceDescriptor` and an iterator of provider-neutral source
