@@ -1,4 +1,5 @@
-"""Narrow, provider-independent Reddit acquisition contract for licensed feeds."""
+"""Narrow, provider-independent Reddit acquisition contract for feed/data-provider
+style providers (paginated mentions plus optional fulltext), licensed or free."""
 
 from __future__ import annotations
 
@@ -18,6 +19,8 @@ class ProviderFailure(StrEnum):
     QUERY_CONFIGURATION_ERROR = "QUERY_CONFIGURATION_ERROR"
     FULLTEXT_UNAVAILABLE = "FULLTEXT_UNAVAILABLE"
     SOURCE_NOT_COVERED = "SOURCE_NOT_COVERED"
+    ACCESS_RESTRICTED = "ACCESS_RESTRICTED"
+    INVALID_FEED = "INVALID_FEED"
     UNKNOWN_ERROR = "UNKNOWN_ERROR"
 
 
@@ -66,7 +69,11 @@ class RedditProviderRecord:
 
 @dataclass(frozen=True, slots=True)
 class ProviderPage:
-    records: tuple[dict[str, Any], ...]
+    """`records` is opaque: each provider's own raw shape (a dict for Brandwatch's
+    JSON mentions, an RssEntry for RedditRssProvider, ...). Only that provider's own
+    normalize function is expected to understand it."""
+
+    records: tuple[Any, ...]
     total: int | None
     page: int
     latency_ms: int

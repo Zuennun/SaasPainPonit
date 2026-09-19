@@ -14,6 +14,7 @@ from pathlib import Path
 from .brandwatch import BrandwatchConfig, BrandwatchRedditProvider
 from .brandwatch_poc import load_manifest
 from .reddit_provider import ProductionReadiness
+from .reddit_rss import RedditRssProvider
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,8 +46,19 @@ def brandwatch_provider_status(*, env: Mapping[str, str] | None = None) -> Provi
     return ProviderStatusRow("brandwatch", "READY", credentials, rights.value, production)
 
 
+def reddit_rss_provider_status() -> ProviderStatusRow:
+    """Public RSS access has no credential concept; the gate is the access-basis
+    arrangement documented in docs/providers/reddit-rss-rights-checklist.md, not a
+    missing token. A live PoC has run successfully (exports/reddit_rss_poc.md), but
+    that does not itself grant PRODUCTION_APPROVED."""
+
+    rights = RedditRssProvider.readiness
+    production = "APPROVED" if rights is ProductionReadiness.PRODUCTION_APPROVED else "BLOCKED"
+    return ProviderStatusRow("reddit_rss", "READY", "NOT_REQUIRED", rights.value, production)
+
+
 def known_provider_rows(*, env: Mapping[str, str] | None = None) -> tuple[ProviderStatusRow, ...]:
-    return (brandwatch_provider_status(env=env),)
+    return (brandwatch_provider_status(env=env), reddit_rss_provider_status())
 
 
 def render_provider_status_table(rows: Sequence[ProviderStatusRow]) -> str:

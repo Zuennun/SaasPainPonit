@@ -1,0 +1,56 @@
+{
+  "duplicates": 0,
+  "entries_returned": 60,
+  "existing_source_items": 0,
+  "failed_feeds": 1,
+  "failures": {
+    "RATE_LIMITED": 5
+  },
+  "full": 50,
+  "latency_ms": 4361,
+  "metadata_only": 10,
+  "new_source_items": 50,
+  "partial": 0,
+  "rate_limited_responses": 5,
+  "requests": 9,
+  "sources": {
+    "r/Accounting": {
+      "entries": 15,
+      "failure": null,
+      "full": 14,
+      "metadata_only": 1,
+      "partial": 0
+    },
+    "r/FreightBrokers": {
+      "entries": 15,
+      "failure": null,
+      "full": 9,
+      "metadata_only": 6,
+      "partial": 0
+    },
+    "r/HVAC": {
+      "entries": 0,
+      "failure": "RATE_LIMITED (persistent across 3 attempts; pending next scheduled poll)",
+      "full": 0,
+      "metadata_only": 0,
+      "partial": 0
+    },
+    "r/PropertyManagement": {
+      "entries": 15,
+      "failure": null,
+      "full": 13,
+      "metadata_only": 2,
+      "partial": 0
+    },
+    "r/restaurantowners": {
+      "entries": 15,
+      "failure": null,
+      "full": 14,
+      "metadata_only": 1,
+      "partial": 0
+    }
+  },
+  "status": "CONNECTED",
+  "successful_feeds": 4,
+  "unique_submissions": 60
+}

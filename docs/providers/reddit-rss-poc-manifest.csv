@@ -1,0 +1,6 @@
+subreddit,category,target_group,pilot_item_target,selection_reason,activity_state,access_state
+r/Accounting,Pro_Services,"Berater, Accounting, Management",15,"CORE, ACTIVE_VERIFIED_2026-09, SCAN_PILOT_NOW per curated registry audit",ACTIVE_VERIFIED_2026-09,NOT_FLAGGED
+r/restaurantowners,Restaurant,Gastro-/Bar-Betreiber,15,"CORE, ACTIVE_VERIFIED_2026-09, SCAN_PILOT_NOW per curated registry audit",ACTIVE_VERIFIED_2026-09,NOT_FLAGGED
+r/PropertyManagement,RealEstate_Property,Property managers,15,"CORE, ACTIVE_VERIFIED_2026-09, SCAN_PILOT_NOW per curated registry audit",ACTIVE_VERIFIED_2026-09,NOT_FLAGGED
+r/HVAC,Construction_Trades,"Bauunternehmen, Handwerker, Bauleiter",15,"CORE, ACTIVE_VERIFIED_2026-09, SCAN_PILOT_NOW per curated registry audit",ACTIVE_VERIFIED_2026-09,NOT_FLAGGED
+r/FreightBrokers,Logistics_Transport,"Logistik, Spedition, Fahrer, Disponenten",15,"CORE, ACTIVE_VERIFIED_2026-09, SCAN_PILOT_NOW per curated registry audit",ACTIVE_VERIFIED_2026-09,NOT_FLAGGED

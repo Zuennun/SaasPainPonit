@@ -112,11 +112,21 @@ completeness. Multiple provider/query records retain provenance while canonical
 identity deduplicates the downstream source item. The bundled adapters replay
 JSONL captures and never perform access-evasion or direct network collection.
 
-A third, feed/data-provider boundary (`RedditDataProvider`, e.g. Brandwatch) exists
-for licensed bulk feeds shaped as paginated mentions rather than discovered URLs.
-See `docs/decisions/0001-two-reddit-acquisition-shapes.md` for why this stays a
-second, deliberately different acquisition abstraction that converges with the
+A third, feed/data-provider boundary (`RedditDataProvider`) exists for providers
+shaped as paginated mentions rather than discovered URLs. See
+`docs/decisions/0001-two-reddit-acquisition-shapes.md` for why this stays a second,
+deliberately different acquisition abstraction that converges with the
 search-driven path only at `Repository.ingest_reddit_content`.
+
+`RedditRssProvider` (public subreddit RSS/Atom feeds) is the current zero-cost
+production implementation of that boundary; `BrandwatchRedditProvider` (a paid,
+rights-gated provider) remains available but unused. Neither the official Reddit
+API nor any paid Reddit data provider is assumed. RSS is a rolling, forward-looking
+view of recent posts, not a historical archive — the project's own database becomes
+the historical record through repeated, idempotent polling. Only top-level posts
+are collected; comment collection and Reddit's search RSS endpoint are both
+explicitly out of scope, not merely unimplemented. See
+`docs/decisions/0002-reddit-rss-free-acquisition.md`.
 
 ### Versioned extraction provenance
 

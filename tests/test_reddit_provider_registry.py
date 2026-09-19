@@ -11,6 +11,7 @@ from problem_intelligence.reddit_provider_registry import (
     evaluate_brandwatch_live_run_gate,
     evaluate_live_run_gate,
     known_provider_rows,
+    reddit_rss_provider_status,
     render_provider_status_table,
 )
 
@@ -32,9 +33,18 @@ def test_brandwatch_status_detects_available_credentials() -> None:
     assert row.production == "BLOCKED"
 
 
+def test_reddit_rss_status_reports_no_credential_concept_but_stays_rights_gated() -> None:
+    row = reddit_rss_provider_status()
+    assert row.name == "reddit_rss"
+    assert row.technical == "READY"
+    assert row.credentials == "NOT_REQUIRED"
+    assert row.rights == "CONTRACT_REVIEW_REQUIRED"
+    assert row.production == "BLOCKED"
+
+
 def test_only_implemented_providers_are_listed() -> None:
     rows = known_provider_rows(env={})
-    assert [row.name for row in rows] == ["brandwatch"]
+    assert [row.name for row in rows] == ["brandwatch", "reddit_rss"]
 
 
 def test_status_table_renders_aligned_columns() -> None:
