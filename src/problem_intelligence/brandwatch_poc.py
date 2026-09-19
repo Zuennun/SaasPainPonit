@@ -149,8 +149,7 @@ def run_poc(
                     source.query_id, start_date, end_date, page_size, page
                 )
                 full_records = complete.records
-            except BrandwatchError as exc:
-                metrics.failures[exc.failure.value] = metrics.failures.get(exc.failure.value, 0) + 1
+            except BrandwatchError:
                 metrics.failures[ProviderFailure.FULLTEXT_UNAVAILABLE.value] = (
                     metrics.failures.get(ProviderFailure.FULLTEXT_UNAVAILABLE.value, 0) + 1
                 )

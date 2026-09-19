@@ -200,7 +200,7 @@ def test_fulltext_failure_keeps_partial_discoveries() -> None:
         start_date="2026-09-01", end_date="2026-09-19", limit=10,
     )
     assert len(records) == 1 and metrics.partial == 1
-    assert metrics.failures["FULLTEXT_UNAVAILABLE"] == 1
+    assert metrics.failures == {"FULLTEXT_UNAVAILABLE": 1}
 
 
 def test_poc_pagination_dedupe_and_content_metrics() -> None:
