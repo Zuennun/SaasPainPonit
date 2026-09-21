@@ -97,7 +97,7 @@ class ContentIngestionOutcome:
     conflict_detected: bool
 
 
-SCHEMA_VERSION = 23
+SCHEMA_VERSION = 25
 
 
 def _last_insert_id(cursor: sqlite3.Cursor) -> int:
@@ -222,6 +222,23 @@ class Repository:
             self.connection.commit()
         schema = files("problem_intelligence").joinpath("schema.sql").read_text(encoding="utf-8")
         self.connection.executescript(schema)
+        attempt_columns = {
+            str(row["name"]) for row in self.connection.execute(
+                "PRAGMA table_info(structured_inference_attempts)"
+            ).fetchall()
+        }
+        if "endpoint_class" not in attempt_columns:
+            self.connection.execute(
+                "ALTER TABLE structured_inference_attempts "
+                "ADD COLUMN endpoint_class TEXT NOT NULL DEFAULT 'unknown'"
+            )
+        if "usage_reported" not in attempt_columns:
+            self.connection.execute(
+                "ALTER TABLE structured_inference_attempts "
+                "ADD COLUMN usage_reported INTEGER NOT NULL DEFAULT 0 "
+                "CHECK (usage_reported IN (0, 1))"
+            )
+        self.connection.commit()
         # CREATE TABLE IF NOT EXISTS does not add columns to older registry tables.
         # Also repair databases whose prior initialization advanced user_version
         # before an attempted registry import exposed the missing column.
@@ -1868,6 +1885,84 @@ class Repository:
             currency=row["currency"],
             cost_measurement_source=row["measurement_source"],
         )
+
+    def cached_structured_inference(self, identity_key: str) -> sqlite3.Row | None:
+        return self.connection.execute(
+            "SELECT * FROM structured_inference_cache WHERE identity_key = ?",
+            (identity_key,),
+        ).fetchone()
+
+    def record_structured_attempt(
+        self, *, model_run_id: str, source_item_id: int, stage: str,
+        attempt_number: int, failure_code: str | None,
+        endpoint_class: str = "unknown", usage_reported: bool = False,
+    ) -> None:
+        if stage not in {"SCREENING", "EXTRACTION"} or attempt_number < 0:
+            raise ValueError("invalid inference attempt")
+        with self.transaction() as connection:
+            connection.execute(
+                """INSERT INTO structured_inference_attempts (
+                       model_run_id, source_item_id, stage,
+                       attempt_number, failure_code, endpoint_class, usage_reported
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (model_run_id, source_item_id, stage, attempt_number, failure_code,
+                 endpoint_class, int(usage_reported)),
+            )
+
+    def record_structured_inference(
+        self,
+        *,
+        identity_key: str,
+        source_item_id: int,
+        content_hash: str,
+        stage: str,
+        pipeline_version: str,
+        prompt_version: str,
+        schema_version: str,
+        provider: str,
+        model: str,
+        model_config_hash: str,
+        result: dict[str, Any],
+        model_run_id: str,
+    ) -> None:
+        if stage not in {"SCREENING", "EXTRACTION"}:
+            raise ValueError("unknown inference stage")
+        payload = json.dumps(result, sort_keys=True, separators=(",", ":"))
+        with self.transaction() as connection:
+            connection.execute(
+                """INSERT INTO structured_inference_cache (
+                       identity_key, source_item_id, content_hash, stage,
+                       pipeline_version, prompt_version, schema_version,
+                       provider, model, model_config_hash, result_json, model_run_id
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    identity_key, source_item_id, content_hash, stage,
+                    pipeline_version, prompt_version, schema_version,
+                    provider, model, model_config_hash, payload, model_run_id,
+                ),
+            )
+
+    def link_structured_observation(self, identity_key: str, observation_id: int) -> None:
+        with self.transaction() as connection:
+            cursor = connection.execute(
+                """UPDATE structured_inference_cache SET observation_id = ?
+                   WHERE identity_key = ? AND stage = 'EXTRACTION'
+                     AND (observation_id IS NULL OR observation_id = ?)""",
+                (observation_id, identity_key, observation_id),
+            )
+            if cursor.rowcount != 1:
+                raise IntegrityError("extraction cache absent or linked to another observation")
+
+    def observation_for_inference(
+        self, source_item_id: int, extraction_version: str
+    ) -> int | None:
+        row = self.connection.execute(
+            """SELECT id FROM problem_observations
+               WHERE source_item_id = ? AND extraction_version = ?
+               ORDER BY id LIMIT 1""",
+            (source_item_id, extraction_version),
+        ).fetchone()
+        return int(row["id"]) if row is not None else None
 
     def clusterable_observations(self) -> tuple[ObservationRecord, ...]:
         """Return manual observations and outputs from completed extraction runs."""

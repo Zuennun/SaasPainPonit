@@ -260,6 +260,37 @@ CREATE TABLE IF NOT EXISTS model_runs (
     UNIQUE (provider, external_run_id)
 );
 
+CREATE TABLE IF NOT EXISTS structured_inference_cache (
+    identity_key TEXT PRIMARY KEY,
+    source_item_id INTEGER NOT NULL REFERENCES source_items(id),
+    content_hash TEXT NOT NULL,
+    stage TEXT NOT NULL CHECK (stage IN ('SCREENING','EXTRACTION')),
+    pipeline_version TEXT NOT NULL,
+    prompt_version TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    model TEXT NOT NULL,
+    model_config_hash TEXT NOT NULL,
+    result_json TEXT NOT NULL CHECK (json_valid(result_json)),
+    model_run_id TEXT NOT NULL REFERENCES model_runs(id),
+    observation_id INTEGER REFERENCES problem_observations(id),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS structured_inference_attempts (
+    model_run_id TEXT PRIMARY KEY REFERENCES model_runs(id) ON DELETE CASCADE,
+    source_item_id INTEGER NOT NULL REFERENCES source_items(id),
+    stage TEXT NOT NULL CHECK (stage IN ('SCREENING','EXTRACTION')),
+    attempt_number INTEGER NOT NULL CHECK (attempt_number >= 0),
+    failure_code TEXT,
+    endpoint_class TEXT NOT NULL DEFAULT 'unknown',
+    usage_reported INTEGER NOT NULL DEFAULT 0 CHECK (usage_reported IN (0, 1)),
+    recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_structured_inference_item
+    ON structured_inference_cache(source_item_id, stage, created_at);
+
 CREATE TABLE IF NOT EXISTS cost_events (
     id INTEGER PRIMARY KEY,
     model_run_id TEXT NOT NULL UNIQUE REFERENCES model_runs(id) ON DELETE CASCADE,
@@ -1306,4 +1337,4 @@ CREATE INDEX IF NOT EXISTS idx_cost_events_model_run ON cost_events(model_run_id
 CREATE INDEX IF NOT EXISTS idx_saved_opportunities_saved_at
     ON saved_opportunities(saved_at);
 
-PRAGMA user_version = 23;
+PRAGMA user_version = 25;

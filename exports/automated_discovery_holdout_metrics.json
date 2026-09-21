@@ -1,0 +1,19 @@
+{
+  "blocker": "OPENAI_API_KEY, DISCOVERY_MODEL, ARCTIC_SHIFT_USER_AGENT or --user-agent, explicit rights confirmation for third-party LLM processing",
+  "cost_usd": "UNKNOWN",
+  "evidence_validation_failures": null,
+  "extraction_calls": null,
+  "inference_failures": null,
+  "input_tokens": null,
+  "no_pain": null,
+  "output_tokens": null,
+  "potential_pain": null,
+  "real_holdout_run": false,
+  "records_acquired": null,
+  "runtime_seconds": null,
+  "screening_calls": null,
+  "status": "NOT_RUN_CONFIGURATION_REQUIRED",
+  "strong_signals": null,
+  "usable_records": null,
+  "valid_observations": null
+}

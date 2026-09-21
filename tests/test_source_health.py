@@ -149,7 +149,7 @@ class SourceHealthTests(unittest.TestCase):
         }
         self.assertIn("strict_reason", columns)
         self.assertEqual(
-            self.repository.connection.execute("PRAGMA user_version").fetchone()[0], 23
+            self.repository.connection.execute("PRAGMA user_version").fetchone()[0], 25
         )
 
 

@@ -90,7 +90,7 @@ class RepositoryTests(unittest.TestCase):
     def test_schema_is_versioned_and_initialization_is_idempotent(self) -> None:
         self.repository.initialize()
         version = self.repository.connection.execute("PRAGMA user_version").fetchone()[0]
-        self.assertEqual(version, 23)
+        self.assertEqual(version, 25)
 
     def test_schema_22_discovery_requested_items_is_migrated(self) -> None:
         self.repository.connection.execute(
@@ -106,7 +106,27 @@ class RepositoryTests(unittest.TestCase):
         }
         self.assertIn("requested_items", columns)
         self.assertEqual(
-            self.repository.connection.execute("PRAGMA user_version").fetchone()[0], 23
+            self.repository.connection.execute("PRAGMA user_version").fetchone()[0], 25
+        )
+
+    def test_schema_24_inference_attempt_metadata_is_migrated(self) -> None:
+        self.repository.connection.execute(
+            "ALTER TABLE structured_inference_attempts DROP COLUMN endpoint_class"
+        )
+        self.repository.connection.execute(
+            "ALTER TABLE structured_inference_attempts DROP COLUMN usage_reported"
+        )
+        self.repository.connection.execute("PRAGMA user_version = 24")
+        self.repository.initialize()
+        columns = {
+            row["name"] for row in self.repository.connection.execute(
+                "PRAGMA table_info(structured_inference_attempts)"
+            )
+        }
+        self.assertIn("endpoint_class", columns)
+        self.assertIn("usage_reported", columns)
+        self.assertEqual(
+            self.repository.connection.execute("PRAGMA user_version").fetchone()[0], 25
         )
 
     def test_schema_four_registry_is_migrated_with_scan_directive(self) -> None:
@@ -123,7 +143,7 @@ class RepositoryTests(unittest.TestCase):
         }
         self.assertIn("scan_directive", columns)
         version = self.repository.connection.execute("PRAGMA user_version").fetchone()[0]
-        self.assertEqual(version, 23)
+        self.assertEqual(version, 25)
 
     def test_schema_fourteen_adds_complete_source_policy_columns(self) -> None:
         policy_columns = (
@@ -144,7 +164,7 @@ class RepositoryTests(unittest.TestCase):
         }
         self.assertTrue(set(policy_columns) <= columns)
         version = self.repository.connection.execute("PRAGMA user_version").fetchone()[0]
-        self.assertEqual(version, 23)
+        self.assertEqual(version, 25)
 
     def test_schema_sixteen_normalizes_review_required_source_policy(self) -> None:
         self.repository.connection.execute(
@@ -159,7 +179,7 @@ class RepositoryTests(unittest.TestCase):
         ).fetchone()[0]
         self.assertEqual(status, "REVIEW_REQUIRED")
         version = self.repository.connection.execute("PRAGMA user_version").fetchone()[0]
-        self.assertEqual(version, 23)
+        self.assertEqual(version, 25)
 
     def test_model_telemetry_is_exact_idempotent_and_cost_optional(self) -> None:
         pipeline_run_id = self.repository.start_pipeline_run(
