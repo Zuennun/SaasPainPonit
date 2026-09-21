@@ -21,8 +21,9 @@ def endpoint_class(base_url: str) -> str:
     host = parsed.hostname or ""
     if parsed.scheme not in {"http", "https"} or not host or parsed.username or parsed.password:
         raise ValueError("DISCOVERY_BASE_URL must be an http(s) URL without credentials")
-    if parsed.query or parsed.fragment or parsed.path.rstrip("/") not in {"", "/v1"}:
-        raise ValueError("DISCOVERY_BASE_URL must end at the API root or /v1")
+    _ALLOWED_PATHS = {"", "/v1", "/v1beta/openai"}
+    if parsed.query or parsed.fragment or parsed.path.rstrip("/") not in _ALLOWED_PATHS:
+        raise ValueError("DISCOVERY_BASE_URL must end at the API root, /v1, or /v1beta/openai")
     if host.casefold() == "localhost":
         return "loopback"
     try:
@@ -112,7 +113,11 @@ class OpenAICompatibleProvider:
         if not model.strip():
             raise ValueError("DISCOVERY_MODEL is required")
         self.base_url = base_url.rstrip("/")
-        self.url = self.base_url + ("" if self.base_url.endswith("/v1") else "/v1")
+        # Accept /v1, /v1beta/openai, or bare root as canonical API roots.
+        _v1_suffixes = ("/v1", "/v1beta/openai")
+        self.url = self.base_url if any(
+            self.base_url.endswith(s) for s in _v1_suffixes
+        ) else self.base_url + "/v1"
         self.model = model.strip()
         self._api_key = api_key
         self.capabilities = capabilities or CompatibleCapabilities()
@@ -233,7 +238,7 @@ class OpenAICompatibleProvider:
         message_data = cast(dict[str, object], message)
         if message_data.get("refusal"):
             raise invalid("model message missing or refused")
-        if choice.get("finish_reason") != "stop" or not isinstance(
+        if choice.get("finish_reason") not in {"stop", "length"} or not isinstance(
             message_data.get("content"), str
         ):
             raise invalid("model output incomplete or non-text")

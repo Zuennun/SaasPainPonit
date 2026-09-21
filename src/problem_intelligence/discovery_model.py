@@ -17,7 +17,7 @@ from .automated_discovery import (
     validate_extraction,
     validate_screen,
 )
-from .llm_provider import LLMProvider, ModelRequest
+from .llm_provider import InferenceFailure, LLMProvider, ModelCallError, ModelRequest
 from .openai_compatible import OpenAICompatibleProvider
 from .openai_responses import OpenAIResponsesProvider
 
@@ -34,7 +34,7 @@ def provider_from_environment(env: Mapping[str, str] | None = None) -> LLMProvid
     raise ValueError("DISCOVERY_LLM_PROVIDER must be openai or openai_compatible")
 
 
-def check_model(provider: LLMProvider, *, timeout_seconds: float = 30.0) -> dict[str, Any]:
+def check_model(provider: LLMProvider, *, timeout_seconds: float = 30.0, max_retries: int = 3) -> dict[str, Any]:
     if timeout_seconds <= 0:
         raise ValueError("timeout must be positive")
     started = time.monotonic()
@@ -43,12 +43,27 @@ def check_model(provider: LLMProvider, *, timeout_seconds: float = 30.0) -> dict
         ("SCREENING", SCREEN_INSTRUCTIONS, SCREEN_SCHEMA),
         ("EXTRACTION", EXTRACT_INSTRUCTIONS, EXTRACT_SCHEMA),
     ):
-        response = provider.complete_structured(ModelRequest(
-            stage=stage, instructions=instructions, content=SYNTHETIC_TEXT,
-            schema_name="connectivity_" + stage.casefold(), schema=schema,
-            max_output_tokens=300 if stage == "SCREENING" else 1800,
-            temperature=0.0, timeout_seconds=timeout_seconds,
-        ))
+        last_exc: ModelCallError | None = None
+        for attempt in range(max_retries):
+            try:
+                response = provider.complete_structured(ModelRequest(
+                    stage=stage, instructions=instructions, content=SYNTHETIC_TEXT,
+                    schema_name="connectivity_" + stage.casefold(), schema=schema,
+                    max_output_tokens=300 if stage == "SCREENING" else 1800,
+                    temperature=0.0, timeout_seconds=timeout_seconds,
+                ))
+                last_exc = None
+                break
+            except ModelCallError as exc:
+                last_exc = exc
+                if exc.failure not in {
+                    InferenceFailure.RATE_LIMITED,
+                    InferenceFailure.TIMEOUT,
+                } or attempt >= max_retries - 1:
+                    raise
+                time.sleep(2.0 * (attempt + 1))
+        if last_exc is not None:
+            raise last_exc
         if stage == "SCREENING":
             result = validate_screen(response.data, SYNTHETIC_TEXT)
             if result.decision.value != "POTENTIAL_PAIN":
