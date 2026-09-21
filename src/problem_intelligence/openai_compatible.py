@@ -97,6 +97,21 @@ def _boolean(value: str, name: str) -> bool:
     raise ValueError(f"{name} must be true or false")
 
 
+def _json_content(content: str) -> str:
+    """Accept a whole JSON document, optionally wrapped in one Markdown fence."""
+
+    stripped = content.strip()
+    if not stripped.startswith("```"):
+        return stripped
+    lines = stripped.splitlines()
+    if len(lines) < 3 or lines[-1].strip() != "```":
+        return stripped
+    opener = lines[0].strip().casefold()
+    if opener not in {"```", "```json"}:
+        return stripped
+    return "\n".join(lines[1:-1]).strip()
+
+
 class OpenAICompatibleProvider:
     name = "openai_compatible"
 
@@ -242,8 +257,9 @@ class OpenAICompatibleProvider:
             message_data.get("content"), str
         ):
             raise invalid("model output incomplete or non-text")
+        content = _json_content(cast(str, message_data["content"]))
         try:
-            parsed: object = json.loads(cast(str, message_data["content"]))
+            parsed: object = json.loads(content)
         except ValueError as exc:
             raise invalid("model did not return JSON") from exc
         if not isinstance(parsed, dict) or not _matches(

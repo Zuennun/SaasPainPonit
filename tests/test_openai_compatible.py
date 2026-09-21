@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, cast
 from urllib.request import Request
 
 import pytest
@@ -122,6 +122,19 @@ def test_json_fallback_validates_full_schema_and_missing_usage() -> None:
     with pytest.raises(ModelCallError) as error:
         bad.complete_structured(request())
     assert error.value.failure is InferenceFailure.INVALID_STRUCTURED_OUTPUT
+
+
+def test_json_fallback_accepts_markdown_fenced_json() -> None:
+    fenced = response(screen())
+    choice = fenced["choices"][0]
+    assert isinstance(choice, dict)
+    message = cast(dict[str, Any], choice["message"])
+    message["content"] = f"```json\n{json.dumps(screen())}\n```"
+    provider = OpenAICompatibleProvider(
+        base_url="http://localhost:8000/v1", model="local",
+        transport=lambda _request, _timeout: fenced,
+    )
+    assert provider.complete_structured(request()).data == screen()
 
 
 def test_malformed_json_timeout_and_remote_classification() -> None:
