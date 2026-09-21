@@ -167,7 +167,11 @@ class OpenAIResponsesProvider:
                 failure = InferenceFailure.CONTENT_TOO_LARGE
             elif exc.code == 400:
                 failure = InferenceFailure.INVALID_STRUCTURED_OUTPUT
-            elif exc.code in {401, 403} or exc.code >= 500:
+            elif exc.code in {401, 403}:
+                failure = InferenceFailure.MODEL_UNAVAILABLE
+            elif exc.code in {502, 503}:
+                failure = InferenceFailure.RATE_LIMITED  # transient overload, retryable
+            elif exc.code >= 500:
                 failure = InferenceFailure.MODEL_UNAVAILABLE
             else:
                 failure = InferenceFailure.UNKNOWN_ERROR
