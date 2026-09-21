@@ -17,11 +17,18 @@ from .automated_discovery import (
     validate_extraction,
     validate_screen,
 )
-from .llm_provider import InferenceFailure, LLMProvider, ModelCallError, ModelRequest
+from .codex_cli_provider import CodexCliProvider
+from .llm_provider import (
+    InferenceFailure,
+    LLMProvider,
+    ModelCallError,
+    ModelRequest,
+    ModelResponse,
+)
 from .openai_compatible import OpenAICompatibleProvider
 from .openai_responses import OpenAIResponsesProvider
 
-SYNTHETIC_TEXT = "I spend 3 hours each Friday copying invoices between two systems by hand."
+SYNTHETIC_TEXT = "I manually copy invoices between two systems because they do not integrate"
 
 
 def provider_from_environment(env: Mapping[str, str] | None = None) -> LLMProvider:
@@ -31,12 +38,20 @@ def provider_from_environment(env: Mapping[str, str] | None = None) -> LLMProvid
         return OpenAIResponsesProvider.from_environment(values)
     if provider == "openai_compatible":
         return OpenAICompatibleProvider.from_environment(values)
-    raise ValueError("DISCOVERY_LLM_PROVIDER must be openai or openai_compatible")
+    if provider == "codex_cli":
+        return CodexCliProvider.from_environment(values)
+    raise ValueError(
+        "DISCOVERY_LLM_PROVIDER must be openai, openai_compatible, or codex_cli"
+    )
 
 
-def check_model(provider: LLMProvider, *, timeout_seconds: float = 30.0, max_retries: int = 3) -> dict[str, Any]:
+def check_model(
+    provider: LLMProvider, *, timeout_seconds: float = 30.0, max_retries: int = 3
+) -> dict[str, Any]:
     if timeout_seconds <= 0:
         raise ValueError("timeout must be positive")
+    if max_retries <= 0:
+        raise ValueError("max retries must be positive")
     started = time.monotonic()
     measurements: list[dict[str, Any]] = []
     for stage, instructions, schema in (
@@ -44,6 +59,7 @@ def check_model(provider: LLMProvider, *, timeout_seconds: float = 30.0, max_ret
         ("EXTRACTION", EXTRACT_INSTRUCTIONS, EXTRACT_SCHEMA),
     ):
         last_exc: ModelCallError | None = None
+        response: ModelResponse | None = None
         for attempt in range(max_retries):
             try:
                 response = provider.complete_structured(ModelRequest(
@@ -62,8 +78,10 @@ def check_model(provider: LLMProvider, *, timeout_seconds: float = 30.0, max_ret
                 } or attempt >= max_retries - 1:
                     raise
                 time.sleep(2.0 * (attempt + 1))
-        if last_exc is not None:
-            raise last_exc
+        if response is None:
+            if last_exc is not None:
+                raise last_exc
+            raise AssertionError("model check ended without a response")
         if stage == "SCREENING":
             result = validate_screen(response.data, SYNTHETIC_TEXT)
             if result.decision.value != "POTENTIAL_PAIN":

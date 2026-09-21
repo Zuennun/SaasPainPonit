@@ -37,7 +37,7 @@ def endpoint_class(base_url: str) -> str:
     return "remote_or_unknown"
 
 
-def _matches(value: object, schema: dict[str, Any]) -> bool:
+def matches_schema(value: object, schema: dict[str, Any]) -> bool:
     kinds = schema.get("type")
     types = cast(list[object], kinds) if isinstance(kinds, list) else [kinds]
     if value is None:
@@ -66,11 +66,11 @@ def _matches(value: object, schema: dict[str, Any]) -> bool:
             all(field in obj for field in required)
             and (schema.get("additionalProperties") is not False
                  or all(field in properties for field in obj))
-            and all(_matches(item, properties[field]) for field, item in obj.items()
+            and all(matches_schema(item, properties[field]) for field, item in obj.items()
                     if field in properties)
         )
     if isinstance(value, list) and "items" in schema:
-        return all(_matches(item, cast(dict[str, Any], schema["items"]))
+        return all(matches_schema(item, cast(dict[str, Any], schema["items"]))
                    for item in cast(list[object], value))
     return True
 
@@ -262,7 +262,7 @@ class OpenAICompatibleProvider:
             parsed: object = json.loads(content)
         except ValueError as exc:
             raise invalid("model did not return JSON") from exc
-        if not isinstance(parsed, dict) or not _matches(
+        if not isinstance(parsed, dict) or not matches_schema(
             cast(dict[str, object], parsed), request.schema
         ):
             raise invalid("model JSON does not satisfy required schema")

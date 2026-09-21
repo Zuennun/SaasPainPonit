@@ -21,15 +21,31 @@ structured outputs; select and verify an account-accessible model explicitly.
 
 ## Two execution paths and rights gate
 
-The existing `LLMProvider` boundary supports the OpenAI Responses API and an
-OpenAI-compatible Chat Completions endpoint. The screening/extraction prompts,
-schemas, validators, and signal policy are identical in both paths. No model
-runtime or model weights are installed by this repository.
+The existing `LLMProvider` boundary supports the OpenAI Responses API, an
+OpenAI-compatible Chat Completions endpoint, and an authenticated Codex CLI
+session. The screening/extraction prompts, schemas, validators, and signal
+policy are identical in all paths. No model runtime or model weights are
+installed by this repository.
 
 For the external OpenAI API, set `DISCOVERY_LLM_PROVIDER=openai`,
 `OPENAI_API_KEY`, and `DISCOVERY_MODEL`. The holdout command additionally needs
 `--llm-rights-confirmed`, **only after written confirmation** that source text
 may be sent to a third-party LLM. Never commit credentials.
+
+For an installed, authenticated Codex CLI subscription, set:
+
+```bash
+export DISCOVERY_LLM_PROVIDER=codex_cli
+# Optional: export DISCOVERY_MODEL='<account-accessible-codex-model>'
+python -m problem_intelligence.discovery_model --timeout-seconds 180
+```
+
+This path invokes `codex exec` with an ephemeral read-only sandbox and a strict
+output schema. It reads authentication from the Codex CLI; the repository never
+reads or stores the OAuth credential. Token usage is reported as unknown because
+the CLI does not expose stable per-request usage metadata to this adapter. It is
+a remote provider and therefore still requires `--llm-rights-confirmed` for a
+holdout run.
 
 For an inference server running on this machine, use:
 
@@ -44,8 +60,9 @@ export ARCTIC_SHIFT_USER_AGENT='GlobalProblemIntelligence/0.1 (research prototyp
 python -m problem_intelligence.discovery_model
 ```
 
-`DISCOVERY_BASE_URL` must be an HTTP(S) API root or `/v1` URL without embedded
-credentials. `DISCOVERY_OUTPUT_MODE=json_schema` (default) requests native
+`DISCOVERY_BASE_URL` must be an HTTP(S) API root, `/v1` URL, or the Google
+AI Studio-compatible `/v1beta/openai` root, without embedded credentials.
+`DISCOVERY_OUTPUT_MODE=json_schema` (default) requests native
 schema-constrained output. Set `DISCOVERY_OUTPUT_MODE=json_object` only if the
 endpoint lacks native schema mode; every response is still checked against the
 full schema and the existing evidence validators. Optional capability settings:

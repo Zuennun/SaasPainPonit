@@ -191,13 +191,18 @@ class OpenAIResponsesProvider:
             if isinstance(payload, list) and payload and isinstance(payload[0], dict):
                 first: dict[str, object] = cast(dict[str, object], payload[0])
                 err_raw = first.get("error")
-                err: dict[str, object] = cast(dict[str, object], err_raw) if isinstance(err_raw, dict) else {}
+                err: dict[str, object] = (
+                    cast(dict[str, object], err_raw) if isinstance(err_raw, dict) else {}
+                )
                 code_raw = err.get("code")
                 code: int = code_raw if isinstance(code_raw, int) else 0
                 if code == 429:
                     raise ModelCallError(InferenceFailure.RATE_LIMITED, "model rate limited")
                 if code in {503, 502}:
-                    raise ModelCallError(InferenceFailure.RATE_LIMITED, f"model temporarily unavailable (HTTP {code})")
+                    raise ModelCallError(
+                        InferenceFailure.RATE_LIMITED,
+                        f"model temporarily unavailable (HTTP {code})",
+                    )
                 if code == 500:
                     raise ModelCallError(InferenceFailure.MODEL_UNAVAILABLE, f"model HTTP {code}")
                 raise ModelCallError(

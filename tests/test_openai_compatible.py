@@ -188,7 +188,7 @@ def test_synthetic_connectivity_never_uses_reddit_text() -> None:
 
 
 def test_synthetic_check_validates_both_stages_and_usage() -> None:
-    excerpt = "I spend 3 hours each Friday copying invoices between two systems by hand."
+    excerpt = "I manually copy invoices between two systems because they do not integrate"
     assert excerpt == SYNTHETIC_TEXT
 
     class ReadyProvider:
