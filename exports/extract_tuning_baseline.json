@@ -1,0 +1,17 @@
+{
+  "total_observations": 38,
+  "field_fill": {
+    "actor": 8,
+    "job_to_be_done": 3,
+    "context": 9,
+    "current_workaround": 4,
+    "tools_used": 0,
+    "time_impact": 1,
+    "financial_impact": 0,
+    "active_solution_search": 6,
+    "switching_intent": 0,
+    "existing_solution": 0,
+    "root_cause": 0
+  },
+  "measured_at": "2026-09-22T22:20Z"
+}
