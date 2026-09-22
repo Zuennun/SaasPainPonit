@@ -21,9 +21,11 @@ def endpoint_class(base_url: str) -> str:
     host = parsed.hostname or ""
     if parsed.scheme not in {"http", "https"} or not host or parsed.username or parsed.password:
         raise ValueError("DISCOVERY_BASE_URL must be an http(s) URL without credentials")
-    _ALLOWED_PATHS = {"", "/v1"}
+    _ALLOWED_PATHS = {"", "/v1", "/compatible-mode/v1"}
     if parsed.query or parsed.fragment or parsed.path.rstrip("/") not in _ALLOWED_PATHS:
-        raise ValueError("DISCOVERY_BASE_URL must end at the API root, /v1")
+        raise ValueError(
+            "DISCOVERY_BASE_URL must end at the API root, /v1, or /compatible-mode/v1"
+        )
     if host.casefold() == "localhost":
         return "loopback"
     try:

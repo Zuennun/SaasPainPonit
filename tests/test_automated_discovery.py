@@ -158,13 +158,44 @@ def test_validators_reject_missing_or_invalid_evidence() -> None:
     assert vendor.value.failure is InferenceFailure.EVIDENCE_VALIDATION_FAILED
     result = extracted()
     assert validate_extraction(result, PAIN_TEXT).claims
-    wrong = {**result, "claims": [{**result["claims"][0], "end": 10000}]}
+    # Offset error with a unique verbatim excerpt is now rescued; a non-verbatim
+    # excerpt must still be rejected even if coordinates look plausible.
+    wrong = {**result, "claims": [{**result["claims"][0], "excerpt": "invented excerpt"}]}
     with pytest.raises(ModelCallError) as invalid:
         validate_extraction(wrong, PAIN_TEXT)
     assert invalid.value.failure is InferenceFailure.EVIDENCE_VALIDATION_FAILED
     no_problem = {**result, "claims": result["claims"][1:]}
     with pytest.raises(ModelCallError):
         validate_extraction(no_problem, PAIN_TEXT)
+
+
+def test_miscounted_offsets_rescued_by_unique_verbatim_excerpt() -> None:
+    excerpt = "I run invoices manually every Friday."
+    positive = screen_positive()
+    # Offsets wrong but excerpt verbatim-unique: canonical range is re-derived.
+    rescued = validate_screen(
+        {**positive, "evidence_start": 3, "evidence_end": 12}, PAIN_TEXT)
+    assert rescued.decision.value == "POTENTIAL_PAIN"
+    assert rescued.evidence_range is not None
+    assert PAIN_TEXT[rescued.evidence_range.start:rescued.evidence_range.end] == excerpt
+    # End offset beyond the source is a counting error, not invented evidence.
+    beyond = validate_screen(
+        {**positive, "evidence_end": len(PAIN_TEXT) + 900}, PAIN_TEXT)
+    assert beyond.evidence_range is not None
+    assert PAIN_TEXT[beyond.evidence_range.start:beyond.evidence_range.end] == excerpt
+
+
+def test_ambiguous_or_nonverbatim_excerpt_still_rejected() -> None:
+    positive = screen_positive()
+    ambiguous_text = PAIN_TEXT + " " + "I run invoices manually every Friday."
+    with pytest.raises(ModelCallError) as ambiguous:
+        validate_screen({**positive, "evidence_excerpt": "run invoices"},
+                        ambiguous_text)
+    assert ambiguous.value.failure is InferenceFailure.EVIDENCE_VALIDATION_FAILED
+    with pytest.raises(ModelCallError) as invented:
+        validate_screen({**positive, "evidence_excerpt": "wastes 30 hours"},
+                        PAIN_TEXT)
+    assert invented.value.failure is InferenceFailure.EVIDENCE_VALIDATION_FAILED
 
 
 def test_vendor_claim_cannot_ground_observation() -> None:
@@ -252,7 +283,7 @@ def test_model_failure_is_not_no_pain_and_can_retry(repository: Repository) -> N
 
 def test_invalid_model_output_metered_and_not_cached(repository: Repository) -> None:
     item_id = add_full_item(repository, PAIN_TEXT, "abc104")
-    bad = {**screen_positive(), "evidence_end": 9999}
+    bad = {**screen_positive(), "evidence_excerpt": "invented excerpt"}
     provider = QueueProvider([bad])
     metrics = AutomatedDiscovery(repository, provider, InferenceConfig(max_retries=0)).run(
         (item_id,)

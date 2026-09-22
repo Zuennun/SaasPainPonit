@@ -249,22 +249,30 @@ class DiscoveryMetrics:
 
 
 def _exact_evidence(raw_text: str, start: object, end: object, excerpt: object) -> EvidenceRange:
-    if type(start) is not int or type(end) is not int or not isinstance(excerpt, str):
+    if not isinstance(excerpt, str) or not excerpt.strip():
+        raise ModelCallError(
+            InferenceFailure.EVIDENCE_VALIDATION_FAILED, "evidence excerpt missing"
+        )
+    if type(start) is not int or type(end) is not int:
         raise ModelCallError(
             InferenceFailure.EVIDENCE_VALIDATION_FAILED, "evidence coordinates invalid"
         )
-    evidence = EvidenceRange(start, end)
     try:
-        actual = evidence.excerpt_from(raw_text)
-    except ValueError as exc:
-        raise ModelCallError(
-            InferenceFailure.EVIDENCE_VALIDATION_FAILED, "evidence offset outside source"
-        ) from exc
-    if actual != excerpt or not excerpt.strip():
+        reported = EvidenceRange(start, end).excerpt_from(raw_text)
+    except ValueError:
+        reported = None
+    if reported == excerpt:
+        return EvidenceRange(start, end)
+    # Models routinely miscount their own offsets. The excerpt itself is the
+    # evidence: accept it only when it occurs verbatim exactly once in the
+    # source and re-derive canonical offsets from that occurrence.
+    count = raw_text.count(excerpt)
+    if count != 1:
         raise ModelCallError(
             InferenceFailure.EVIDENCE_VALIDATION_FAILED, "evidence excerpt mismatch"
         )
-    return evidence
+    resolved = raw_text.find(excerpt)
+    return EvidenceRange(resolved, resolved + len(excerpt))
 
 
 def validate_screen(data: dict[str, Any], raw_text: str) -> ScreenResult:
