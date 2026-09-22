@@ -60,8 +60,7 @@ export ARCTIC_SHIFT_USER_AGENT='GlobalProblemIntelligence/0.1 (research prototyp
 python -m problem_intelligence.discovery_model
 ```
 
-`DISCOVERY_BASE_URL` must be an HTTP(S) API root, `/v1` URL, or the Google
-AI Studio-compatible `/v1beta/openai` root, without embedded credentials.
+`DISCOVERY_BASE_URL` must be an HTTP(S) API root or `/v1` URL, without embedded credentials.
 `DISCOVERY_OUTPUT_MODE=json_schema` (default) requests native
 schema-constrained output. Set `DISCOVERY_OUTPUT_MODE=json_object` only if the
 endpoint lacks native schema mode; every response is still checked against the

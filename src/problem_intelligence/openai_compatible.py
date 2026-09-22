@@ -21,9 +21,9 @@ def endpoint_class(base_url: str) -> str:
     host = parsed.hostname or ""
     if parsed.scheme not in {"http", "https"} or not host or parsed.username or parsed.password:
         raise ValueError("DISCOVERY_BASE_URL must be an http(s) URL without credentials")
-    _ALLOWED_PATHS = {"", "/v1", "/v1beta/openai"}
+    _ALLOWED_PATHS = {"", "/v1"}
     if parsed.query or parsed.fragment or parsed.path.rstrip("/") not in _ALLOWED_PATHS:
-        raise ValueError("DISCOVERY_BASE_URL must end at the API root, /v1, or /v1beta/openai")
+        raise ValueError("DISCOVERY_BASE_URL must end at the API root, /v1")
     if host.casefold() == "localhost":
         return "loopback"
     try:
@@ -128,8 +128,8 @@ class OpenAICompatibleProvider:
         if not model.strip():
             raise ValueError("DISCOVERY_MODEL is required")
         self.base_url = base_url.rstrip("/")
-        # Accept /v1, /v1beta/openai, or bare root as canonical API roots.
-        _v1_suffixes = ("/v1", "/v1beta/openai")
+        # Accept /v1 or bare root as canonical API roots.
+        _v1_suffixes = ("/v1",)
         self.url = self.base_url if any(
             self.base_url.endswith(s) for s in _v1_suffixes
         ) else self.base_url + "/v1"

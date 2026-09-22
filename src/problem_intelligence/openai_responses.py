@@ -15,7 +15,6 @@ from .llm_provider import InferenceFailure, ModelCallError, ModelRequest, ModelR
 RESPONSES_URL = "https://api.openai.com/v1/responses"
 Transport = Callable[[Request, float], dict[str, Any]]
 
-
 class OpenAIResponsesProvider:
     name = "openai"
     endpoint_class = "remote"
@@ -187,7 +186,7 @@ class OpenAIResponsesProvider:
                 InferenceFailure.INVALID_STRUCTURED_OUTPUT, "invalid response JSON"
             ) from exc
         if not isinstance(payload, dict):
-            # Some providers (e.g. Google AI Studio) return a list on errors: [{"error":...}]
+            # Some providers return a list on errors: [{"error":...}]
             if isinstance(payload, list) and payload and isinstance(payload[0], dict):
                 first: dict[str, object] = cast(dict[str, object], payload[0])
                 err_raw = first.get("error")
