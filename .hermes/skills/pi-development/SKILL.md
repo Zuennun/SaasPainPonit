@@ -30,6 +30,16 @@ Verification:
 - Report tests actually run and any tests not run.
 - Never claim success based only on generated code.
 
+Interrupted pipeline runs:
+- Killing an automated-discovery process (SIGTERM) leaves its pipeline_runs row
+  RUNNING; queries trusting only COMPLETED/FAILED runs then silently hide valid
+  observations. After any aborted run, mark it FAILED with a reason
+  (repository.fail_pipeline_run) before aggregating or clustering.
+- Provider failover (codex_cli -> claude_cli -> openai_compatible): the
+  inference cache is keyed per provider identity, so a new provider only fills
+  gaps and never re-bills completed items. Keep provider attribution visible
+  per item via model_runs.
+
 Delegation:
 - Codex, Claude Code and Antigravity may implement bounded tasks.
 - Give delegated agents explicit acceptance criteria.
