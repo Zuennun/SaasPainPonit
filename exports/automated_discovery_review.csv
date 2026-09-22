@@ -1,4 +1,400 @@
 source_item_id,model_status,source_url,source_text,problem_statement,actor,workflow_context,workaround,impact,evidence_excerpts,human_problem_label,human_actor_correct,human_problem_faithful,human_workaround_supported,human_impact_supported,human_evidence_correct,human_notes
+3,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7ktnq/,"How accurate is data import excel from pdf?
+
+I have a simple pdf with Table(Literally an Excel printed in PDF). The pdf has DATE | MEMO | AMOUNT. Very simple but It's 20 pages long.If I want import using PQ, how accurate is it. The PDF is text scaned so it should be 100% accurate but I'm still wondering since I'm dealing with many pages and don't feel like checking every amounts.",The author is uncertain about the accuracy of importing PDF data using PQ.,,"The PDF contains DATE, MEMO, and AMOUNT columns and is 20 pages long.",,,"[""I want import using PQ, how accurate is it."", ""The pdf has DATE | MEMO | AMOUNT. Very simple but It's 20 pages long.""]",,,,,,,
+11,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7ibj6/,"Freight Coding
+
+Can someone explain why the cost of shipping for a non inventory item would be coded in AP to the freight in Expense GL? The GL code is also tied to Cost of Sales on the IS, so my assumption is this account should really be used for freight variances on inventory based POs. Therefore, any non-inventory based PO (I.e shop supplies) with a  shipping expense variance or a miscellaneous office supplies bill with freight should be rolled into that same expense account, not freight in. Am I wrong in this thinking?",Uncertainty about why shipping costs for a non-inventory item are coded in AP to the freight-in expense GL.,,,,,"[""Can someone explain why the cost of shipping for a non inventory item would be coded in AP to the freight in Expense GL?""]",,,,,,,
+18,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7ghek/,"On average, how long does it take to realize you‘be made a gigantic mistake taking the current job that you have?
+
+3 weeks? 3 months? 
+
+Joining a new accounting team is fun, however, how long until you realize that is a disaster? Ya know? 
+
+This has happened to me 3 times in a row. My liver might kill me over this like…. Is this normal? 
+
+On average I’d say it’s taken me a month to realize that the company has messed up books",The company has messed up books.,,Joining a new accounting team.,,,"[""the company has messed up books"", ""Joining a new accounting team""]",,,,,,,
+23,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7erp5/,"Need accounting advice!!
+
+I have spoken with a few accountants and gotten different answers so if someone can clarify for me, it would be very appreciated!!! 
+
+Little back story! I have started working as an independent contractor “sole proprietor” nannying business starting this year mid April. I currently have 3 families that I go to their homes and work. I do invoice all families for them to claim childcare taxes and for my taxes. 
+
+But here’s the the thing I was under the impression based on what I read and what I understand on the CRA website I was supposed to be charging GST and I have been doing so but now I’ve read that nannying is a grey area that I shouldn’t be charging them??  
+I do understand I will need to pay income tax and that’s all fine but what about GST will the government not need/want that when tax season comes?? 
+
+So can someone please tell me if I am supposed to be charging the families GST or if I am going to have to give their money back/credit back??",Received conflicting accounting advice from multiple accountants.,,,,,"[""I have spoken with a few accountants and gotten different answers"", ""if someone can clarify for me""]",,,,,,,
+28,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7d4tw/,"What financial controls should a solo founder establish before taking owner draws from a new e-commerce business?
+
+I’m launching a solo, bootstrapped e-commerce business shortly and want the financial controls in place before revenue begins.
+
+I’m not looking for jurisdiction-specific tax or entity advice. I want to understand the operational distinction between:
+
+* reported profit
+* cash available after taxes, inventory commitments, and working-capital needs
+* cash that is actually safe to withdraw as owner compensation
+
+For a new inventory-based business, what monthly controls and reports would you want in place before an owner takes regular draws? Is a modest fixed draw with periodic distributions after a cash-reserve threshold a sensible operating policy, or would you structure it differently?",Uncertainty about which financial controls to establish before taking owner draws from a new e-commerce business.,Solo founder,"Launching a solo, bootstrapped e-commerce business and seeking financial controls before revenue begins.",,,"[""What financial controls should a solo founder establish before taking owner draws from a new e-commerce business?"", ""solo founder"", ""I’m launching a solo, bootstrapped e-commerce business shortly and want the financial controls in place before revenue begins.""]",,,,,,,
+30,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7cu1a/,"Day 3 at a Startup and Already Expected to Deliver — Is This Normal Onboarding?
+
+I recently started an accounting role at a fast-growing startup, and I’m trying to figure out whether my onboarding experience is normal for this kind of environment or unusually aggressive.
+
+I have around two years of accounting experience. The role was presented primarily as an AP/AR-focused position, so I expected the first few weeks to involve learning the company’s accounting processes, understanding the systems, reviewing prior-period work, and gradually taking ownership.
+
+Instead, within my first few days, I was immediately given several projects that feel much broader and more technical than the job description.
+
+One of the main projects involves helping troubleshoot and improve an AI-based accounting workflow. I understand what the process is supposed to accomplish conceptually, but I’m still learning the underlying accounting process itself, the company’s mappings, reconciliation logic, exception handling, and internal systems.
+
+At the same time, I’m still going through normal company onboarding, attending a lot of meetings that are unrelated to my day-to-day work, meeting different teams, learning recurring accounting tasks, and handling miscellaneous operational work.
+
+The part I’m struggling with most is the pace and management style.
+
+My manager is very busy and expects a high degree of independence very quickly. I’m encouraged to ask questions, but when I don’t understand something immediately or need clarification, I sometimes get the sense that she becomes frustrated or impatient.
+
+By my third day, I was already being put on the spot and expected to have meaningful progress and answers on projects I had only just been introduced to, while I was still completing basic onboarding.
+
+I’m completely fine with working hard, learning quickly, and being pushed outside my comfort zone. That’s part of why I wanted to work at a startup.
+
+I’m just trying to understand: is this a startup thing? Has anyone else had an onboarding experience like this?
+
+Is this roughly what I should expect in a fast-moving startup, or does this sound like too much too quickly for a new hire?
+
+And for anyone who has been through something similar, how did you handle it without getting completely overwhelmed or burning yourself out?",A new startup employee is already expected to deliver by day three and questions whether this is normal onboarding.,New accounting employee at a fast-growing startup.,,,,"[""Day 3 at a Startup and Already Expected to Deliver — Is This Normal Onboarding?"", ""I recently started an accounting role at a fast-growing startup,""]",,,,,,,
+32,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7c8t6/,"Migration
+
+Hey everyone,  
+I’m working as an Accounting Automation Engineer at a medium-sized company in the trucking industry. Our manager has decided to migrate our accounting data from QuickBooks to a new system, but the replacement software hasn’t been selected yet.
+
+I’d really appreciate some advice from people who have experience with accounting system migrations and automation:
+
+1- What accounting/ERP software would you expect a trucking company to migrate to from QuickBooks?
+
+2- What parts of the migration or accounting workflow would be worth automating to make the process more efficient and reliable?
+
+I’m especially interested in ideas around data migration, reconciliation, reporting, invoicing, expense processing, and integrations with trucking/TMS systems.
+
+I want to use this opportunity to build something genuinely useful for the team rather than just automate tasks for the sake of automation.
+
+Thanks in advance!","The company plans to migrate accounting data from QuickBooks, but has not selected replacement software.",Accounting Automation Engineer at a medium-sized trucking company.,,,,"[""Our manager has decided to migrate our accounting data from QuickBooks to a new system, but the replacement software hasn’t been selected yet."", ""I’m working as an Accounting Automation Engineer at a medium-sized company in the trucking industry."", ""I’d really appreciate some advice from people who have experience with accounting system migrations and automation:""]",,,,,,,
+36,OBSERVATION,https://www.reddit.com/r/accounting/comments/1w7apba/,"What was quarter end like after 9/11?
+
+I work for corporate for a parent company but we have a couple branches in New York. I just got to thinking about after 9/11. Did anyone care about financials for a few months? Were companies still required to do their regular reporting as required by law? 
+
+I was a small child during 9/11 so I would really have no idea. My experience in accounting is it doesn't matter what's going on, month end has to get done (once I was working from my bed after I was in a car accident to finish stuff since no one else knew how to do what I do). But I can't imagine a company really insisting on things getting done for companies/branches based in New York.",Month-end accounting must be completed regardless of personal circumstances.,Corporate employee at a parent company with branches in New York.,,,,"[""My experience in accounting is it doesn't matter what's going on, month end has to get done"", ""I work for corporate for a parent company but we have a couple branches in New York.""]",,,,,,,
+41,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w7f834/,"Anyone else getting calls about your google business performance or whatever
+
+It used to be 1 time a day, and for the past week it’s now 4-7 times a day. Getting ridiculous.",Repeated calls about Google business performance have increased and become frustrating.,,,,4-7 times a day,"[""Anyone else getting calls about your google business performance or whatever\n\nIt used to be 1 time a day, and for the past week it’s now 4-7 times a day. Getting ridiculous."", ""4-7 times a day""]",,,,,,,
+42,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w7eaeu/,"Credit card processing bastards
+
+Have any of you dealt with fines from Visa?  I had a .35 cent price discrepancy on a customer's check who turned out to be a secret shopper.   They want a big ass fine.  We dont jnow how it happened.  We think they may have had an old menu and phoned in the order.  Idk.  Just real annoyed.  They dropped it because we had a close call with this before with signage and a rep came out and audited us right before the event.  We have signs everywhere staring that 3% charge and our menu prices are all credit we call it cash discount if u pay cash.",A price discrepancy on a secret shopper's check prompted a threatened Visa fine.,,,,.35 cent,"[""I had a .35 cent price discrepancy on a customer's check who turned out to be a secret shopper.   They want a big ass fine."", ""I had a .35 cent price discrepancy on a customer's check who turned out to be a secret shopper.""]",,,,,,,
+43,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w6nmsx/,"Digital menu showing popular item based on customer demographic
+
+Does POS like clover, square provide the ability to show ""Chinese customer mostly order these dishes in my store"" (mine is Chinese retaurant). I suppose some of the non-Chinese customer will like to order the authentic dishes that Chinese customer appreciate. Just like when I walk into a Spanish restaurant i would like to know what people from Spain would usually order.   
+Do you guys have similar customer request asking for what would the ethnic group of this cuisine type order? Feel like this will help some of the customers. 
+
+Thoughts?",The author wants a POS feature that shows dishes popular with customers of a particular demographic and is unsure whether Clover or Square supports it.,,,,,"[""Does POS like clover, square provide the ability to show \""Chinese customer mostly order these dishes in my store\"" (mine is Chinese retaurant)."", ""Does POS like clover, square provide the ability to show \""Chinese customer mostly order these dishes in my store\"" (mine is Chinese retaurant).""]",,,,,,,
+46,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w6dx8g/,"Why is setting up a simple digital menu still so complicated?
+
+Why does putting a restaurant menu online still feel harder and more expensive than it should?
+
+I’ve been looking into digital menu options for a small restaurant, and many seem to require several integrations, complicated setup, or monthly fees that quickly add up. Building one from scratch feels like overkill too.
+
+The basic needs seem pretty simple: upload the menu, update prices easily, make it mobile-friendly, and give customers a QR code. Ideally, it shouldn’t require a developer or hours of training.
+
+For restaurant owners or anyone who has helped set one up: what did you use, and was it actually easy to manage after launch? I’d especially like to hear what you liked, what became frustrating, and what it ended up costing.",Setting up a simple digital menu is complicated.,,,,,"[""Why is setting up a simple digital menu still so complicated?"", ""I’ve been looking into digital menu options for a small restaurant""]",,,,,,,
+47,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w6dont/,"Advice for LA County Health Permit Application Submission
+
+I am currently in the process of opening a small counter service Hot Dog restaurant in an affluent and touristy beach town. We aim to bring a classic and affordable food option for those who don’t want to break the bank as many of the other restaurants in the area are overpriced. We know that a lot of the kids in the area love to hang out in the area and there’s only two places they can really afford which is Pizza or Smoothies. We also have a lot of tourists and late night crowds because of the bars. 
+
+Our location is right by the beach and pier and we are converting the space from retail to a restaurant. It’s been one hell of a journey getting everything ready for LA County, the city, and the CA Coastal Commission. I always think I’ve covered all my bases for the architect but then there’s always something that I forget. Little details that matter like self closing door hinge or enough shelves. The space is only 258 sqft and it’s surprisingly very hard to fit all the necessary equipment but we finally got the layout decided. The architect is now drawing up the plans. Once I have that, I’m ready to submit. 
+
+I would love to hear any advice or useful tips for new restaurants owners who are in the permit application stage. Also any important details or reminders to share for when a health inspector comes for an in person evaluation. 
+
+\-Is there anything anyone forgot to do that came up in their inspection? 
+
+\-How was your experience getting permits and inspections? Is there anything in particular that they are very strict on?
+
+ Obviously when it comes to food safety, rules and regulations should be followed very seriously for the safety of the people but is there anything they are lenient on? And people who got “A”‘ scores, how did you? Did you miss anything or were you absolutely perfect? People who got “B” scores, what were you missing?",The owner repeatedly overlooks details needed by the architect while preparing the restaurant for permitting.,A person opening a small counter service hot dog restaurant in an affluent tourist beach town.,Converting a retail space near the beach and pier into a restaurant.,,,"[""I always think I’ve covered all my bases for the architect but then there’s always something that I forget."", ""I am currently in the process of opening a small counter service Hot Dog restaurant in an affluent and touristy beach town."", ""Our location is right by the beach and pier and we are converting the space from retail to a restaurant.""]",,,,,,,
+48,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w6bhjc/,"Flooring
+
+We inherited the vinyl flooring in my restaurant dining room and it’s peeling up and looks terrible. Getting ready to replace it. What flooring do you like that’s good for high traffic and cleans easily?",The inherited vinyl flooring in the restaurant dining room is peeling up and looks terrible.,,,,,"[""We inherited the vinyl flooring in my restaurant dining room and it’s peeling up and looks terrible."", ""Getting ready to replace it."", ""What flooring do you like that’s good for high traffic and cleans easily?""]",,,,,,,
+50,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w5ok9i/,"Issues Terminating with Uniform Company
+
+Anyone experienced difficulty terminating and how did you proceed if you were in my similar situation?
+
+It’s been horrendous with our uniform company. I had to pull out the contract and receipts to get it terminated… but it’s still not.
+
+They retrieved all the products today, but that does not complete the termination process. The agreement states that we agree to them being our exclusive provider. The manager gave us a verbal “go” at doing whatever, but I don’t know. Like I said, it’s been horrendous. I’m told they would request to deactivate the account in few days and that should be the end of it.
+
+So we’re stuck in this contract still and have no product.
+
+Should I just sign with a new company in the meantime?
+
+Thoughts? Advice?",The uniform company contract remains unterminated despite efforts to terminate it.,,,Retrieved the contract and receipts to support termination.,,"[""I had to pull out the contract and receipts to get it terminated… but it’s still not."", ""I had to pull out the contract and receipts""]",,,,,,,
+51,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w5ki8g/,"Shift 4 Ad
+
+So my computers get this advertisement to ‘upgrade now from future to shift 4 dine’. Blocks out all inputs, I am open mind you…
+
+Takes 15 min to get a hold of someone to tell me that Future is ‘timing out’ (haven’t had any conversations about this happening until now) and needs to be upgraded.
+
+So instead of someone calling me, they stop my business to try and sell me a new POS system….
+
+I need a pos, with credit cards and a kitchen KDS system. Love to hear your thoughts and opinions on yours. We do about 2M and are charging the 3% cc back to guests and still paying over 6000/mo in fees. Sick of being bent over by these clowns.",A POS upgrade advertisement blocks all computer inputs while the business is open.,,,,Reaching someone for help takes 15 minutes.,"[""So my computers get this advertisement to ‘upgrade now from future to shift 4 dine’. Blocks out all inputs, I am open mind you…"", ""Takes 15 min to get a hold of someone"", ""Takes 15 min to get a hold of someone""]",,,,,,,
+52,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w5cqe0/,"What would you do?
+
+So here is the situation I find myself in…
+
+About two months ago I found out that a bar/restaurant in my town was going to be put up for lease. I reached out to the owners, we had a couple of meetings with the last meeting being one month ago which was very positive in so far as they said they would like me to take in the lease subject to having the funds available. 
+
+They were aware that I would be funding 25% myself with the remaining 75% coming from the bank. With that in mind they told me they would be advertising the property so as to have a back up should my business loan not materialise. 
+
+I secured the business loan last week and spoke with them again to discuss next steps and they told me that they have been approached with other offers and thus they had to consider these. While I was under the impression that we would move forward if I secured the financing i don’t understand their position from a business perspective, they want to be sure the next recent in the right fit. 
+
+So I now find myself in limbo with a loan I can’t draw down yet as I don’t know how things will play out over the next couple of weeks, I may get the place or it may go to someone else!? 
+
+One option I am considering is the following, in a week or two once they have met other prospective tenant’s I intend to email them outlining/reminding them of the pros/benefits to offering the bar to me that we had discussed previously to which they were positive about and what sets me apart from the other prospective tenants ( I am aware of who some of them are)I was also going to suggest that they allow me a day in the kitchen to cook for them to showcase my menu and why my concept would work. 
+
+Any advice/guidance would be appreciated. Based in the UK if that helps.","Despite securing the business loan, the prospective tenant faces uncertainty because the owners are considering other offers.",,A local bar/restaurant was becoming available for lease.,,,"[""I secured the business loan last week and spoke with them again to discuss next steps and they told me that they have been approached with other offers and thus they had to consider these."", ""a bar/restaurant in my town was going to be put up for lease.""]",,,,,,,
+53,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w4wwj1/,"Real talk- how you guys finding kitchen employees nowadays
+
+This might get political, but let’s cut the bs. Finding kitchen employees nowadays is damn near impossible. Before I’d have a couple people walking in every day asking if we’re hiring for any position to now putting ads out everywhere with no applicants at all. Everything in the back of the house to dishwashers… so hard to come by. The best way for me since I have economy of scale since I have 4 restaurants/bar is to have a current employee bring a friend and they both get a bonus and the current employee gets an hourly $1 raise. Before the whackos come out and say ‘pay more!’ I guarantee I’m paying more than what you are. Dishwashers are up to $19 an hour plus tips and the full time cooks start at $950 per week or $23.75 an hour. Used to be $18 just a couple years ago. 
+
+I’m in a huge metropolitan city (dc) with huge restaurants and trying to find staff right now is next to impossible. So how are you guys finding staff? Any creative ways? Any Facebook groups? Craigslist? Indeed?",Finding kitchen employees is nearly impossible.,,The author has four restaurants/bars.,"Offer bonuses to an employee and their referred friend, plus a $1 hourly raise to the referring employee.",,"[""Finding kitchen employees nowadays is damn near impossible."", ""I have 4 restaurants/bar"", ""have a current employee bring a friend and they both get a bonus and the current employee gets an hourly $1 raise.""]",,,,,,,
+54,OBSERVATION,https://www.reddit.com/r/restaurantowners/comments/1w4r5nh/,"Have anyone used AI phone answering system? Any recommendation.
+
+We currently use IVR (Interactive Voice Response) system (Press 1 for hours, 2 for link to online order etc.)  
+  
+It works really well especially around holidays when 80% of the calls are are you open today? what are your hours today. Most of our locations are really busy and get over hundred calls daily and this reduces it down to 20-30 per day level.   
+  
+Its limitations are that it can send link to our online list, waitlist, etc so people can act on but they wont be able to take the orders.
+
+Current company we are using have been raising prices regularly in part in effort to move people to their AI answering system that can supposedly take orders etc.
+
+We were price shopping other IVRs but if the technology is mature enough, we might want to try AI and wanted to know your experiences with them and if you have any recommendation.  
+If you can provide your restaurant name as well so I can actually try calling and interact with them it would be much appreciated as well!
+
+Please no sales dm or comments from AI companies please.",The current IVR can send links but cannot take orders.,,,Currently using IVR.,,"[""Its limitations are that it can send link to our online list, waitlist, etc so people can act on but they wont be able to take the orders."", ""Have anyone used AI phone answering system? Any recommendation."", ""We currently use IVR""]",,,,,,,
+62,OBSERVATION,https://www.reddit.com/r/propertymanagement/comments/1w6xl00/,"How do you deal with losing a management/business?
+
+New company, lost one for the first time. Fking stings so much. The owner thought my communication wasn’t good but I was trying everything. Owner didn’t want to reduce the price of the listing and I kept telling him the price is too high, the property staying vacant.
+
+Anyways he said to me this new company assured him that the price is okay and they’ll get it leased.
+
+I just think that it’s such a bad look. My team leader was nice enough to not get mad at me but I’m so worried I’ll lose another one. I’m trying my everything",Lost a management account for the first time; the owner thought their communication was inadequate despite their efforts.,,New company.,,,"[""New company, lost one for the first time. Fking stings so much. The owner thought my communication wasn’t good but I was trying everything."", ""New company""]",,,,,,,
+68,OBSERVATION,https://www.reddit.com/r/propertymanagement/comments/1w695ln/,"PM Question
+
+I have 33 units. I inherited very little documentation in the form Of an asset inventory - basically no asset inventory I am making one - am I the only one who thinks this tracking is imoorrant? None of the software I see out there has this functionality. Affordable ones anyway…does everyone around my size just use excel like me?",Available affordable software lacks asset inventory tracking functionality.,,Has 33 units and inherited almost no asset inventory documentation.,Uses Excel for asset inventory tracking.,,"[""None of the software I see out there has this functionality. Affordable ones anyway…"", ""I have 33 units. I inherited very little documentation in the form Of an asset inventory - basically no asset inventory"", ""no asset inventory I am making one"", ""does everyone around my size just use excel like me?""]",,,,,,,
+69,OBSERVATION,https://www.reddit.com/r/propertymanagement/comments/1w6836y/,"Piss poor manager making horrible choices
+
+So, I am APM at a multifamily. My manager consistently moves people in to apartments with roaches in them. I tried to put my foot down today and she basically ignored me. These people are transferring from another property under our company. What does she think will happen when they discover we moved them into a roach motel? Not only will we have to provide concessions and all kinds of crap, they will be uncomfortable, unhappy and distrust us!
+
+  
+They're supposed to move in 2 weeks and she thinks having it sprayed will do the trick....I hate it here. I am the one who hands over keys and does the move in checklist with them. I hate her. I'm going to refuse to do this walk, she can do it herself.",The manager consistently moves residents into apartments with roaches.,APM at a multifamily property.,,,,"[""My manager consistently moves people in to apartments with roaches in them."", ""I am APM at a multifamily.""]",,,,,,,
+73,OBSERVATION,https://www.reddit.com/r/propertymanagement/comments/1w5ssz4/,"New PM Walking Into A Little Mess -
+
+Hi! I just started as a new PM and I’m hoping to gain a little insight on how to help with my overwhelm. 
+
+I’ve been in the industry for a little over 2 years, I’ve worked in corporate, leasing, as an APM, in student housing, residential…. I was only an APM for \~3 months before I started at my current company (better pay!) but here’s the thing - my current company is a little weird with the structure whereas they call the PMs “APMs.” so I thought I was going into the same position, not moving up this quickly 😅  
+It did come with a $10,000 annual increase so it is worth it for me money-wise, and my new regional knows I’m newer to the actual leadership side of things, but I AM OVERWHELMED!! I am very grateful of course, but like… 6 months ago I was a leasing consultant…. It’s a lot! 
+
+Not to mention that I’m inheriting properties that were very mismanaged (in my regional’s words) for months and then severely understaffed for a while so not only am I new, I have a lot to clean up…. I have a fantastic team of other PMs across the portfolio who have been coming in to help train me, my regional is wonderful and it’s been a warm welcome and I’m very thankful, but I feel like it’s “too much shit, not enough shovels” if that makes sense? I want to get a good grip on this and do it as quickly as I can - does anybody have good tips? The office in itself is a mess (they are transitioning from paper to paperless), my inbox is already flooded, but I feel like the residents in front of me and the constantly ringing phone and the new processes to learn have had to take priority even though I feel like I can’t function to my fullest in the mess. 
+
+I’ve started a spreadsheet to try and organize the inbox by priority and included a tab for walk in/phone resident issues that I haven’t been able to resolve over the phone to try and at least get things down into “buckets” so things don’t get lost, and thankfully my maintenance department runs itself so that’s one less thing to worry about… It’s just been difficult to lock the office door and get some focus time because residents bang on it like there’s a fire outside if they can’t get into the office and there’s so much that has to be done and so many ideas and places for improvement I’m overwhelmed with my brain 🫠
+
+any tips that may help???",A newly started property manager feels overwhelmed and wants help managing it.,New property manager.,Has worked in the industry for a little over two years.,,,"[""Hi! I just started as a new PM and I’m hoping to gain a little insight on how to help with my overwhelm."", ""I just started as a new PM"", ""I’ve been in the industry for a little over 2 years""]",,,,,,,
+74,OBSERVATION,https://www.reddit.com/r/propertymanagement/comments/1w5owsv/,"How do you deal with delivering upsetting news about insanely high renewal offers?
+
+honestly, how do y'all stomach it? it's absolutely abhorrent that companies think it's okay to increase someone's rent by 13% and that is already still well below the market rate....",Difficulty delivering upsetting news about extremely high renewal offers.,,,,,"[""How do you deal with delivering upsetting news about insanely high renewal offers?""]",,,,,,,
+29,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7cxtt/,"Advice from fellow accountants needed
+
+I am leaving my public accounting (tax) job before our busy season ends on October 15th. My new job starts about a week after busy season ends and is not in public accounting. 
+
+I am a CPA candidate with 3 out of 4 passed. If you were in my shoes would you:
+
+1) Put in 2 week notice ASAP and try to pass the final exam
+
+2) Put in a 2 week notice on October 1st. (Work until the end of busy season)
+
+3) Put in a notice longer or shorter than 2 weeks. 
+
+I know quitting at this time is burning a bridge but I’ve accepted I will never work for the firm again.  I am in a good spot financially so I can float the 6 weeks without a job. 
+
+Curious to know what others have done or would recommend. Thank you in advance.",,,,,,[],,,,,,,
+40,NO_PAIN,https://www.reddit.com/r/restaurantowners/comments/1w7g7mo/,"Has anyone here tested making their business accessible to AI agents?
+
+I’ve been thinking about whether ChatGPT/Claude-style agents could eventually become a meaningful discovery and transaction channel for small businesses.
+
+My hypothesis is that the bottleneck today is less on the consumer side and more on the business side. Most websites, booking flows, menus, quote forms, etc. were built for humans, so AI agents still struggle to reliably understand what a business offers or actually do something useful like book, order or request a quote.
+
+I’ve built a few MCPs and have been experimenting with this idea, but I’m curious whether any business owners here have tried anything similar.
+
+For example: making your services, pricing, availability or booking/order flow more structured and accessible to AI assistants.
+
+Has anyone tested this in practice? Did you see any real enquiries or customers come through AI, or is it still far too early?",,,,,,[],,,,,,,
+22,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7ezii/,"Education Advice
+
+I’m not sure what to do. I figured that since I want to work out of state and my state school of UF is a T10 school for accounting, I should apply ED there and EA FSU. But I’m just barely below UF’s mid 50% range. I’m in state and will be earning an AA upon graduating which might help, but I’m not sure if that’s enough.
+
+With FSU, its program is more of a state player, but I fit in the mid 50% SAT range (barely, but still). I’m going to be getting a Master’s in Accounting, too, so I have several routes. I could do UF for both degrees or FSU for a bachelor’s and then a master’s out of state where I want to work. The only downside is the potential high cost if I don’t have any type of scholarship, but depending on the exact amount, it might be fine. 
+
+The acceptance rate for both schools is the exact same according to some sources, too (24%), so I have no idea what to do. I’m not sure if I’m just having imposter syndrome or if I should genuinely consider applying to FSU ED over UF.",,,,,,[],,,,,,,
+5,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7k1lq/,"Why is it so hard to find an accounting job in Houston? Looking for advice
+
+I’m genuinely curious if anyone else in accounting has been experiencing this lately, especially in Houston.  
+For some background, I have a Master’s in Accounting and my most recent experience was as a Staff 1 Auditor at EY. I know I don’t have a ton of years of experience yet, but I’m very adaptable, a quick learner, and I’m confident in my ability to pick up new systems and processes quickly.  
+I’ve been applying to accounting roles in Houston, particularly Staff Accountant, General Ledger Accountant, Revenue Accountant, Internal Auditor, Property Accountant, etc., and I keep running into the same issue: **a lot of positions that are labeled “entry-level” or “junior” are asking for 2–3+ years of experience.**  
+I understand wanting someone with experience, but at what point are companies willing to give someone early in their career a chance? 😭  
+I’ve also noticed that even when I meet most of the qualifications, I’m still getting rejected or not hearing back, which has been frustrating.  
+For those currently working in accounting in Houston:  
+Is the accounting job market actually this competitive right now?  
+Are there certain industries or companies that are more open to candidates with 1 year or less of experience?  
+What positions/titles should I be searching for?  
+Is there anything you wish you knew when you were trying to break into accounting?  
+Should I be applying to roles asking for 2–3 years of experience anyway?  
+I’m not expecting someone to hand me a job. I’m really just trying to figure out if I’m approaching this job search the wrong way or if the Houston market is genuinely tough right now.  
+Any advice from Houston accountants, recruiters, hiring managers, or people who recently made the jump into industry would be greatly appreciated!",,,,,,[],,,,,,,
+61,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w71fha/,"Management Apex Huntsville AL [AL]
+
+Does anyone have any insight on serving management Apex and serving this horrible rental company. They’re trying to withhold my security deposit for excessive charges. Cant get anyone on the phone and have different address on different sites. Any help is appreciated.",,,,,,[],,,,,,,
+19,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7g3yn/,"senior audit associate
+
+how long were you a senior and how much do u get paid? i’m wondering if im being paid enough for my level.",,,,,,[],,,,,,,
+64,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w6o2za/,"Georgia rental/tenant- Propensity For Flooding in lease?
+
+Getting ready to sign a lease in state of GA. Home was built in 1996. I noticed there is a Propensity for Flooding section in the lease where the property manager has checked NO on if the property has experienced 3 or more floods in the last 5 years. 
+
+The company is using a standard Georgia Realtors Association lease which I found a blank form of online and it also includes this section. So maybe just standard and no reason to suspect otherwise.
+
+Should this be alarming?
+
+I reached out to the property manager who confirmed no known floods in the last 5 years but no other info provided.
+
+Home is located very close to a lake. No visible signs of flooding when we toured rhe place.",,,,,,[],,,,,,,
+60,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w73gxj/,"LOOKING FOR VIRTUAL PROPERTY MANAGEMENT JOBS
+
+I'm currently looking for a full time property management job
+
+  
+I have experience with cold call, leasing, maintainance coordination, tenant communication etc
+
+  
+Experience with Appfolio",,,,,,[],,,,,,,
+31,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7coy5/,"Part time tax work
+
+Hi all- I’m a tax CPA who moved from public to industry recently. Has anyone heard of people like me taking small part time jobs preparing returns? I want to keep my skill in term of actually preparing returns unfortunately 5 years in public burnt me out so bad I decided to jump ship to industry where I’m mostly supporting the external tax team, doing indirect tax and taking care of our tax GL accounts.",,,,,,[],,,,,,,
+77,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w5ihoa/,"Five tenants withheld rent for 32 months How does a landlord tenant dispute even reach $410000
+
+Five tenants withheld rent for 32 months How does a landlord tenant dispute even reach $410000
+
+I came across a San Francisco rental dispute that seems like a pretty extreme example of how a relatively ordinary landlord-tenant conflict can spiral.
+
+Five long-term tenants in the same apartment building have reportedly withheld rent for 32 consecutive months. The total is now more than $410,000.
+
+What caught my attention wasn't really the final number. It was how the dispute apparently started.
+
+After taking over the building, the new owner made changes involving trash and cable services and asked tenants to sign new leases and provide personal information.
+
+The tenants later raised complaints about water leaks, mold and a malfunctioning garage door. They accused the owner of trying to push them out.
+
+The owner denied that and argued that the tenants were making it difficult to operate the property.
+
+From there, things just kept escalating.
+
+Maintenance complaints turned into withheld rent. Then came eviction proceedings, police involvement and multiple lawsuits.
+
+And 32 months later, the amount of unpaid rent is over $410,000.
+
+Obviously there are two sides to a dispute like this, and San Francisco landlord-tenant law makes the situation even more complicated. But what I find interesting is how small operational disagreements can become very expensive once communication breaks down and everything becomes part of a legal dispute.
+
+For landlords or property managers here, at what point would you have brought in an attorney or third party?
+
+And do you think a situation like this can realistically be prevented through better documentation and communication, or once the relationship reaches a certain point is litigation basically inevitable?
+
+Source: San Francisco Chronicle  
+[https://www.sfchronicle.com/sf/article/landlord-tenant-apartment-twin-peaks-22362638.php](https://www.sfchronicle.com/sf/article/landlord-tenant-apartment-twin-peaks-22362638.php)",,,,,,[],,,,,,,
+56,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w7fg2v/,"Looking to interview a property manager for class
+
+Hi property managers of Reddit, for an MBA class I’m taking I’m looking to interview 1-2 people who manage a decent size number of units (20+ maybe) about how they keep up with maintenance. I know it’s a lot to ask a stranger on the internet for a phone call, but if anyone in the US is free to talk for 15 minutes or so this weekend it would really help me out. You can shoot me a message if you’re willing. Thanks!",,,,,,[],,,,,,,
 1,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7l04g/,"Why are emotional outbursts suddenly always ok in PA?
 
 I thought we were told not to do that as kids lol",,,,,,[],,,,,,,
+16,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7hejv/,"Pleaseee Help!! EY School Leaver Apprenticeship
+
+Hello,  
+I am applying to the EY school leavers apprenticeship but have absolutely no idea on how to prepare for them. Could someone please give me advice on how to prepare well for the video interviews and online assessments? Advice, resources, anything would help!!!",,,,,,[],,,,,,,
+33,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7buyt/,"What GPA is competitive for accounting internships after a rough start?
+
+During my freshman year, I worked long hours as a restaurant manager and didn’t take school seriously enough. I failed and later retook several classes, and my GPA dropped as low as 1.8.  
+I’m now a sophomore with 37 completed credits and have raised my GPA to 2.81. I have approximately 23 credits remaining before transferring into a university accounting program, and I’m taking my grades much more seriously now.  
+What cumulative GPA should I target to be competitive for accounting internships? Do recruiters consider a strong upward trend or a higher university/major GPA after transferring? I’m aiming to finish my associate degree above a 3.0.",,,,,,[],,,,,,,
+6,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7jwto/,"What to expect during a second round of interviews?
+
+Had my first interview and recruiter called me back for a second round. Honestly don’t know what they are going to ask because I feel like I got asked all the classic behavioural type questions with some technical in the first one. What can I expect with the next? I think 2 or 3 people will be in the room including the head of the department. Position is for a tax role at a private company",,,,,,[],,,,,,,
+34,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7bu98/,"What’s it like working in government as an accountant?
+
+Can anyone share if they have any experience or know anyone? I’m doing my masters right now, will finish in the summer and they haven’t brought up working for IRS/ government, recruiting or anything so far, which I’m very surprised. Getting foot through door for internship. What’s it like? What’s pay like if you have masters? I did undergrad at a T-20 business school in finance(not sure if this matters to them as much as it would in public). Also progression in this sector post-CPA? Would it be smarter for career to start out public then go to govt? Start with govt? Thanks.",,,,,,[],,,,,,,
+15,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7hlg0/,"From entrepreneur to accountant
+
+Hi all, I’m 28 and have been full time at my own business in the beauty industry for 7 years. The money isn’t that great and as I get older I realize I crave stability. With owning my own business I have taken an interest in the financial side of things and thought this translated well to a career in accounting. I’ve taken an accounting course and I do find it interesting! However I cant help but binge read posts about hating accounting, having panic attacks everyday, not finding work after school, not getting any experience and so on. Obviously I know people are going to say this about any and every job ever but I can’t help but second guess my choice. It’s a big decision and I am prone to panic attacks at work hence why I became my own boss 😗 I know nothing about this transition will be easy. I wanted to hear other people’s thoughts because maybe I’m in for a reality check or maybe I’m letting the negative posts get into my head too much.",,,,,,[],,,,,,,
+57,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w7cztj/,"Our HOA management company is a Bully
+
+I’ve never been personally harassed before by a company. This is a first. Just trying to get the PM Company to follow through with HOA maintenance requests from 1-3 years of repeating them in the Portal and after one Google Review — bam — the work was done in one day. Problem is I received a nasty certified letter intimidating me. They threatened to respond to them within 10 days in writing about my Google review or they would forward it to their attorney. WOW! My attorney said to ignore them but honestly what is this world coming to when people won’t do their job and then threaten you for holding them to account?",,,,,,[],,,,,,,
+4,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7kbfi/,"EY Paraguay is offering remote work and getting great reviews, but what is the catch?
+
+Hey everyone,
+
+​With multinational investment growing in Paraguay, the Big Four are expanding fast. EY in particular has been getting surprisingly positive reviews locally because they are offering remote work—a perk virtually unheard of in our market outside of rare exceptions like Nestlé.
+
+Because local firms and older Big Four branches (like PwC) are notorious here for severe in-office burnout, EY is positioning itself as the modern, flexible alternative.
+
+For people working at EY globally or know about it
+
+Is the remote perk just a honeymoon phase? Is EY in reality trying to improve?",,,,,,[],,,,,,,
+38,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7am1u/,"EA vs Masters, juice worth the squeeze?
+
+I have a Bachelors in Education and a concentration in English. I taught HS English for a few years before transitioning to an Underwriting job. I look at tax returns all day and my best-friend is an Accounting MA holder who’s almost done with the CPA and opening his own firm. He has a job ready for me if I decide to pursue this, he’s been badgering me to do so honestly. 
+
+My employer at the moment is horrendous and I wanna finish out my two years and bounce. I just got married and my fiancé is also pursuing a masters in psychology. I can do the work on the weekends, I enjoy learning new things, it all just makes sense as far as timeline and opportunity goes. 
+
+I’m of MENA descent and live in city that is majority ESL or no English at all. There will always be tax and accounting opportunities here on account of my background and language. 
+
+My question is, given these circumstances, is the EA a smarter approach or is the Masters degree the better idea? 
+
+I have no desire to be a CPA right now. If I NEVER make more than 90k a year, I’m perfectly happy. My fiancé and I are both relatively low maintenance people and I made some real estate investments early in my life that will bear fruit and give me space to breathe without a crazy salary. 
+
+I’d start my Masters this winter if I apply today. Does it still make sense to get the full Masters if I don’t intend on becoming a full CPA? Will just getting the EA in the next 3-4 months, which I believe I can accomplish, and my “finance Adjacent” work history + bachelors degree help me land an entry level role and work my way up from there, assuming my friends offer doesn’t pan out?
+
+The EA is such a small commitment (relative to my masters) during this incredibly busy period in my life and it seems overly tempting but I don’t want to make a mistake and waste anymore time. 
+
+Thank you!",,,,,,[],,,,,,,
+65,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w6fxjs/,"Advice on trying to find a leasing job in a different city?
+
+Does anybody have any advice for an experienced leasing agent looking to relocate to a city about 2 hours away? I have been a leasing agent for 3 years at the same property and I am very confident in my leasing abilities, I am not moving out of state, just to a bigger city a few hours away. 
+
+I've found that the pay out there is not looking great compared to what I am currently making, I've had a few interviews and they loved me but were trying to pay about $2-3 less per hour than I need to match what I currently make. 
+
+I've had probably 5 interviews in the last week and two of them have been very promising, one told me I'm perfect and looks forward to working with me, she just needs to interview more people to try to justify the pay I'm asking for to the investors/corporate. But then later on in the day, I got an automated email from their HR saying I am not eligible for re-hire, but I have never worked for the company. So I texted her and she said she would look into it, and it's been 3 days now with no update, and on the website I applied on it says my application status is closed. I emailed their HR today to find out if I can fix this because that property is literally a dream, but I'm feeling discouraged. 
+
+I'm continuing to apply for literally every opening in the area but most of the callbacks I get are offering much less than I make now and with lower rent discounts. I'm confused because the area I want to move to has a much higher cost of living than where I currently am. How likely is it I can talk a company up a few dollars from what they are offering? Also, how can I make myself more attractive to them? I worry that the fact I am needing housing in order to start working might be hurting me, but I could not afford the rent out there without a discount at the pay they're offering. I also am ready to move now, I let them all know I just need to give my current property a 2 week notice and 30 day notice for my apartment and I can start as soon as my 2 week notice is up. 
+
+I guess I'm mostly venting, but if anyone has successfully moved to a different property in a different city and obtained housing there at the same time, I would appreciate any advice!",,,,,,[],,,,,,,
+58,NO_PAIN,https://www.reddit.com/r/propertymanagement/comments/1w7bt41/,"What sales behaviors are worth tracking besides close rate?
+
+Close rate is obviously important but it only tells you what happened at the end. It doesn’t really tell you why one rep keeps winning while another struggles. I’m more interested in the stuff happening during the actual customer conversation. Things like whether reps ask the right discovery questions, how they handle and how clearly they ask for the sale. If a rep keeps losing deals after price comes up then the coaching can focus on that exact part of the conversation. If another rep skips key discovery questions then the manager has something specific to work on in the next 1:1. And if the whole team struggles with the same objection then you know it’s probably a training issue rather than one bad rep so my question essentially is what have you found is actually useful to coach from?",,,,,,[],,,,,,,
+2,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7kugh/,"Attivo partners question
+
+I’ll be interviewing next week with attivo partners. They sound like a great company to work for. Does anyone have some advice on them so far? Also, for some of the interviews they mentioned some payroll questions, fixed asset questions and I think maybe a T account question? Was curious what some of the questions may be ?? TIA",,,,,,[],,,,,,,
+13,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7hzed/,"Variation in Accounting Job Titles
+
+Brief accounting flavored job-search rant.
+
+Does anyone else get annoyed by the lack of cohesion in accounting job titles? How do you job search when employers don't make any functional distinction between terms like accountant/analyst, senior/manager, staff/junior?
+
+Then swapping out terms in searches tends to bring up tons of completely unrelated jobs.  
+
+I wonder if employers having no clue about what the terms mean also leads to the bizarre range of title/responsibilities/compensation combos. Or expecting someone looking for entry level jobs to take over a whole department at once.",,,,,,[],,,,,,,
+9,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7irk4/,"Weird one.. what would you use your ""one monthly audiobook"" with amazon music?
+
+I am doing an apprenticeship which means i can clock hours listening to anything related closely enough to ai/digital skills
+
+I would prefer Mythos by Stephen Fry though for sure",,,,,,[],,,,,,,
