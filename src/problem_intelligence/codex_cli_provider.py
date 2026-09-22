@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import time
 from collections.abc import Callable, Mapping
@@ -15,6 +16,42 @@ from .llm_provider import InferenceFailure, ModelCallError, ModelRequest, ModelR
 from .openai_compatible import matches_schema
 
 CommandRunner = Callable[..., subprocess.CompletedProcess[str]]
+
+_ERROR_PATTERN_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"rate.?limit|too many requests|429", re.IGNORECASE), "rate-limited"),
+    (
+        re.compile(r"insufficient.*(quota|credit)|quota exceeded|out of quota", re.IGNORECASE),
+        "quota-exceeded",
+    ),
+    (
+        re.compile(
+            r"invalid api.?key|unauthorized|401|authentication failed|token.*expired",
+            re.IGNORECASE,
+        ),
+        "auth-failed",
+    ),
+    (re.compile(r"403|forbidden|no access", re.IGNORECASE), "access-denied"),
+    (re.compile(r"network|connection|dns|timed? out|econn", re.IGNORECASE), "network"),
+    (
+        re.compile(r"model not found|unsupported model|unknown model", re.IGNORECASE),
+        "model-unavailable",
+    ),
+    (re.compile(r"sandbox|policy", re.IGNORECASE), "policy-blocked"),
+)
+
+
+def classify_codex_cli_error(stderr: str | None) -> str:
+    """Map a failed codex CLI invocation to a coarse redacted diagnostic category.
+
+    Returns only one of the known category labels or 'unknown-error'.
+    Never echoes stderr content: no source text, credentials or prompts may leak
+    into logs or persisted failure messages through this function.
+    """
+    text = (stderr or "").casefold()
+    for pattern, category in _ERROR_PATTERN_RULES:
+        if pattern.search(text):
+            return category
+    return "unknown-error"
 
 
 class CodexCliProvider:
@@ -95,9 +132,12 @@ class CodexCliProvider:
                 )
                 latency = round((time.monotonic() - started) * 1000)
                 if completed.returncode != 0:
+                    # Classify stderr, redact secrets, report category only.
+                    error_category = classify_codex_cli_error(completed.stderr)
+                    # Never log/persist full stderr, prompt, or any source content.
                     raise ModelCallError(
                         InferenceFailure.MODEL_UNAVAILABLE,
-                        f"codex CLI exited with status {completed.returncode}",
+                        f"codex CLI exited with status {completed.returncode} [{error_category}]",
                         latency_ms=latency,
                     )
                 if not output_path.is_file():

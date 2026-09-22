@@ -10,7 +10,10 @@ from typing import Any
 import pytest
 
 from problem_intelligence.automated_discovery import SCREEN_SCHEMA
-from problem_intelligence.codex_cli_provider import CodexCliProvider
+from problem_intelligence.codex_cli_provider import (
+    CodexCliProvider,
+    classify_codex_cli_error,
+)
 from problem_intelligence.discovery_model import provider_from_environment
 from problem_intelligence.llm_provider import InferenceFailure, ModelCallError, ModelRequest
 
@@ -86,6 +89,45 @@ def test_timeout_and_nonzero_exit_fail_safely() -> None:
     assert failed_error.value.failure is InferenceFailure.MODEL_UNAVAILABLE
     assert "source text" not in str(failed_error.value)
     assert "secret" not in str(failed_error.value)
+    assert "[unknown-error]" in str(failed_error.value)
+
+
+@pytest.mark.parametrize(
+    ("stderr", "category"),
+    [
+        ("Error: 429 Too Many Requests", "rate-limited"),
+        ("Rate limit reached for gpt-5-codex", "rate-limited"),
+        ("insufficient_quota: you exceeded your credit balance", "quota-exceeded"),
+        ("authentication failed: token expired", "auth-failed"),
+        ("HTTP 403 Forbidden", "access-denied"),
+        ("connect ECONNREFUSED 127.0.0.1:443", "network"),
+        ("model not found: gpt-9", "model-unavailable"),
+        ("sandbox violation: denied by policy", "policy-blocked"),
+        ("", "unknown-error"),
+        ("totely unexpected failure text", "unknown-error"),
+    ],
+)
+def test_codex_cli_error_classification_is_redacted(
+    stderr: str, category: str
+) -> None:
+    assert classify_codex_cli_error(stderr) == category
+    assert classify_codex_cli_error(None) == "unknown-error"
+
+
+def test_nonzero_exit_message_carries_category_without_stderr_leak() -> None:
+    def rate_limited_runner(
+        args: list[str], **_kwargs: Any
+    ) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            args, 1, stdout="", stderr="Error: 429 Too Many Requests sk-SECRETKEY"
+        )
+
+    with pytest.raises(ModelCallError) as error:
+        CodexCliProvider(runner=rate_limited_runner).complete_structured(request())
+    message = str(error.value)
+    assert "[rate-limited]" in message
+    assert "sk-SECRETKEY" not in message
+    assert "Too Many Requests" not in message
 
 
 def test_invalid_or_schema_nonconforming_output_is_rejected() -> None:
