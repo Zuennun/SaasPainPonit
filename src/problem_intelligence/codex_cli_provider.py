@@ -18,7 +18,13 @@ from .openai_compatible import matches_schema
 CommandRunner = Callable[..., subprocess.CompletedProcess[str]]
 
 _ERROR_PATTERN_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"rate.?limit|too many requests|429", re.IGNORECASE), "rate-limited"),
+    (
+        re.compile(
+            r"rate.?limit|too many requests|429|usage limit|hit your.*limit|try again at",
+            re.IGNORECASE,
+        ),
+        "rate-limited",
+    ),
     (
         re.compile(r"insufficient.*(quota|credit)|quota exceeded|out of quota", re.IGNORECASE),
         "quota-exceeded",

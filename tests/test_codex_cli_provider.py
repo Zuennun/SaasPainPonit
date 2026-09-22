@@ -97,6 +97,11 @@ def test_timeout_and_nonzero_exit_fail_safely() -> None:
     [
         ("Error: 429 Too Many Requests", "rate-limited"),
         ("Rate limit reached for gpt-5-codex", "rate-limited"),
+        (
+            "ERROR: You've hit your usage limit. Upgrade to Pro or "
+            "try again at 6:14 PM. sandbox: read-only",
+            "rate-limited",
+        ),
         ("insufficient_quota: you exceeded your credit balance", "quota-exceeded"),
         ("authentication failed: token expired", "auth-failed"),
         ("HTTP 403 Forbidden", "access-denied"),
