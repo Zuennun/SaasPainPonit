@@ -1,0 +1,4 @@
+run4 FULL acquisition records: 130
+usable unseen selected: 130 (overlap 0)
+missing from completed screenings: 23
+processed: 23 | screening calls: 25 | potential_pain: 9 | no_pain: 14 | extraction calls: 19 | valid obs: 1 | failures: {'TIMEOUT': 3, 'INVALID_STRUCTURED_OUTPUT': 5} | input tok: 88 | output tok: 157024 | cache hits: 0

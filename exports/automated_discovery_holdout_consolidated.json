@@ -1,0 +1,31 @@
+{
+  "evidence_spans": 71,
+  "items_screened_ok": 130,
+  "note": "Screening/Extraction completed across codex_cli (main), openai_compatible/qwen (partial run 3) and claude_cli (gap-fill run 5). Per-item results keep their originating provider in model_runs; the inference cache is provider-scoped.",
+  "provider_usage": {
+    "claude_cli": {
+      "ext_ok": 1,
+      "failed": 20,
+      "provider": "claude_cli",
+      "scr_ok": 23
+    },
+    "codex_cli": {
+      "ext_ok": 24,
+      "failed": 674,
+      "provider": "codex_cli",
+      "scr_ok": 78
+    },
+    "openai_compatible": {
+      "ext_ok": 9,
+      "failed": 196,
+      "provider": "openai_compatible",
+      "scr_ok": 74
+    }
+  },
+  "real_holdout_run": true,
+  "records_acquired": 250,
+  "status": "INFERENCE_COMPLETED_CONSOLIDATED",
+  "strong_signals": 0,
+  "usable_records": 130,
+  "valid_observations": 34
+}
