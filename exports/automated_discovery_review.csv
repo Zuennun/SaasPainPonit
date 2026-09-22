@@ -1,1 +1,4 @@
 source_item_id,model_status,source_url,source_text,problem_statement,actor,workflow_context,workaround,impact,evidence_excerpts,human_problem_label,human_actor_correct,human_problem_faithful,human_workaround_supported,human_impact_supported,human_evidence_correct,human_notes
+1,NO_PAIN,https://www.reddit.com/r/accounting/comments/1w7l04g/,"Why are emotional outbursts suddenly always ok in PA?
+
+I thought we were told not to do that as kids lol",,,,,,[],,,,,,,
