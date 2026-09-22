@@ -480,9 +480,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     missing: list[str] = []
     provider_type = os.environ.get("DISCOVERY_LLM_PROVIDER", "openai")
-    if provider_type not in {"openai", "openai_compatible", "codex_cli"}:
-        missing.append("DISCOVERY_LLM_PROVIDER=openai|openai_compatible|codex_cli")
-    if provider_type != "codex_cli" and not os.environ.get("DISCOVERY_MODEL"):
+    if provider_type not in {"openai", "openai_compatible", "codex_cli", "claude_cli"}:
+        missing.append("DISCOVERY_LLM_PROVIDER=openai|openai_compatible|codex_cli|claude_cli")
+    if provider_type not in {"codex_cli", "claude_cli"} and not os.environ.get("DISCOVERY_MODEL"):
         missing.append("DISCOVERY_MODEL")
     if provider_type == "openai" and not os.environ.get("OPENAI_API_KEY"):
         missing.append("OPENAI_API_KEY")

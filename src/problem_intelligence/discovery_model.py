@@ -17,6 +17,7 @@ from .automated_discovery import (
     validate_extraction,
     validate_screen,
 )
+from .claude_cli_provider import ClaudeCliProvider
 from .codex_cli_provider import CodexCliProvider
 from .llm_provider import (
     InferenceFailure,
@@ -40,8 +41,10 @@ def provider_from_environment(env: Mapping[str, str] | None = None) -> LLMProvid
         return OpenAICompatibleProvider.from_environment(values)
     if provider == "codex_cli":
         return CodexCliProvider.from_environment(values)
+    if provider == "claude_cli":
+        return ClaudeCliProvider.from_environment(values)
     raise ValueError(
-        "DISCOVERY_LLM_PROVIDER must be openai, openai_compatible, or codex_cli"
+        "DISCOVERY_LLM_PROVIDER must be openai, openai_compatible, codex_cli, or claude_cli"
     )
 
 

@@ -60,7 +60,11 @@ export ARCTIC_SHIFT_USER_AGENT='GlobalProblemIntelligence/0.1 (research prototyp
 python -m problem_intelligence.discovery_model
 ```
 
-`DISCOVERY_BASE_URL` must be an HTTP(S) API root or `/v1` URL, without embedded credentials.
+`DISCOVERY_LLM_PROVIDER` accepts `openai`, `openai_compatible`, `codex_cli`
+(authenticated Codex CLI subscription) or `claude_cli` (authenticated Claude
+Code CLI subscription; optional `DISCOVERY_CLAUDE_EXECUTABLE`). For
+`openai_compatible`, `DISCOVERY_BASE_URL` must be an HTTP(S) API root, `/v1`,
+or `/compatible-mode/v1` URL, without embedded credentials.
 `DISCOVERY_OUTPUT_MODE=json_schema` (default) requests native
 schema-constrained output. Set `DISCOVERY_OUTPUT_MODE=json_object` only if the
 endpoint lacks native schema mode; every response is still checked against the
