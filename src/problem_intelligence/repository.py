@@ -1965,7 +1965,12 @@ class Repository:
         return int(row["id"]) if row is not None else None
 
     def clusterable_observations(self) -> tuple[ObservationRecord, ...]:
-        """Return manual observations and outputs from completed extraction runs."""
+        """Return manual observations and outputs from finished extraction runs.
+
+        FAILED runs count as well: every observation written by an extraction
+        passed evidence validation, so an interrupted-but-failed run contributes
+        real observations; only genuinely RUNNING runs are still untrusted.
+        """
 
         rows = self.connection.execute(
             """SELECT o.id, o.problem_type, o.problem_family, o.problem, o.actor,
@@ -1973,7 +1978,8 @@ class Repository:
                       o.current_workaround, o.tools_used
                FROM problem_observations AS o
                LEFT JOIN pipeline_runs AS r ON r.id = o.pipeline_run_id
-               WHERE o.pipeline_run_id IS NULL OR r.status = 'COMPLETED'
+               WHERE o.pipeline_run_id IS NULL
+                  OR r.status IN ('COMPLETED','FAILED')
                ORDER BY o.id"""
         ).fetchall()
         return tuple(
