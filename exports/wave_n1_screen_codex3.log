@@ -1,0 +1,3 @@
+unseen FULL items to process: 718
+circuit open at item 125: 13 MODEL_UNAVAILABLE in batch of 25 — provider window exhausted
+processed: 150 | potential_pain: 63 | obs total: 61 | failures: {'INVALID_STRUCTURED_OUTPUT': 6, 'MODEL_UNAVAILABLE': 13} | provider: codex_cli

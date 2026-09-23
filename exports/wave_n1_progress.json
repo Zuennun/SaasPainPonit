@@ -32,5 +32,16 @@
   "full_usable_items": 718,
   "screened_items": 0,
   "observations": 0,
-  "next_step": "screen+extract with codex_cli (see wave-n1 goal task)"
+  "next_step": "screen+extract with codex_cli (see wave-n1 goal task)",
+  "last_run_at": "2026-09-23T20:30:37.056992+00:00",
+  "last_provider": "codex_cli",
+  "processed_items": 150,
+  "screened_ok_cumulative": 137,
+  "potential_pain": 63,
+  "valid_observations": 61,
+  "failures": {
+    "INVALID_STRUCTURED_OUTPUT": 6,
+    "MODEL_UNAVAILABLE": 13
+  },
+  "inference_failures": 19
 }
