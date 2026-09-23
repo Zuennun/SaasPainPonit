@@ -9,3 +9,5 @@ build/
 dist/
 *.db
 .venv/
+
+exports/wave_n1_screen_*.log
