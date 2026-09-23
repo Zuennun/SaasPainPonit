@@ -140,6 +140,28 @@ def ingest_hn(conn: sqlite3.Connection) -> int:
     return added
 
 
+def ingest_hn_backfill(conn: sqlite3.Connection) -> int:
+    """One-time deep fill: upvoted Show HN launches from the past ~6 months."""
+    url = ("https://hn.algolia.com/api/v1/search_by_date?tags=show_hn"
+           "&numericFilters=points%3E100&hitsPerPage=1000")
+    try:
+        data = json.loads(fetch(url))
+    except Exception as exc:  # noqa: BLE001 - backfill must not break the run
+        print(f"hn backfill skipped: {type(exc).__name__}")
+        return 0
+    added = 0
+    for h in data.get("hits", []):
+        title = h.get("title") or ""
+        ext = h.get("url") or ""
+        text = f"{title} {h.get('story_text') or ''}"
+        day = (h.get("created_at") or "")[:10]
+        added += upsert(conn, f"hn:{h.get('objectID')}",
+                        re.sub(r"^\s*Show HN:\s*", "", title)[:120],
+                        text[:220], ext, "hackernews", day)
+    conn.commit()
+    return added
+
+
 def render(conn: sqlite3.Connection) -> None:
     rows = conn.execute("""SELECT name, tagline, url, source, seen_date,
         buckets, pain_hits FROM products
@@ -188,8 +210,9 @@ def main() -> int:
     init(conn)
     n_ph = ingest_producthunt(conn)
     n_hn = ingest_hn(conn)
+    n_bf = ingest_hn_backfill(conn)
     render(conn)
-    print(f"new: producthunt={n_ph} hackernews={n_hn}")
+    print(f"new: producthunt={n_ph} hackernews={n_hn} hn-backfill={n_bf}")
     conn.close()
     return 0
 
