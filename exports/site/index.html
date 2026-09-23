@@ -105,6 +105,7 @@ function painCard(p){
       ${p.job ? `<div><b>Job:</b> ${esc(p.job)}</div>` : ''}
       ${p.current_workaround || p.workaround ? `<div><b>Bisheriger Workaround:</b> ${esc(p.workaround)}</div>` : ''}
     </div>
+    ${p.related && p.related.length ? `<div class="fields" style="margin-top:6px"><b>Andere haben dafür schon gebaut:</b> ${p.related.map(esc).join(' · ')}</div>` : ''}
     <div class="src">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">r/${esc(p.sub)} · Original-Post ↗</a>` : 'Quelle nicht mehr verfügbar'} · ${esc(p.date)}</div>
   </div>`;
 }

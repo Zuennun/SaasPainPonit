@@ -56,6 +56,7 @@ def niche_of(url: str) -> str:
 
 
 class Pain(TypedDict):
+    related: list[str]
     id: str
     pain: str
     family: str
@@ -112,6 +113,7 @@ def load_obs(path: Path, wave: bool) -> list[Pain]:
             "niche": niche_of(r["url"] or ""),
             "date": (r["published_at"] or "")[:10],
             "wave": wave,
+            "related": [],
         })
     c.close()
     return out
@@ -164,6 +166,32 @@ def main() -> int:
         seen.add(k)
         uniq.append(o)
     products = load_products()
+    # cross-link: for each pain, the buckets of products that address its niche
+    by_bucket: dict[str, list[Product]] = {}
+    for pr in products:
+        for b in pr["buckets"]:
+            by_bucket.setdefault(b, []).append(pr)
+    niche_buckets = {
+        "Gastronomie": ["restaurant-pos"],
+        "Buchhaltung / Steuer": ["bookkeeping-finance"],
+        "Immobilienverwaltung": ["property/ho-admin"],
+        "Frachtenvermittlung / Logistik": ["logistics-freight"],
+        "Handwerk (HLK)": ["field-service", "construction"],
+        "Handwerk (Sanitär)": ["field-service", "construction"],
+        "Bau / Handwerk": ["field-service", "construction"],
+        "Kleingewerbe / Solo-Selbständige": ["field-service", "sales-crm",
+                                              "marketing-ads", "phone-ai"],
+        "Vertrieb / Sales": ["sales-crm"],
+        "Agenturen": ["marketing-ads", "sales-crm"],
+        "Buchhaltung": ["bookkeeping-finance"],
+    }
+    for o in uniq:
+        scored: dict[str, int] = {}
+        for b in niche_buckets.get(o["niche"], []):
+            for pr in by_bucket.get(b, []):
+                scored[pr["name"]] = scored.get(pr["name"], 0) + 1 + len(pr["hits"])
+        ranked = sorted(scored.items(), key=lambda kv: (-kv[1], kv[0]))
+        o["related"] = [name for name, _ in ranked[:10]]
     niches = len({o["niche"] for o in uniq})
     payload: dict[str, object] = {
         "updated": "2026-09-23",
