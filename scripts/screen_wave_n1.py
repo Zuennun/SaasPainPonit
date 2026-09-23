@@ -56,7 +56,24 @@ def main() -> int:
         temperature=0.0, timeout_seconds=120.0, max_retries=2,
         input_usd_per_million=None, output_usd_per_million=None,
     )
-    metrics = AutomatedDiscovery(repository, provider, config).run(ids)
+    discovery = AutomatedDiscovery(repository, provider, config)
+    # circuit breaker: process in batches, stop early on provider-limit bursts
+    BATCH = 25
+    agg_processed = agg_pain = agg_fail = 0
+    agg_failures: dict[str, int] = {}
+    for start in range(0, len(ids), BATCH):
+        batch = ids[start:start + BATCH]
+        metrics = discovery.run(batch)
+        agg_processed += metrics.processed_items
+        agg_pain += metrics.potential_pain
+        agg_fail += metrics.inference_failures
+        for k, v in metrics.failures.items():
+            agg_failures[k] = agg_failures.get(k, 0) + v
+        unavailable = metrics.failures.get("MODEL_UNAVAILABLE", 0)
+        if unavailable >= 3:
+            print(f"circuit open at item {start}: {unavailable} MODEL_UNAVAILABLE "
+                  f"in batch of {len(batch)} — provider window exhausted")
+            break
     payload: dict[str, object] = {}
     if PROGRESS.is_file():
         try:
@@ -71,19 +88,19 @@ def main() -> int:
     payload.update({
         "last_run_at": datetime.now(UTC).isoformat(),
         "last_provider": provider.name,
-        "processed_items": metrics.processed_items,
+        "processed_items": agg_processed,
         "screened_ok_cumulative": repository.connection.execute(
             """SELECT COUNT(DISTINCT source_item_id) FROM structured_inference_attempts
                WHERE stage='SCREENING' AND failure_code IS NULL""").fetchone()[0],
-        "potential_pain": metrics.potential_pain,
+        "potential_pain": agg_pain,
         "valid_observations": total_obs,
-        "failures": metrics.failures,
-        "retries": metrics.retries,
+        "failures": agg_failures,
+        "inference_failures": agg_fail,
     })
     PROGRESS.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    print("processed:", metrics.processed_items, "| potential_pain:",
-          metrics.potential_pain, "| obs total:", total_obs,
-          "| failures:", metrics.failures, "| provider:", provider.name)
+    print("processed:", agg_processed, "| potential_pain:", agg_pain,
+          "| obs total:", total_obs,
+          "| failures:", agg_failures, "| provider:", provider.name)
     return 0
 
 if __name__ == "__main__":
