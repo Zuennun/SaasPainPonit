@@ -1,0 +1,2 @@
+POTENTIAL_PAIN without observation: 31
+processed: 31 | screening calls: 48 | extraction calls: 9 | valid obs: 8 | failures: {'INVALID_STRUCTURED_OUTPUT': 1, 'MODEL_UNAVAILABLE': 11} | cache hits: 5 | in tok: 0 | out tok: 0

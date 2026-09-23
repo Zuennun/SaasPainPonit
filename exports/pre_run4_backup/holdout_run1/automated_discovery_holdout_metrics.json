@@ -1,0 +1,38 @@
+{
+  "api_inference_cost_eur": "UNKNOWN",
+  "api_inference_cost_usd": "UNKNOWN",
+  "baseline_excluded_ids": 250,
+  "cost_usd": "UNKNOWN",
+  "evidence_validation_failures": 0,
+  "extraction_calls": 0,
+  "failures": {
+    "MODEL_UNAVAILABLE": 129
+  },
+  "inference_failures": 129,
+  "infrastructure_cost": "UNKNOWN",
+  "infrastructure_cost_usd": "UNKNOWN",
+  "input_tokens": null,
+  "model_usage": {
+    "calls": 388,
+    "endpoint_class": "remote_or_unknown",
+    "model": "codex-default",
+    "provider": "codex_cli",
+    "retries": 258
+  },
+  "no_pain": 1,
+  "output_tokens": null,
+  "overlap_found": 0,
+  "potential_pain": 0,
+  "real_holdout_run": true,
+  "recommendation": "AUTOMATED_DISCOVERY_NOT_READY",
+  "records_acquired": 250,
+  "reported_input_tokens": 0,
+  "reported_output_tokens": 0,
+  "runtime_seconds": 1436.8233604880006,
+  "screening_calls": 388,
+  "status": "INFERENCE_COMPLETED",
+  "strong_signals": 0,
+  "unreported_usage_calls": 388,
+  "usable_records": 130,
+  "valid_observations": 0
+}

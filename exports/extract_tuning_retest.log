@@ -1,0 +1,17 @@
+retesting extract-v2 on 15 items with existing observations
+processed: 15 | extraction calls: 6 | valid obs: 8 | failures: {'MODEL_UNAVAILABLE': 6}
+/home/zunnun/.hermes/cache/scratch/codex_smoke/retest_extract_v2.py:70: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "measured_at": __import__("datetime").datetime.utcnow().isoformat() + "Z",
+{
+ "actor": 14,
+ "job_to_be_done": 10,
+ "context": 17,
+ "current_workaround": 7,
+ "tools_used": 0,
+ "time_impact": 3,
+ "financial_impact": 1,
+ "active_solution_search": 11,
+ "switching_intent": 0,
+ "existing_solution": 0,
+ "root_cause": 0
+}

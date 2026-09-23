@@ -1,0 +1,23 @@
+{
+  "sample_items": 15,
+  "provider": "codex_cli",
+  "prompt_version": "extract-v2",
+  "observations_after": 46,
+  "field_fill_after": {
+    "actor": 14,
+    "job_to_be_done": 10,
+    "context": 17,
+    "current_workaround": 7,
+    "tools_used": 0,
+    "time_impact": 3,
+    "financial_impact": 1,
+    "active_solution_search": 11,
+    "switching_intent": 0,
+    "existing_solution": 0,
+    "root_cause": 0
+  },
+  "failures": {
+    "MODEL_UNAVAILABLE": 6
+  },
+  "measured_at": "2026-09-23T00:25:08.873512Z"
+}
