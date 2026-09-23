@@ -47,12 +47,17 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#0d1119ee;border-top:1p
     <button class="tab" id="t-prods">🛠️ Was andere bauen</button>
   </div>
 
+  <div class="bar"><input type="search" id="q" placeholder="Suchen: Problem, Zitat, Nische …" style="width:100%"></div>
   <div class="bar" id="bar-pains">
-    <input type="search" id="q" placeholder="Suchen: Problem, Zitat, Nische …">
     <select id="f-niche"><option value="">Alle Nischen</option></select>
     <select id="f-fam"><option value="">Alle Problem-Arten</option></select>
     <select id="f-wave"><option value="">Holdout + Welle</option><option value="0">Holdout</option><option value="1">Welle N+1</option></select>
     <label class="chip" style="cursor:pointer;padding:8px 12px"><input type="checkbox" id="f-search"> nur aktiven Lösungssucher</label>
+  </div>
+
+  <div class="bar" id="bar-prods" style="display:none">
+    <select id="f-bucket"><option value="">Alle Felder</option></select>
+    <label class="chip" style="cursor:pointer;padding:8px 12px"><input type="checkbox" id="f-hits"> nur Treffer auf unsere Pain-Seeds</label>
   </div>
 
   <div class="count" id="count"></div>
@@ -73,6 +78,8 @@ function fillSelect(sel, values, label){
 }
 fillSelect($('f-niche'), DB.pains.map(p=>p.niche));
 fillSelect($('f-fam'), DB.pains.map(p=>p.family));
+{ const bs = new Set(); DB.products.forEach(p=>p.buckets.forEach(b=>bs.add(b)));
+  fillSelect($('f-bucket'), [...bs]); }
 
 function painCard(p){
   return `<div class="card">
@@ -108,8 +115,10 @@ function prodCard(p){
 
 function render(){
   const q = $('q').value.toLowerCase().trim();
-  const list = $('list'); const bar = $('bar-pains');
-  bar.style.display = mode==='pains' ? 'flex' : 'none';
+  const list = $('list');
+  $('bar-pains').style.display = mode==='pains' ? 'flex' : 'none';
+  $('bar-prods').style.display = mode==='products' ? 'flex' : 'none';
+  document.querySelectorAll('.bar')[0].style.display = 'flex';
   let items, html = '';
   if (mode==='pains'){
     const n = $('f-niche').value, f = $('f-fam').value, wv = $('f-wave').value, so = $('f-search').checked;
@@ -120,8 +129,10 @@ function render(){
     items.sort((a,b)=> (b.searching-a.searching) || (b.wave-a.wave));
     html = items.map(painCard).join('');
   } else {
+    const bk = $('f-bucket').value, oh = $('f-hits').checked;
     items = DB.products.filter(p =>
-      !q || (p.name+' '+(p.tagline||'')+' '+p.buckets.join(' ')+' '+p.hits.join(' ')).toLowerCase().includes(q));
+      (!bk || p.buckets.includes(bk)) && (!oh || p.hits.length>0) &&
+      (!q || (p.name+' '+(p.tagline||'')+' '+p.buckets.join(' ')+' '+p.hits.join(' ')).toLowerCase().includes(q)));
     items.sort((a,b)=> (b.hits.length>0)-(a.hits.length>0) || b.date.localeCompare(a.date));
     html = items.map(prodCard).join('');
   }
@@ -131,7 +142,7 @@ function render(){
 
 $('t-pains').onclick = () => { mode='pains'; $('t-pains').classList.add('on'); $('t-prods').classList.remove('on'); render(); };
 $('t-prods').onclick = () => { mode='products'; $('t-prods').classList.add('on'); $('t-pains').classList.remove('on'); render(); };
-['q','f-niche','f-fam','f-wave','f-search'].forEach(id => { $(id).addEventListener('input', render); });
+['q','f-niche','f-fam','f-wave','f-search','f-bucket','f-hits'].forEach(id => { $(id).addEventListener('input', render); });
 $('foot').textContent = `${DB.stats.pains||0} Pain-Points · ${DB.stats.products||0} beobachtete Produkte · ${DB.stats.niches||0} Nischen · Stand ${DB.updated||''} · alle Zitate verbatim aus öffentlichen Posts`;
 render();
 </script>
