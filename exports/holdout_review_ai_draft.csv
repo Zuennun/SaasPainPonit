@@ -1,0 +1,47 @@
+obs_id,verdict,confidence,reason
+1,WEAK,medium,Support-Frage zu GL-Codierung; kein dokumentierter Workflow-Aufwand
+2,FALSE_POSITIVE,high,Reine Fachfrage; kein wiederkehrendes Betriebsproblem
+3,WEAK,medium,Solo-Founder sucht Controls; Frage ohne Workaround/Impact
+4,WEAK,medium,DUPPEL von obs1 (gleiches source_item 11) — Dedup-Luecke gefunden
+5,FALSE_POSITIVE,high,Karriere-Rant ueber Jobtitel; kein operationaler Schmerz
+6,WEAK,medium,Feedback-Kultur-Problem real, aber nicht softwarebar und Actor fremd
+7,WEAK,low,POS-Datenfrage; vertieftes Reporting als Bedarf lesbar
+8,FALSE_POSITIVE,high,Bodenbelag — kein Workflow-/Softwareproblem
+9,REAL_PAIN,high,Sales-Manager: Close-Rate erklaert nichts; sucht Verhaltens-Metriken; klarer JTBD
+10,WEAK,low,Lease-Kostenabwaegung; generisch
+11,WEAK,low,Sonderbarer Sales-Prozess im Interview; Schmerz des Autors unklar
+12,FALSE_POSITIVE,high,Spekulation ueber Ryder; kein eigenes Problem
+13,REAL_PAIN,high,PDF->PowerQuery-Import 20 Seiten; konkrete Genauigkeits-Angst im Monatsprozess
+14,FALSE_POSITIVE,high,Karriere-/Glucksfrage; kein Produktproblem
+15,WEAK,medium,Hartes Onboarding real, aber Arbeitgeber-Thema nicht Tooling
+16,REAL_PAIN,high,Accounting-Automation-Engineer: QB-Migration gestartet ohne Zielauswahl; konkret, practitioner
+17,FALSE_POSITIVE,high,Historische Frage (9/11); kein Pain
+18,REAL_PAIN,high,Google-Performance-Anrufe 4-7x/Tag; messbarer zeitlicher Rueckstau, wiederkehrend
+19,WEAK,medium,Visa-Geldstrafe nach Preis-Diskrepanz; einmaliger Vorfall mit finanzieller Angst
+20,WEAK,low,POS-Feature-Wunsch nach Demografie; Datenschutz-duenft, kein belegter Aufwand
+21,REAL_PAIN,high,Digital-Menue-Einrichtung 'komplizierter als es sein sollte'; Owner, aktive Suche
+22,WEAK,medium,Permit-Checkliste fehlt dem Owner; Architekt-Koordination real
+23,FALSE_POSITIVE,high,DUPPEL von obs8 (source_item 48) und Thema ist kein Softwareproblem
+24,REAL_PAIN,high,Uniform-Firma laesst Vertrag nicht loeschen; Belege raussuchen als Workaround; klassischer Lock-in-Schmerz
+25,REAL_PAIN,high,POS-Upgrade-Ad blockiert Kassen-Inputs waehrend Betrieb — akut, klarer Schaden
+26,FALSE_POSITIVE,high,Pachtzusage-Situation; kein Produktproblem
+27,WEAK,medium,Kuechenpersonal unmoeglich zu finden; realer Schmerz aber Arbeitsmarkt, nicht Software
+28,REAL_PAIN,high,Ideale Voice-Response kann Links senden aber keine Orders; existierende Loesung erreicht JTBD nicht
+29,WEAK,medium,Konto wegen Kommunikation verloren; Beziehungsschmerz
+30,REAL_PAIN,high,33 Units ohne Asset-Inventar; Software-Markt hat Funktion nicht; Excel-Workaround benannt — STAERKSTER Kandidat
+31,WEAK,medium,APM-Aergernis ueber Vorgesetzte; Personen-, nicht Systemproblem
+32,WEAK,medium,Neue PM ueberfordert; Einarbeitungs-/Ops-Schmerz real, diffus
+33,WEAK,medium,Ueberhöhungen ueberbringen — emotionaler Prozessschmerz, Tooling-Ansatz unklar
+34,REAL_PAIN,high,Shipper: 99.9% Broker-Outreach Recycling-Muell; Vertrauens-/Qualitaetsloch im Markt
+35,FALSE_POSITIVE,high,Selbstbeschreibungs-Post ueber Finanzbildung; kein Betriebsproblem
+36,FALSE_POSITIVE,high,Einmalige Steuerfrage Earnest Money
+37,FALSE_POSITIVE,high,Einzelne Lease-Klausel-Prüfung
+38,WEAK,medium,Eigentuemer zweifelt an Property-Walks; Monitoring-Loechen real
+39,WEAK,medium,PM-Fluktuation kostet Owner Zeit; Incentive-Bastelloesung vorhanden
+40,FALSE_POSITIVE,high,Einmalige Kaeufchen/Weiterverkaufsfrage
+41,FALSE_POSITIVE,high,Technische Auslegungsfrage; kein Pain
+42,FALSE_POSITIVE,high,Beobachtung ohne eigenes Problem
+43,REAL_PAIN,high,E-Mail-Impersonation zeigt Datenleck im Sales-Workflow; akute Security-Angst
+44,REAL_PAIN,high,Double-Brokering beinahe Betrug; Picture-Check als Workaround; Verifikationsluicke
+45,WEAK,medium,Spediteur kann keine Carrier-Beziehungen aufbauen; Friktion real, diffus
+46,WEAK,low,Suche verlaesslichen Agenten; Vertrauens-/Discovery-Problem, einmalig
