@@ -1,0 +1,21 @@
+subreddit,category,target_group,pilot_item_target,selection_reason,activity_state,access_state
+r/sweatystartup,Small_Business,"Kleinunternehmer, Service-Gewerbe",250,"WAVE_N1 2026-09-23, operators with manual workflows",CURATED_WAVE_N1,NOT_FLAGGED
+r/smallbusiness,Small_Business,"KMU-Inhaber",250,"WAVE_N1 2026-09-23, broad SMB pain discourse",CURATED_WAVE_N1,NOT_FLAGGED
+r/Entrepreneur,Small_Business,"Gruender",250,"WAVE_N1 2026-09-23, founder workflow pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/msp,IT_Services,"Managed-Service-Provider",250,"WAVE_N1 2026-09-23, tooling/ops pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/sysadmin,IT_Services,"Systemadministratoren",250,"WAVE_N1 2026-09-23, ops/manual process pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/humanresources,HR,"Personalwesen",250,"WAVE_N1 2026-09-23, onboarding/process pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/Logistics,Supply_Chain,"Logistik",250,"WAVE_N1 2026-09-23, freight ops pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/ecommerce,Retail,"Online-Haendler",250,"WAVE_N1 2026-09-23, catalog/fulfilment pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/dropshipping,Retail,"Dropshipper",250,"WAVE_N1 2026-09-23, supplier coordination pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/Bookkeeping,Pro_Services,"Buchhaltung",250,"WAVE_N1 2026-09-23, adjacency to r/Accounting",CURATED_WAVE_N1,NOT_FLAGGED
+r/RealEstate,Property,"Immobilien",250,"WAVE_N1 2026-09-23, adjacency to property mgmt",CURATED_WAVE_N1,NOT_FLAGGED
+r/RealEstateInvesting,Property,"Vermieter/Investoren",250,"WAVE_N1 2026-09-23, landlord ops pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/Construction,Trades,"Bau",250,"WAVE_N1 2026-09-23, permitting/coordination pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/Plumbing,Trades,"Sanitaer",250,"WAVE_N1 2026-09-23, scheduling/invoicing pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/sales,Sales,"Vertrieb",250,"WAVE_N1 2026-09-23, outreach/CRM pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/startups,Small_Business,"Startups",250,"WAVE_N1 2026-09-23, founder tooling pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/agency,Pro_Services,"Agenturen",250,"WAVE_N1 2026-09-23, client ops pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/FulfillmentByAmazon,Retail,"Amazon-Haendler",250,"WAVE_N1 2026-09-23, inventory/reconciliation pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/SupplyChain,Supply_Chain,"Beschaffung",250,"WAVE_N1 2026-09-23, procurement pain",CURATED_WAVE_N1,NOT_FLAGGED
+r/WEDdingplanners,Services,"Hochzeitsplanung",250,"WAVE_N1 2026-09-23, scheduling/vendor coordination",CURATED_WAVE_N1,NOT_FLAGGED

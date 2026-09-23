@@ -1,0 +1,36 @@
+{
+  "acquired_at": "2026-09-23T07:00:17.610140+00:00",
+  "window": {
+    "after": "2026-06-01",
+    "before": "2026-08-14"
+  },
+  "status": "CONNECTED",
+  "records_received": 1900,
+  "sources": {
+    "r/sweatystartup": 100,
+    "r/smallbusiness": 100,
+    "r/Entrepreneur": 100,
+    "r/msp": 100,
+    "r/sysadmin": 100,
+    "r/humanresources": 100,
+    "r/Logistics": 100,
+    "r/ecommerce": 100,
+    "r/dropshipping": 100,
+    "r/Bookkeeping": 100,
+    "r/RealEstate": 100,
+    "r/RealEstateInvesting": 100,
+    "r/Construction": 100,
+    "r/Plumbing": 100,
+    "r/sales": 100,
+    "r/startups": 100,
+    "r/agency": 100,
+    "r/FulfillmentByAmazon": 100,
+    "r/SupplyChain": 100,
+    "r/WEDdingplanners": 0
+  },
+  "source_failures": {},
+  "full_usable_items": 718,
+  "screened_items": 0,
+  "observations": 0,
+  "next_step": "screen+extract with codex_cli (see wave-n1 goal task)"
+}

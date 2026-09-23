@@ -1,0 +1,19 @@
+manifest sources: 20
+Traceback (most recent call last):
+  File "/home/zunnun/projects/SaasPainPonit/scripts/acquire_wave_n1.py", line 65, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/zunnun/projects/SaasPainPonit/scripts/acquire_wave_n1.py", line 38, in main
+    metrics, _ = run_poc(
+                 ~~~~~~~^
+        repository, provider, sources, per_source_limit=250,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        start_date=START, end_date=END,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/zunnun/projects/SaasPainPonit/src/problem_intelligence/arctic_shift_poc.py", line 100, in run_poc
+    discovery = provider.discover(subreddit, start_date, end_date, per_source_limit, 0)
+  File "/home/zunnun/projects/SaasPainPonit/src/problem_intelligence/arctic_shift.py", line 189, in discover
+    raise ValueError("page_size must be between 1 and 100")
+ValueError: page_size must be between 1 and 100
