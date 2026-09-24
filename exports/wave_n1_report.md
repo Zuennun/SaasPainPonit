@@ -1,10 +1,10 @@
 # Welle N+1 — Report
 
-Stand: 199/718 gescreent (wave_n1.db, €0-Arctic-Shift).
+Stand: 201/718 gescreent (wave_n1.db, €0-Arctic-Shift).
 
 ## Trichter
 
-- FULL-Items: 718 | gescreent OK: 199 | Observations: 88 | strong signals: 42
+- FULL-Items: 718 | gescreent OK: 201 | Observations: 89 | strong signals: 42
 - Exact-Cluster: 87 für 88 Observations; Duplikat-Cluster (harte Rekurrenz): 1
 
 ## Family-Repetition innerhalb der Welle (>=2 Observations)
@@ -18,6 +18,7 @@ Stand: 199/718 gescreent (wave_n1.db, €0-Arctic-Shift).
 - SCHEDULING: 2× + HOLDOUT
 - COMPLIANCE: 2× + HOLDOUT
 - SEARCH_RETRIEVAL: 2×
+- HANDOVER: 2× + HOLDOUT
 - COMMUNICATION: 2× + HOLDOUT
 
 ## Observations (alle)
@@ -113,3 +114,8 @@ Stand: 199/718 gescreent (wave_n1.db, €0-Arctic-Shift).
 - [entrepreneur/MONITORING] I told myself a story for 8 months instead of checking my numbers and it cost me my entire season.
 - [msp/OTHER] I self-hosted for well over a year and rarely used it due to performance issues.
 - [msp/COMMUNICATION] while we continue to struggle with Pax8 and changes occurring all the time make it even worse.
+- [entrepreneur/HANDOVER] The work had been delegated.
+
+The decisions hadn't.
+
+Everything still depended on me.
