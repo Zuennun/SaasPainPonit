@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pain-Point Radar — echte Probleme &amp; wer schon baut</title>
+<meta name="description" content="Durchsuchbare Liste echter Business-Pain-Points aus Unternehmer-Communities (mit Original-Zitaten) plus was andere Gründer schon dagegen bauen. Inspiration für deine nächste Idee.">
+<meta property="og:title" content="Pain-Point Radar — echte Probleme, die andere schon lösen wollten">
+<meta property="og:description" content="92+ verifizierte Pain-Points aus Reddit-Unternehmer-Communities, jeweils mit Original-Zitat und Link — dazu 1.000+ gelistete Produkte, die andere schon gebaut haben. Stöbern, filtern, inspirieren lassen.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://zuennun.github.io/SaasPainPonit/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pain-Point Radar">
+<meta name="twitter:description" content="Echte Probleme + was andere schon bauen. Zur Inspiration."
+<style>
+:root{--bg:#0b0e14;--panel:#131824;--line:#1f2736;--tx:#e6ebf5;--dim:#8a94a8;
+--accent:#4cc2ff;--gold:#ffcc66;--green:#66d9a6;--red:#ff7b7b;--chip:#1b2333}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:80px}
+header{padding:28px 20px 10px;max-width:1060px;margin:0 auto}
+h1{font-size:26px;letter-spacing:.3px}h1 b{color:var(--accent)}
+.sub{color:var(--dim);margin-top:4px}
+main{max-width:1060px;margin:0 auto;padding:0 20px}
+.tabs{display:flex;gap:8px;margin:18px 0}
+.tab{background:var(--panel);border:1px solid var(--line);color:var(--dim);padding:8px 16px;border-radius:99px;cursor:pointer;font-size:14px}
+.tab.on{color:#0b0e14;background:var(--accent);border-color:var(--accent);font-weight:600}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+input[type=search],select{background:var(--panel);border:1px solid var(--line);color:var(--tx);padding:9px 12px;border-radius:8px;font-size:14px}
+input[type=search]{flex:1;min-width:220px}
+.count{color:var(--dim);font-size:13px;margin:2px 0 12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.card h3{font-size:15.5px;margin-bottom:4px}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{background:var(--chip);color:var(--dim);font-size:11.5px;padding:2px 9px;border-radius:99px;border:1px solid var(--line)}
+.chip.fam{color:var(--gold)} .chip.niche{color:var(--green)} .chip.searching{color:var(--accent);border-color:var(--accent)}
+.quote{border-left:3px solid var(--line);padding:6px 10px;color:#b9c3d6;font-size:13.5px;background:#0f1420;border-radius:0 8px 8px 0;margin:6px 0}
+.fields{font-size:13px;color:var(--dim);margin:4px 0}
+.fields b{color:#c9d3e6;font-weight:600}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.src{font-size:12.5px;color:var(--dim);margin-top:6px}
+.prod a{font-weight:600}
+.hits .chip{border-color:var(--gold);color:var(--gold)}
+.empty{color:var(--dim);padding:30px;text-align:center}
+footer{position:fixed;bottom:0;left:0;right:0;background:#0d1119ee;border-top:1px solid var(--line);padding:8px 20px;font-size:12px;color:var(--dim);text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pain-Point <b>Radar</b></h1>
+  <div class="sub">Echte Probleme aus Unternehmer-Communities — und was andere Leute schon dagegen bauen. Zur Inspiration.</div>
+</header>
+<main>
+  <div class="tabs">
+    <button class="tab on" id="t-pains">🔥 Pain-Points</button>
+    <button class="tab" id="t-prods">🛠️ Was andere bauen</button>
+  </div>
+
+  <div class="bar"><input type="search" id="q" placeholder="Suchen: Problem, Zitat, Nische …" style="width:100%"></div>
+  <div class="bar" id="bar-pains">
+    <select id="f-niche"><option value="">Alle Nischen</option></select>
+    <select id="f-fam"><option value="">Alle Problem-Arten</option></select>
+    <select id="f-wave"><option value="">Holdout + Welle</option><option value="0">Holdout</option><option value="1">Welle N+1</option></select>
+    <label class="chip" style="cursor:pointer;padding:8px 12px"><input type="checkbox" id="f-search"> nur aktiven Lösungssucher</label>
+  </div>
+
+  <div class="bar" id="bar-prods" style="display:none">
+    <select id="f-bucket"><option value="">Alle Felder</option></select>
+    <label class="chip" style="cursor:pointer;padding:8px 12px"><input type="checkbox" id="f-hits"> nur Treffer auf unsere Pain-Seeds</label>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+</main>
+<footer id="foot"></footer>
+<script src="data.js"></script>
+<script>
+const DB = window.PAIN_DB || {pains:[],products:[],stats:{}};
+let mode = 'pains';
+const $ = id => document.getElementById(id);
+const esc = s => (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function fillSelect(sel, values, label){
+  [...new Set(values)].sort().forEach(v => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
+  });
+}
+fillSelect($('f-niche'), DB.pains.map(p=>p.niche));
+fillSelect($('f-fam'), DB.pains.map(p=>p.family));
+{ const bs = new Set(); DB.products.forEach(p=>p.buckets.forEach(b=>bs.add(b)));
+  fillSelect($('f-bucket'), [...bs]); }
+
+function painCard(p){
+  return `<div class="card">
+    <h3>${esc(p.pain)}</h3>
+    <div class="meta">
+      <span class="chip niche">${esc(p.niche)}</span>
+      <span class="chip fam">${esc(p.family)}</span>
+      <span class="chip">${esc(p.type)}</span>
+      ${p.searching ? '<span class="chip searching">🔍 sucht aktiv Lösung</span>' : ''}
+      ${p.wave ? '<span class="chip">Welle N+1</span>' : '<span class="chip">Holdout</span>'}
+    </div>
+    ${p.quote ? `<div class="quote">„${esc(p.quote)}“</div>` : ''}
+    <div class="fields">
+      ${p.actor ? `<div><b>Wer:</b> ${esc(p.actor)}</div>` : ''}
+      ${p.job ? `<div><b>Job:</b> ${esc(p.job)}</div>` : ''}
+      ${p.current_workaround || p.workaround ? `<div><b>Bisheriger Workaround:</b> ${esc(p.workaround)}</div>` : ''}
+    </div>
+    ${p.related && p.related.length ? `<div class="fields" style="margin-top:6px"><b>Andere haben dafür schon gebaut:</b> ${p.related.map(esc).join(' · ')}</div>` : ''}
+    <div class="src">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">r/${esc(p.sub)} · Original-Post ↗</a>` : 'Quelle nicht mehr verfügbar'} · ${esc(p.date)}</div>
+  </div>`;
+}
+
+function prodCard(p){
+  return `<div class="card prod">
+    <h3><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} ↗</a></h3>
+    <div class="fields">${esc(p.tagline)}</div>
+    <div class="meta hits">
+      ${p.buckets.map(b=>`<span class="chip">${esc(b)}</span>`).join('')}
+      ${p.hits.map(h=>`<span class="chip">🎯 Seed: ${esc(h)}</span>`).join('')}
+    </div>
+    <div class="src">${esc(p.source)} · erfasst ${esc(p.date)}</div>
+  </div>`;
+}
+
+function render(){
+  const q = $('q').value.toLowerCase().trim();
+  const list = $('list');
+  $('bar-pains').style.display = mode==='pains' ? 'flex' : 'none';
+  $('bar-prods').style.display = mode==='products' ? 'flex' : 'none';
+  document.querySelectorAll('.bar')[0].style.display = 'flex';
+  let items, html = '';
+  if (mode==='pains'){
+    const n = $('f-niche').value, f = $('f-fam').value, wv = $('f-wave').value, so = $('f-search').checked;
+    items = DB.pains.filter(p =>
+      (!n || p.niche===n) && (!f || p.family===f) &&
+      (wv==='' || Number(p.wave)===Number(wv)) && (!so || p.searching) &&
+      (!q || (p.pain+' '+(p.quote||'')+' '+p.niche+' '+p.family+' '+(p.actor||'')+' '+(p.workaround||'')).toLowerCase().includes(q)));
+    items.sort((a,b)=> (b.searching-a.searching) || (b.wave-a.wave));
+    html = items.map(painCard).join('');
+  } else {
+    const bk = $('f-bucket').value, oh = $('f-hits').checked;
+    items = DB.products.filter(p =>
+      (!bk || p.buckets.includes(bk)) && (!oh || p.hits.length>0) &&
+      (!q || (p.name+' '+(p.tagline||'')+' '+p.buckets.join(' ')+' '+p.hits.join(' ')).toLowerCase().includes(q)));
+    items.sort((a,b)=> (b.hits.length>0)-(a.hits.length>0) || b.date.localeCompare(a.date));
+    html = items.map(prodCard).join('');
+  }
+  $('count').textContent = items.length + (mode==='pains' ? ' Pain-Points gefunden' : ' Produkte gefunden');
+  list.innerHTML = html || '<div class="empty">Nichts gefunden — Filter anpassen.</div>';
+}
+
+$('t-pains').onclick = () => { mode='pains'; $('t-pains').classList.add('on'); $('t-prods').classList.remove('on'); render(); };
+$('t-prods').onclick = () => { mode='products'; $('t-prods').classList.add('on'); $('t-pains').classList.remove('on'); render(); };
+['q','f-niche','f-fam','f-wave','f-search','f-bucket','f-hits'].forEach(id => { $(id).addEventListener('input', render); });
+$('foot').textContent = `${DB.stats.pains||0} Pain-Points · ${DB.stats.products||0} beobachtete Produkte · ${DB.stats.niches||0} Nischen · Stand ${DB.updated||''} · alle Zitate verbatim aus öffentlichen Posts`;
+render();
+</script>
+</body>
+</html>
