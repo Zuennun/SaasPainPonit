@@ -1,22 +1,24 @@
 # Welle N+1 — Report
 
-Stand: 157/718 gescreent (wave_n1.db, €0-Arctic-Shift).
+Stand: 199/718 gescreent (wave_n1.db, €0-Arctic-Shift).
 
 ## Trichter
 
-- FULL-Items: 718 | gescreent OK: 157 | Observations: 72 | strong signals: 37
-- Exact-Cluster: 71 für 72 Observations; Duplikat-Cluster (harte Rekurrenz): 1
+- FULL-Items: 718 | gescreent OK: 199 | Observations: 88 | strong signals: 42
+- Exact-Cluster: 87 für 88 Observations; Duplikat-Cluster (harte Rekurrenz): 1
 
 ## Family-Repetition innerhalb der Welle (>=2 Observations)
 
-- OTHER: 27× + HOLDOUT
-- CUSTOMER_MANAGEMENT: 18× + HOLDOUT
-- PAYMENTS: 6×
+- OTHER: 36× + HOLDOUT
+- CUSTOMER_MANAGEMENT: 20× + HOLDOUT
+- PAYMENTS: 7×
 - PROCUREMENT: 6× + HOLDOUT
 - INTEGRATION: 3× + HOLDOUT
+- WORKFORCE: 3× + HOLDOUT
+- SCHEDULING: 2× + HOLDOUT
 - COMPLIANCE: 2× + HOLDOUT
-- WORKFORCE: 2× + HOLDOUT
 - SEARCH_RETRIEVAL: 2×
+- COMMUNICATION: 2× + HOLDOUT
 
 ## Observations (alle)
 
@@ -92,3 +94,22 @@ Stand: 157/718 gescreent (wave_n1.db, €0-Arctic-Shift).
 - [entrepreneur/OTHER] Most businesses have folders full of testimonials collecting dust
 - [entrepreneur/APPROVAL] When I did hire salepeople every deal, contract, etc. had to run through me.
 - [entrepreneur/OTHER] One question is how you get people to notice it in the first place? SEO isn’t appropriate as it’s more a long term thing. Cold cal
+- [sweatystartup/CUSTOMER_MANAGEMENT] relying on word of mouth and Facebook group posts. That's fine, but it caps out fast.
+- [sweatystartup/OTHER] the problem was by the time i paid their retainer plus the ad spend behind it, a slow month meant those leads barely broke even af
+- [entrepreneur/CUSTOMER_MANAGEMENT] Do I have a normal close rate on completely cold outreach?
+- [entrepreneur/OTHER] But then they are stern on $125, with the retail goal of $330.
+- [entrepreneur/SCHEDULING] But forcing discipline has never worked for me.
+- [entrepreneur/OTHER] I’m trying to determine whether the underlying technical approach is actually worth pursuing before moving toward a more complete 
+- [entrepreneur/OTHER] but the deeper I looked, the harder it became to tell what was actually happening
+- [entrepreneur/OTHER] By the fifth domain it's the same steps I have to do which is tedious.
+- [entrepreneur/OTHER] The agency has done okay, but I’ve started to realize how difficult it is to scale a business that mostly relies on one-off paymen
+- [entrepreneur/OTHER] But I have no experience and no clue about things like marketing, taxes, or whatever else is needed for running a company/business
+- [entrepreneur/OTHER] The difficult part has been everything else:
+
+* Talking to users instead of assuming what they need.
+* Learning about incorporatio
+- [entrepreneur/PAYMENTS] billing exceptions: the small percentage of customers with a custom discount or an unusual contract who ate more support time than
+- [entrepreneur/WORKFORCE] I used Indeed but haven’t received applicants I’m looking for.
+- [entrepreneur/MONITORING] I told myself a story for 8 months instead of checking my numbers and it cost me my entire season.
+- [msp/OTHER] I self-hosted for well over a year and rarely used it due to performance issues.
+- [msp/COMMUNICATION] while we continue to struggle with Pax8 and changes occurring all the time make it even worse.
