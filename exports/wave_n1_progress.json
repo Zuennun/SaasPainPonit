@@ -33,15 +33,15 @@
   "screened_items": 0,
   "observations": 0,
   "next_step": "screen+extract with codex_cli (see wave-n1 goal task)",
-  "last_run_at": "2026-09-23T20:30:37.056992+00:00",
+  "last_run_at": "2026-09-24T07:00:55.025797+00:00",
   "last_provider": "codex_cli",
-  "processed_items": 150,
-  "screened_ok_cumulative": 137,
-  "potential_pain": 63,
-  "valid_observations": 61,
+  "processed_items": 175,
+  "screened_ok_cumulative": 157,
+  "potential_pain": 74,
+  "valid_observations": 72,
   "failures": {
-    "INVALID_STRUCTURED_OUTPUT": 6,
-    "MODEL_UNAVAILABLE": 13
+    "INVALID_STRUCTURED_OUTPUT": 7,
+    "MODEL_UNAVAILABLE": 18
   },
-  "inference_failures": 19
+  "inference_failures": 25
 }

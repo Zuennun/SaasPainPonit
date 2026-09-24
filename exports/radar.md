@@ -1,21 +1,32 @@
 # Opportunity Radar — was andere schon bauen
 
-_Stand 2026-09-23 13:00 UTC · 1173 Produkte gescannt ({'hackernews': 1118, 'producthunt': 55}) · 40 treffen unsere validierten Pain-Seeds_
+_Stand 2026-09-24 07:36 UTC · 1249 Produkte gescannt ({'hackernews': 1173, 'producthunt': 76}) · 42 treffen unsere validierten Pain-Seeds_
 
 ## 🗺️ Aktivitäts-Felder (Produkte pro Bucket, letzte Scans)
 
-- phone-ai: 86
-- property/ho-admin: 54
-- marketing-ads: 27
+- phone-ai: 88
+- property/ho-admin: 55
+- marketing-ads: 28
 - logistics-freight: 25
+- bookkeeping-finance: 16
 - construction: 16
-- bookkeeping-finance: 15
 - sales-crm: 12
 - field-service: 5
 - restaurant-pos: 5
 
 ## 🎯 Treffer auf UNSERE Pain-Seeds (Wettbewerber-Check)
 
+- **Subscrr** (producthunt, 2026-09-24) — seeds: vendor_lockin_exit | buckets: bookkeeping-finance
+  Build a financial plan and ask what to cancel
+           
+           
+             Discussion 
+            |
+             Link
+  https://www.producthunt.com/products/subscrrr
+- **Show HN: Free attestation for AI agent decisions – verifying one costs $0.10** (hackernews, 2026-09-23) — seeds: impersonation_fraud
+  Show HN: Free attestation for AI agent decisions – verifying one costs $0.10 https://github.com/0xsims/rubric-attest
+  https://github.com/0xsims/rubric-attest
 - **Salesforce and Nvidia launch Koa, a CRM reasoning model** (hackernews, 2026-09-16) — seeds: lead_followup_broken, sales_forecast_why | buckets: property/ho-admin, sales-crm
   Salesforce and Nvidia launch Koa, a CRM reasoning model https://www.salesforce.com/news/press-releases/2026/09/15/koa-reasoning-model/?bc=HL
   https://www.salesforce.com/news/press-releases/2026/09/15/koa-reasoning-model/?bc=HL
